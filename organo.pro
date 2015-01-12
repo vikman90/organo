@@ -13,11 +13,21 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    connectiondialog.cpp \
+    optionsdialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    connectiondialog.h \
+    optionsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    connectiondialog.ui \
+    optionsdialog.ui
 
 RESOURCES += \
     resources.qrc
+
+TRANSLATIONS += languages/english.ts \
+    languages/spanish.ts \
+    languages/italian.ts

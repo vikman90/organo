@@ -13,5 +13,10 @@
         <file>icons/save.png</file>
         <file>icons/settings.png</file>
         <file>icons/pause.png</file>
+        <file>languages/italian.qm</file>
+        <file>languages/spanish.qm</file>
+        <file>languages/english.qm</file>
+        <file>icons/langugages.png</file>
+        <file>icons/connection.png</file>
     </qresource>
 </RCC>
