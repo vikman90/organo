@@ -31,3 +31,5 @@ RESOURCES += \
 TRANSLATIONS += languages/english.ts \
     languages/spanish.ts \
     languages/italian.ts
+
+win32-g++: QMAKE_CXXFLAGS += -std=c++11
