@@ -2,11 +2,21 @@
 
 from enum import Enum
 from struct import unpack
-from miditrack import MidiTrack
+from midievent import readEvents
 
-FormatType = Enum('FormatType', ['SingleTrack', 'MultipleSimultaneous', \
-                                     'MultipleIndependent'])
-DivisionType = Enum('DivisionType', ['TicksPerBeat', 'FramesPerSecond'])
+FormatType = Enum('FormatType', ['single_track', 'multiple_simultaneous', \
+                                     'multiple_independent'])
+DivisionType = Enum('DivisionType', ['ticks_per_beat', 'frames_per_second'])
+
+class MidiTrack:
+    def __init__(self, file):
+        chunk = unpack('>4sI', file.read(8))
+
+        if chunk[0] != b'MTrk':
+            raise Exception()
+
+        self.size = chunk[1]
+        self.events = [e for e in readEvents(file)]
 
 class MidiFile:
     def __init__(self, pathname):
@@ -16,23 +26,23 @@ class MidiFile:
         chunk = unpack('>4sIHHH', file.read(14))
 
         if chunk[0] != b'MThd':
-            raise Exception()
+            raise Exception('Invalid MIDI header')
 
         if chunk[1] != 6:
-            raise Exception()
+            raise Exception('Invalid MIDI header size')
 
         if chunk[2] == 0:
-            self.formatType = FormatType.SingleTrack
+            self.formatType = FormatType.single_track
         elif chunk[2] == 1:
-            self.formatType = FormatType.MultipleSimultaneous
+            self.formatType = FormatType.multiple_simultaneous
         elif chunk[2] == 0:
-            self.formatType = FormatType.MultipleIndependent
+            self.formatType = FormatType.multiple_independent
         else:
-            raise Exception()
+            raise Exception('Invalid format type')
 
-        self.divisionType = DivisionType.TicksPerBeat \
+        self.divisionType = DivisionType.ticks_per_beat \
                             if chunk[4] & 0x8000 == 0 \
-                            else DivisionType.FramesPerSecond
+                            else DivisionType.frames_per_second
 
         self.timeDivision = chunk[4] & 0x7FFF
 
