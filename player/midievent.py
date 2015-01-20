@@ -41,57 +41,70 @@ class MetaEventType(Enum):
     set_tempo = 0x51
     smpte_offset = 0x54
     time_signature = 0x58
-    key_signature = 0x58
+    key_signature = 0x59
     sequencer_specific = 0x7F
 
 class MidiEvent:
-    def __init__(self, delta, value, parameters):
+    def __init__(self, delta, value, file):
         self.delta = delta
         self.eventtype = EventType(value & 0xF0)
         self.channel = value & 0x0F
-        self.param1 = parameters[0]
-        self.param2 = parameters[1]
+
+        if self.eventtype == EventType.note_off \
+           or self.eventtype == EventType.note_on:
+            self.note = file.read(1)[0]
+            self.velocity = file.read(1)[0]
+        elif self.eventtype == EventType.note_aftertouch:
+            self.note = file.read(1)[0]
+            self.aftertouch = file.read(1)[0]
+        elif self.eventtype == EventType.controller:
+            self.controller = file.read(1)[0]
+            self.value = file.read(1)[0]
+        elif self.eventtype == EventType.program_change:
+            self.program = file.read(1)[0]
+        elif self.eventtype == EventType.channel_aftertouch:
+            self.aftertouch = file.read(1)[0]
+        else:
+            value = file.read(2)
+            self.pitch = value[0] | (value[1] << 7)         
 
     def __repr__(self):
         return str(self.delta) + ': ' + self.eventtype.name + '@' + \
-               str(self.channel) + ' ' + str(self.param1) + \
-               ' ' + str(self.param2)
+               str(self.channel)
 
 class MetaEvent(MidiEvent):
     def __init__(self, delta, evtype, data):
         self.delta = delta
         self.eventtype = MetaEventType(evtype)
-
-        i = 0
-        length = data[i] & 0x7F
-
-        while data[i] & 0x80:
-            i += 1
-            length = (length << 7) | (data[i] & 0x7F)
-
-        i += 1
-        self.data = data[i:]
+        self.data = data
 
     def __repr__(self):
-        return str(self.delta) + ': ' + self.eventtype.name + str(self.data)
+        return str(self.delta) + ': ' + self.eventtype.name + ' ' + \
+               str(self.data)
 
 def readEvents(file):
+    runningstatus = 0
+    
     while True:
         delta = varlen(file)
         value = file.read(1)[0]
         
         if value < 0xF0:
+            if value < 0x80:
+                value = runningstatus
+                file.seek(file.tell() - 1)
             try:
-                event = MidiEvent(delta, value, file.read(2))
+                event = MidiEvent(delta, value, file)
+                runningstatus = value
                 logging.info(event)
                 yield event
                 
             except ValueError:
-                logging.warning('Invalid event type: ' + str(value & 0x80))
+                logging.warning('Invalid event type: 0x{0:02x}'.format(value & 0xF0))
                 
         elif value == 0xFF:
             try:
-                evtype = file.read(1)
+                evtype = file.read(1)[0]
                 data = file.read(varlen(file))
                 event = MetaEvent(delta, evtype, data)
                 logging.info(event)
@@ -101,12 +114,12 @@ def readEvents(file):
                     break
                 
             except ValueError:
-                logging.warning('Invalid meta-event: ' + str(data[0]))
+                logging.warning('Invalid meta-event: 0x{0:02x}'.format(evtype))
 
         elif value == 0xF0 or value == 0xF7:
             logging.warning('SysEx message discarded')
         else:
-            raise Exception('Invalid event type: ' + str(value))
+            raise Exception('Invalid event type: 0x{0:02x}'.format(value))
 
     raise StopIteration
 
