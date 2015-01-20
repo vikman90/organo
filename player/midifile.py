@@ -1,12 +1,14 @@
 # 18 Enero 2015
 
-from enum import Enum
 from struct import unpack
 from midievent import readEvents
 
-FormatType = Enum('FormatType', ['single_track', 'multiple_simultaneous', \
-                                     'multiple_independent'])
-DivisionType = Enum('DivisionType', ['ticks_per_beat', 'frames_per_second'])
+single_track = 1
+multiple_simultaneous = 2
+multiple_independent = 3
+
+ticks_per_beat = 1
+frames_per_second = 2
 
 class MidiTrack:
     def __init__(self, file):
@@ -32,19 +34,18 @@ class MidiFile:
             raise Exception('Invalid MIDI header size')
 
         if chunk[2] == 0:
-            self.formatType = FormatType.single_track
+            self.formattype = single_track
         elif chunk[2] == 1:
-            self.formatType = FormatType.multiple_simultaneous
+            self.formattype = multiple_simultaneous
         elif chunk[2] == 0:
-            self.formatType = FormatType.multiple_independent
+            self.formattype = multiple_independent
         else:
             raise Exception('Invalid format type')
 
-        self.divisionType = DivisionType.ticks_per_beat \
-                            if chunk[4] & 0x8000 == 0 \
-                            else DivisionType.frames_per_second
+        self.divisiontype = ticks_per_beat if chunk[4] & 0x8000 == 0 \
+                            else frames_per_second
 
-        self.timeDivision = chunk[4] & 0x7FFF
+        self.timedivision = chunk[4] & 0x7FFF
 
         self.tracks = [MidiTrack(file) for i in range(chunk[3])]
 

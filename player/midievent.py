@@ -1,6 +1,5 @@
 # 19 Enero 2015
 
-from enum import Enum
 from struct import unpack
 import logging
 
@@ -16,70 +15,67 @@ def varlen(file):
 
     return value
 
-class EventType(Enum):
-    note_off = 0x80
-    note_on = 0x90
-    note_aftertouch = 0xA0
-    controller = 0xB0
-    program_change = 0xC0
-    channel_aftertouch = 0xD0
-    pitch_bend = 0xE0
+note_off = 0x80
+note_on = 0x90
+note_aftertouch = 0xA0
+controller = 0xB0
+program_change = 0xC0
+channel_aftertouch = 0xD0
+pitch_bend = 0xE0
 
-class MetaEventType(Enum):
-    sequence_number = 0x0
-    text_event = 0x1
-    copyright_notice = 0x2
-    sequence_name = 0x3
-    instrument_name = 0x4
-    lyrics = 0x5
-    marker = 0x6
-    cue_point = 0x7
-    program_name = 0x08
-    device_name = 0x09
-    channel_prefix = 0x20
-    end_of_track = 0x2F
-    set_tempo = 0x51
-    smpte_offset = 0x54
-    time_signature = 0x58
-    key_signature = 0x59
-    sequencer_specific = 0x7F
+sequence_number = 0x0
+text_event = 0x1
+copyright_notice = 0x2
+sequence_name = 0x3
+instrument_name = 0x4
+lyrics = 0x5
+marker = 0x6
+cue_point = 0x7
+program_name = 0x08
+device_name = 0x09
+channel_prefix = 0x20
+end_of_track = 0x2F
+set_tempo = 0x51
+smpte_offset = 0x54
+time_signature = 0x58
+key_signature = 0x59
+sequencer_specific = 0x7F
 
 class MidiEvent:
     def __init__(self, delta, value, file):
         self.delta = delta
-        self.eventtype = EventType(value & 0xF0)
+        self.eventtype = value & 0xF0
         self.channel = value & 0x0F
 
-        if self.eventtype == EventType.note_off \
-           or self.eventtype == EventType.note_on:
+        if self.eventtype == note_off or self.eventtype == note_on:
             self.note = file.read(1)[0]
             self.velocity = file.read(1)[0]
-        elif self.eventtype == EventType.note_aftertouch:
+        elif self.eventtype == note_aftertouch:
             self.note = file.read(1)[0]
             self.aftertouch = file.read(1)[0]
-        elif self.eventtype == EventType.controller:
+        elif self.eventtype == controller:
             self.controller = file.read(1)[0]
             self.value = file.read(1)[0]
-        elif self.eventtype == EventType.program_change:
+        elif self.eventtype == program_change:
             self.program = file.read(1)[0]
-        elif self.eventtype == EventType.channel_aftertouch:
+        elif self.eventtype == channel_aftertouch:
             self.aftertouch = file.read(1)[0]
         else:
             value = file.read(2)
             self.pitch = value[0] | (value[1] << 7)         
 
     def __repr__(self):
-        return str(self.delta) + ': ' + self.eventtype.name + '@' + \
+        return str(self.delta) + ': ' + str(self.eventtype) + '@' + \
                str(self.channel)
 
 class MetaEvent(MidiEvent):
     def __init__(self, delta, evtype, data):
         self.delta = delta
-        self.eventtype = MetaEventType(evtype)
+        self.eventtype = evtype
         self.data = data
 
     def __repr__(self):
-        return str(self.delta) + ': ' + self.eventtype.name + ' ' + \
+        return str(self.delta) + ': ' + str(self.eventtype) + ' ' + \
                str(self.data)
 
 def readEvents(file):
@@ -110,7 +106,7 @@ def readEvents(file):
                 logging.info(event)
                 yield event
 
-                if event.eventtype == MetaEventType.end_of_track:
+                if event.eventtype == end_of_track:
                     break
                 
             except ValueError:
