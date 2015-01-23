@@ -1,11 +1,51 @@
-# 19 Enero 2015
+# 19 January 2015
 
-from struct import unpack
 import logging
 
+# Logging
 logging.basicConfig(level=logging.INFO)
 
+# MIDI events
+
+NOTE_OFF = 0x80
+NOTE_ON = 0x90
+NOTE_AFTERTOUCH = 0xA0
+CONTROLLER = 0xB0
+PROGRAM_CHANGE = 0xC0
+CHANNEL_AFTERTOUCH = 0xD0
+PITCH_BEND = 0xE0
+
+event_types = {NOTE_OFF, NOTE_ON, NOTE_AFTERTOUCH, CONTROLLER, \
+            PROGRAM_CHANGE, CHANNEL_AFTERTOUCH, PITCH_BEND}
+
+# Meta-events
+
+SEQUENCE_NUMBER = 0x0
+TEXT_EVENT = 0x1
+COPYRIGHT_NOTICE = 0x2
+SEQUENCE_NAME = 0x3
+INSTRUMENT_NAME = 0x4
+LYRICS = 0x5
+MARKER = 0x6
+CUE_POINT = 0x7
+PROGRAM_NAME = 0x08
+DEVICE_NAME = 0x09
+CHANNEL_PREFIX = 0x20
+END_OF_TRACK = 0x2F
+SET_TEMPO = 0x51
+SMPTE_OFFSET = 0x54
+TIME_SIGNATURE = 0x58
+KEY_SIGNATURE = 0x59
+SEQUENCER_SPECIFIC = 0x7F
+
+metaevent_types = {SEQUENCE_NUMBER, TEXT_EVENT, COPYRIGHT_NOTICE, \
+                   SEQUENCE_NAME, INSTRUMENT_NAME, LYRICS, MARKER, \
+                   CUE_POINT, PROGRAM_NAME, DEVICE_NAME, CHANNEL_PREFIX,
+                   END_OF_TRACK, SET_TEMPO, SMPTE_OFFSET, TIME_SIGNATURE, \
+                   KEY_SIGNATURE, SEQUENCER_SPECIFIC}
+
 def varlen(file):
+    '''Reads a variable-length value from file'''
     byte = file.read(1)[0]
     value = byte & 0x7F
     
@@ -15,68 +55,111 @@ def varlen(file):
 
     return value
 
-note_off = 0x80
-note_on = 0x90
-note_aftertouch = 0xA0
-controller = 0xB0
-program_change = 0xC0
-channel_aftertouch = 0xD0
-pitch_bend = 0xE0
-
-sequence_number = 0x0
-text_event = 0x1
-copyright_notice = 0x2
-sequence_name = 0x3
-instrument_name = 0x4
-lyrics = 0x5
-marker = 0x6
-cue_point = 0x7
-program_name = 0x08
-device_name = 0x09
-channel_prefix = 0x20
-end_of_track = 0x2F
-set_tempo = 0x51
-smpte_offset = 0x54
-time_signature = 0x58
-key_signature = 0x59
-sequencer_specific = 0x7F
-
 class MidiEvent:
     def __init__(self, delta, value, file):
         self.delta = delta
         self.eventtype = value & 0xF0
         self.channel = value & 0x0F
 
-        if self.eventtype == note_off or self.eventtype == note_on:
-            self.note = file.read(1)[0]
-            self.velocity = file.read(1)[0]
-        elif self.eventtype == note_aftertouch:
-            self.note = file.read(1)[0]
-            self.aftertouch = file.read(1)[0]
-        elif self.eventtype == controller:
-            self.controller = file.read(1)[0]
-            self.value = file.read(1)[0]
-        elif self.eventtype == program_change:
-            self.program = file.read(1)[0]
-        elif self.eventtype == channel_aftertouch:
-            self.aftertouch = file.read(1)[0]
-        else:
-            value = file.read(2)
-            self.pitch = value[0] | (value[1] << 7)         
+        if self.eventtype not in event_types:
+            raise Exception('Invalid event type: 0x{0:02x}'.format(self.eventtype))
+
+        self.param1 = file.read(1)[0]
+
+        if not (self.eventtype == PROGRAM_CHANGE \
+                or self.eventtype == CHANNEL_AFTERTOUCH):
+            self.param2 = file.read(1)[0]
 
     def __repr__(self):
-        return str(self.delta) + ': ' + str(self.eventtype) + '@' + \
-               str(self.channel)
+        string = '{0}: event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
+                                                              self.eventtype, \
+                                                              self.channel, \
+                                                              self.param1)
+
+        if not (self.eventtype == PROGRAM_CHANGE \
+                or self.eventtype == CHANNEL_AFTERTOUCH):
+            return string + ', {0:02x})'.format(self.param2)
+        else:
+            return string + ')'
+
+    def note(self):
+        '''Note number, for NOTE_OFF, NOTE_ON and NOTE_AFTERTOUCH'''
+        return self.param1
+
+    def velocity(self):
+        '''Velocity, for NOTE_OFF and NOTE_ON'''
+        return self.param2
+
+    def aftertouch(self):
+        '''Aftertouch value, for NOTE_AFTERTOUCH and CHANNEL_AFTERTOUCH'''
+        return self.param2 if self.eventtype == NOTE_AFTERTOUCH else self.param1
+
+    def controller():
+        '''Controller number, for CONTROLLER'''
+        return self.param1
+
+    def value():
+        '''Controller value, for CONTROLLER'''
+        return self.param2
+
+    def program():
+        '''Program number, for PROGRAM_CHANGE'''
+        return self.param1
+    def pitch():
+        '''Pitch value, for PITCH_BEND'''
+        return self.param1 | (self.param2 << 7)
 
 class MetaEvent(MidiEvent):
     def __init__(self, delta, evtype, data):
+        if evtype not in metaevent_types:
+            raise Exception('Invalid meta-event: 0x{0:02x}'.format(evtype))
+        
         self.delta = delta
-        self.eventtype = evtype
+        self.eventtype = evtype        
         self.data = data
 
     def __repr__(self):
-        return str(self.delta) + ': ' + str(self.eventtype) + ' ' + \
-               str(self.data)
+        return '{0}: Meta-event {1:02x} ({2})'.format(self.delta, \
+                                                      self.eventtype, \
+                                                      self.data)
+
+    def number(self):
+        '''Sequence number'''
+        return (self.data[0] << 8) | self.data[1]
+
+    def text(self):
+        '''Text for TEXT_EVENT, COPYRIGHT_NOTICE, SEQUENCE_NAME,
+INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME'''
+        return self.data
+
+    def channel(self):
+        '''Channel prefix'''
+        return data[0]
+
+    def tempo(self):
+        '''Tempo in beats per minute'''
+        return (self.data[0] << 16) | (self.data[1] << 8) | self.data[2]
+
+    def offset(self):
+        '''SMPTE offset as tuple (fps, hour, min, sec, fr) '''
+        fps = self.data[0] >> 6
+
+        if fps == 0:
+            fps = 24
+        elif fps == 1:
+            fps = 25
+        else:
+            fps = 30
+
+        return fps, data[0] & 0x3F, data[1], data[2], data[3] + data[4] / 100
+
+    def time(self):
+        '''Time signature'''
+        pass
+
+    def key(self):
+        '''Key signature'''
+        pass
 
 def readEvents(file):
     runningstatus = 0
@@ -95,8 +178,8 @@ def readEvents(file):
                 logging.info(event)
                 yield event
                 
-            except ValueError:
-                logging.warning('Invalid event type: 0x{0:02x}'.format(value & 0xF0))
+            except Exception as e:
+                logging.error(e)
                 
         elif value == 0xFF:
             try:
@@ -106,16 +189,16 @@ def readEvents(file):
                 logging.info(event)
                 yield event
 
-                if event.eventtype == end_of_track:
+                if event.eventtype == END_OF_TRACK:
                     break
                 
-            except ValueError:
-                logging.warning('Invalid meta-event: 0x{0:02x}'.format(evtype))
+            except Exception as e:
+                logging.error(e)
 
         elif value == 0xF0 or value == 0xF7:
             logging.warning('SysEx message discarded')
         else:
-            raise Exception('Invalid event type: 0x{0:02x}'.format(value))
+            logging.error('Invalid event type: 0x{0:02x}'.format(value))
 
     raise StopIteration
 
