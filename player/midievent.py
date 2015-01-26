@@ -2,8 +2,7 @@
 
 import logging
 
-# Logging
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 
 # MIDI events
 
@@ -58,26 +57,26 @@ def varlen(file):
 class MidiEvent:
     def __init__(self, delta, value, file):
         self.delta = delta
-        self.eventtype = value & 0xF0
+        self.type = value & 0xF0
         self.channel = value & 0x0F
 
-        if self.eventtype not in event_types:
-            raise Exception('Invalid event type: 0x{0:02x}'.format(self.eventtype))
+        if self.type not in event_types:
+            raise Exception('Invalid event type: 0x{0:02x}'.format(self.type))
 
         self.param1 = file.read(1)[0]
 
-        if not (self.eventtype == PROGRAM_CHANGE \
-                or self.eventtype == CHANNEL_AFTERTOUCH):
+        if not (self.type == PROGRAM_CHANGE \
+                or self.type == CHANNEL_AFTERTOUCH):
             self.param2 = file.read(1)[0]
 
     def __repr__(self):
         string = '{0}: event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
-                                                              self.eventtype, \
+                                                              self.type, \
                                                               self.channel, \
                                                               self.param1)
 
-        if not (self.eventtype == PROGRAM_CHANGE \
-                or self.eventtype == CHANNEL_AFTERTOUCH):
+        if not (self.type == PROGRAM_CHANGE \
+                or self.type == CHANNEL_AFTERTOUCH):
             return string + ', {0:02x})'.format(self.param2)
         else:
             return string + ')'
@@ -92,7 +91,7 @@ class MidiEvent:
 
     def aftertouch(self):
         '''Aftertouch value, for NOTE_AFTERTOUCH and CHANNEL_AFTERTOUCH'''
-        return self.param2 if self.eventtype == NOTE_AFTERTOUCH else self.param1
+        return self.param2 if self.type == NOTE_AFTERTOUCH else self.param1
 
     def controller():
         '''Controller number, for CONTROLLER'''
@@ -115,12 +114,12 @@ class MetaEvent(MidiEvent):
             raise Exception('Invalid meta-event: 0x{0:02x}'.format(evtype))
         
         self.delta = delta
-        self.eventtype = evtype        
+        self.type = evtype        
         self.data = data
 
     def __repr__(self):
         return '{0}: Meta-event {1:02x} ({2})'.format(self.delta, \
-                                                      self.eventtype, \
+                                                      self.type, \
                                                       self.data)
 
     def number(self):
@@ -137,8 +136,8 @@ INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME'''
         return data[0]
 
     def tempo(self):
-        '''Tempo in beats per minute'''
-        return (self.data[0] << 16) | (self.data[1] << 8) | self.data[2]
+        '''Tempo in seconds per quarter-note'''
+        return ((self.data[0] << 16) | (self.data[1] << 8) | self.data[2]) / 1000000
 
     def offset(self):
         '''SMPTE offset as tuple (fps, hour, min, sec, fr) '''
@@ -154,14 +153,16 @@ INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME'''
         return fps, data[0] & 0x3F, data[1], data[2], data[3] + data[4] / 100
 
     def time(self):
-        '''Time signature'''
-        pass
+        '''Time signature as tuple (numerator, denominator,
+metronome, quantization'''
+        return self.data[0], 2 ** self.data[1], self.data[2], self.data[3]
 
     def key(self):
-        '''Key signature'''
-        pass
+        '''Key signature as tuple (flats, major|minor)'''
+        return self.data[0], self.data[1]
 
-def readEvents(file):
+def parseEvents(file):
+    '''Parse and yield events from a track, until the END_OF_TRACK meta-event'''
     runningstatus = 0
     
     while True:
@@ -189,7 +190,7 @@ def readEvents(file):
                 logging.info(event)
                 yield event
 
-                if event.eventtype == END_OF_TRACK:
+                if event.type == END_OF_TRACK:
                     break
                 
             except Exception as e:
