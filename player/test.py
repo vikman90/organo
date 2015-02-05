@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # 26 January 2015
 
 from midifile import MidiFile
