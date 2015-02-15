@@ -1,66 +1,81 @@
+/* Paleta de colores */
+/* #cebca5; /* Marrón apagado pálido */
+/* #a4917e; /* Marrón apagado claro */
+/* #7e6b5d; /* Marrón apagado medio */
+
 html {
     font-family: sans-serif;
 }
-body {
-    margin: 16px;
-}
 
-/************************************** Header ************************************************************************/
+body {
+    margin: 64px 0 32px 192px;
+}
 
 header, nav, section, footer {
     overflow: hidden;
 }
 
-header {
-    height: 56px;
-    color: #ffffff;
-    background-color: #795548; /* Brown 500 */
+header, nav, footer, header li ul {
+    box-shadow: 0px 0px 5px black;
 }
 
-header img {
-    width: 48px;
-    height: 48px;
-    float: left;
-    margin: 4px 24px;
+/************************************** Header ************************************************************************/
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 64px;
+    color: #ffffff;
+    padding: 0 0 0 200px;
+    background-color: #7e6b5d; /* Marrón apagado medio */
+    z-index: 1;
 }
 
 header ul {
     list-style: none;
-    float: right;
-    margin: 0;
+    position: fixed;
+    margin: 0px 16px 0 0;
     padding: 0;
 }
 
+header > ul {
+    right: 0px;
+}
+
 header li {
-    width: 112px;
-    background-color: #8D6E63; /* Brown 400 */
+    width: 128px;
+    background-color: #a4917e; /* Marrón apagado claro */
 }
 
 header > ul > li {
     float: left;
-    border-left: solid 1px #795548; /* Brown 500 */
+    border-left: solid 1px #7e6b5d; /* Marrón apagado medio */
 }
 
 header li a {
     display: block;
-    height: 24px;
-    padding: 16px 0px;
+    height: 64px;
+    line-height: 64px;
     text-decoration: none;
     color: inherit;
     text-align: center;
 }
 
 header li:hover {
-    background-color: #795548; /* Brown 500 */
+    background-color: #7e6b5d; /* Marrón apagado medio */
 }
 
 header li ul {
     position: absolute;
+    z-index: -1;
 }
 
 header li ul li {
     display: none;
     position: relative;
+    border-top: solid 1px #7e6b5d; /* Marrón apagado medio */
 }
 
 header li:hover ul li {
@@ -68,60 +83,57 @@ header li:hover ul li {
 }
 
 header li ul li a {
-    padding: 8px 0px;
+    height: 32px;
+    line-height: 32px;
 }
 
 header h1 {
     margin: 0;
-    line-height: 56px;
+    line-height: 64px;
+    font-size: 2em;
 }
 
 /************************************** Navigation ********************************************************************/
 
-nav, section {
-    min-height: 600px;
-}
-
-nav, section, footer {
-    margin-top: 8px;
-}
-
 nav {
     width: 192px;
-    float: left;
-    margin-right: 8px;
+    position: fixed;
+    top: 64px;
+    left: 0;
+
+    height: 100%;
+    /*margin-right: 8px; // MARGEN AUTO EN SECTION */
     color: #ffffff;
-    background-color: #A1887F; /* Brown 300 */
+    background-color: #cebca5; /* Marrón apagado pálido */
 }
 
 nav ul {
     list-style: none;
     margin: 0;
     padding: 0;
-
 }
 
 nav li {
-    border-bottom: solid 1px #8D6E63; /* Brown 400 */
+    border-bottom: solid 1px #a4917e; /* Marrón apagado claro */
 }
 
 nav li a {
     display: block;
-    height: 64px;
-    padding-left: 80px;
+    height: 48px;
+    padding-left: 64px;
     text-decoration: none;
     color: inherit;
-    line-height: 64px;
+    line-height: 48px;
 }
 
 nav li:hover, nav li.selected {
-    background-color: #8D6E63; /* Brown 400 */
+    background-color: #a4917e; /* Marrón apagado claro */
 }
 
 #nav-player, #nav-playlists, #nav-remote, #nav-settings {
     background-repeat: no-repeat;
     background-position: 20px 12px;
-    background-size: 40px 40px;
+    background-size: 24px 24px;
 }
 
 #nav-player {
@@ -143,17 +155,24 @@ nav li:hover, nav li.selected {
 /************************************** Section ***********************************************************************/
 
 section {
-    background-color: #EFEBE9; /* Brown 50 */
-    padding: 0px 8px;
+    background-color: gray;
+    margin: auto;
 }
 
 /************************************** Footer ************************************************************************/
 
 footer {
-    height: 56px;
-    color: #ffffff;
-    background-color: #3E2723; /* Brown 900 */
+    height: 32px;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    background-color: #a4917e; /* Marrón apagado claro */
     text-align: center;
+}
+
+footer p {
+    margin: 0;
+    line-height: 32px;
 }
 
 /************************************** Player ************************************************************************/
