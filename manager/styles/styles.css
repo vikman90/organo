@@ -1,0 +1,162 @@
+html {
+    font-family: sans-serif;
+}
+body {
+    margin: 16px;
+}
+
+/************************************** Header ************************************************************************/
+
+header, nav, section, footer {
+    overflow: hidden;
+}
+
+header {
+    height: 56px;
+    color: #ffffff;
+    background-color: #795548; /* Brown 500 */
+}
+
+header img {
+    width: 48px;
+    height: 48px;
+    float: left;
+    margin: 4px 24px;
+}
+
+header ul {
+    list-style: none;
+    float: right;
+    margin: 0;
+    padding: 0;
+}
+
+header li {
+    width: 112px;
+    background-color: #8D6E63; /* Brown 400 */
+}
+
+header > ul > li {
+    float: left;
+    border-left: solid 1px #795548; /* Brown 500 */
+}
+
+header li a {
+    display: block;
+    height: 24px;
+    padding: 16px 0px;
+    text-decoration: none;
+    color: inherit;
+    text-align: center;
+}
+
+header li:hover {
+    background-color: #795548; /* Brown 500 */
+}
+
+header li ul {
+    position: absolute;
+}
+
+header li ul li {
+    display: none;
+    position: relative;
+}
+
+header li:hover ul li {
+    display: block;
+}
+
+header li ul li a {
+    padding: 8px 0px;
+}
+
+header h1 {
+    margin: 0;
+    line-height: 56px;
+}
+
+/************************************** Navigation ********************************************************************/
+
+nav, section {
+    min-height: 600px;
+}
+
+nav, section, footer {
+    margin-top: 8px;
+}
+
+nav {
+    width: 192px;
+    float: left;
+    margin-right: 8px;
+    color: #ffffff;
+    background-color: #A1887F; /* Brown 300 */
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+}
+
+nav li {
+    border-bottom: solid 1px #8D6E63; /* Brown 400 */
+}
+
+nav li a {
+    display: block;
+    height: 64px;
+    padding-left: 80px;
+    text-decoration: none;
+    color: inherit;
+    line-height: 64px;
+}
+
+nav li:hover, nav li.selected {
+    background-color: #8D6E63; /* Brown 400 */
+}
+
+#nav-player, #nav-playlists, #nav-remote, #nav-settings {
+    background-repeat: no-repeat;
+    background-position: 20px 12px;
+    background-size: 40px 40px;
+}
+
+#nav-player {
+    background-image: url(../images/player.png);
+}
+
+#nav-playlists {
+    background-image: url(../images/playlists.png);
+}
+
+#nav-remote {
+    background-image: url(../images/remote.png);
+}
+
+#nav-settings {
+    background-image: url(../images/settings.png);
+}
+
+/************************************** Section ***********************************************************************/
+
+section {
+    background-color: #EFEBE9; /* Brown 50 */
+    padding: 0px 8px;
+}
+
+/************************************** Footer ************************************************************************/
+
+footer {
+    height: 56px;
+    color: #ffffff;
+    background-color: #3E2723; /* Brown 900 */
+    text-align: center;
+}
+
+/************************************** Player ************************************************************************/
+
+/************************************** Playlists ************************************************************************/
+
