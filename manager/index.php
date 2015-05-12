@@ -5,9 +5,14 @@
  * Time: 17:55
  */
 
-require 'lib.php';
-head();
-footer();
+namespace manager;
+require_once 'lib/templates.php';
+
+html_open('player', $tr->strings['title']);
+html_header();
+html_navigation();
+html_footer();
+html_close();
 
 ?>
 

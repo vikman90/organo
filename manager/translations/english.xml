@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<translation code="en" language="English">
+    <string name="title">Organ control</string>
+    <string name="player">Player</string>
+    <string name="playlists">Playlists</string>
+    <string name="remote">Remote</string>
+    <string name="advanced">Advanced</string>
+    <string name="control">Control</string>
+    <string name="shutdown">Shutdown</string>
+    <string name="reboot">Reboot</string>
+    <string name="language">Language</string>
+    <string name="footer">Footer message.</string>
+</translation>
