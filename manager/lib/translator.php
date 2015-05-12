@@ -15,10 +15,10 @@ class Translator {
 
     public function __construct($xml) {
         $this->code = (string)$xml['code'];
-        $this->language = (string)$xml['language'][0];
+        $this->language = (string)$xml['language'];
 
         foreach ($xml as $string)
-            $this->strings[(string)$string['name']] = (string)$string[0];
+            $this->strings[(string)$string['name']] = (string)$string;
     }
 }
 

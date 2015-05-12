@@ -8,4 +8,4 @@
 
 namespace manager;
 
-const DEFAULT_LANGUAGE = 'en';
+const DEFAULT_LANGUAGE = 'es';

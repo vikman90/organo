@@ -8,7 +8,9 @@
 namespace manager;
 require_once 'lib/templates.php';
 
-html_open('player', $tr->strings['title']);
+global $tr;
+
+html_open('player');
 html_header();
 html_navigation();
 html_footer();

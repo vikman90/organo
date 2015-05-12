@@ -10,21 +10,22 @@ namespace manager;
 require_once 'lib/translator.php';
 require_once 'lib/values.php';
 
+global $translators;
+
 session_start();
 $tr = $translators[(isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE)];
 
-function html_open($id, $title) {
+function html_open($id) {
     global $tr;
-    $lang = $tr->code;
 
     echo <<< EOT
 <!DOCTYPE html>
-<html lang="$lang">
+<html lang="$tr->code">
 <meta charset="UTF-8">
-<title>$title</title>
+<title>{$tr->strings['title']}</title>
 <link rel="shortcut icon" href="images/icon.png" type="image/png" />
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
-<body>
+<body id="$id">
 
 EOT;
 }
@@ -87,16 +88,16 @@ function html_navigation() {
 <nav>
     <ul>
         <li class="selected" id="nav-player">
-            <a href="">{$tr->strings['player']}</a>
+            <a href="index.php">{$tr->strings['player']}</a>
         </li>
         <li id="nav-playlists">
-            <a href="">{$tr->strings['playlists']}</a>
+            <a href="playlists.php">{$tr->strings['playlists']}</a>
         </li>
         <li id="nav-remote">
-            <a href="">{$tr->strings['remote']}</a>
+            <a href="remote.php">{$tr->strings['remote']}</a>
         </li>
         <li id="nav-settings">
-            <a href="">{$tr->strings['advanced']}</a>
+            <a href="settings.php">{$tr->strings['settings']}</a>
         </li>
     </ul>
 </nav>
@@ -114,4 +115,33 @@ function html_footer() {
 </footer>
 
 EOT;
+}
+
+function html_error($type) {
+    global $tr;
+    html_open('error');
+    html_header();
+
+    echo <<< EOT
+<section>
+    <h2>{$tr->strings['error']}</h2>
+    <p>{$tr->strings['error_' . $type]}</p>
+</section>
+EOT;
+
+    html_footer();
+    html_close();
+    exit();
+}
+
+function html_redirect($target) {
+    echo <<< EOT
+<!DOCTYPE html>
+<html>
+    <meta http-equiv="refresh" content="0; $target">
+</html>
+
+EOT;
+
+    exit();
 }

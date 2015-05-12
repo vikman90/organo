@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<translation code="es" language="Español">
+    <string name="title">Control del órgano</string>
+    <string name="player">Reproductor</string>
+    <string name="playlists">Listas</string>
+    <string name="remote">Mando</string>
+    <string name="settings">Avanzado</string>
+    <string name="control">Control</string>
+    <string name="shutdown">Apagar</string>
+    <string name="reboot">Reiniciar</string>
+    <string name="language">Idioma</string>
+    <string name="footer">Pie de página.</string>
+    <string name="error">Error</string>
+    <string name="error_args">Error en los argumentos.</string>
+    <string name="error_lang_not_found">Código de lenguaje no encontrado.</string>
+</translation>
