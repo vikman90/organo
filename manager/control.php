@@ -16,6 +16,12 @@ switch ($_GET['action']) {
     case 'language':
         language();
         break;
+    case 'shutdown':
+        shutdown();
+        break;
+    case 'reboot':
+        reboot();
+        break;
     default:
         html_error('args');
 }
@@ -34,4 +40,48 @@ function language() {
     }
 
     html_error('lang_not_found');
+}
+
+function shutdown() {
+    global $tr;
+
+    exec('/usr/bin/sudo /sbin/shutdown now 2>&1', $output, $retval);
+
+    if ($retval == 0) {
+        html_open('shutdown');
+
+        echo <<< EOT
+<section>
+    <h2>{$tr->strings['shutting_down']}</h2>
+</section>
+
+EOT;
+
+
+        html_footer();
+        html_close();
+    } else
+        html_error('shutting_down');
+}
+
+function reboot() {
+    global $tr;
+
+    exec('/usr/bin/sudo /sbin/shutdown -r now 2>&1', $output, $retval);
+
+    if ($retval == 0) {
+        html_open('shutdown');
+
+        echo <<< EOT
+<section>
+    <h2>{$tr->strings['rebooting']}</h2>
+</section>
+
+EOT;
+
+
+        html_footer();
+        html_close();
+    } else
+        html_error('shutting_down');
 }

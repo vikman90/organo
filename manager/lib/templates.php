@@ -49,10 +49,10 @@ function html_header() {
             <a href="" title="{$tr->strings['control']}"></a>
             <ul>
                 <li id="header-shutdown">
-                    <a href="control.php?action=shutdown">{$tr->strings['shutdown']}</a>
+                    <a href="control.php?action=shutdown" onclick="return confirm('{$tr->strings['shutdown_confirm']}')">{$tr->strings['shutdown']}</a>
                 </li>
                 <li id="header-reboot">
-                    <a href="control.php?action=reboot">{$tr->strings['reboot']}</a>
+                    <a href="control.php?action=reboot" onclick="return confirm('{$tr->strings['reboot_confirm']}')">{$tr->strings['reboot']}</a>
                 </li>
             </ul>
         </li>
