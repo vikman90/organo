@@ -8,11 +8,7 @@ html {
 }
 
 body {
-    margin: 56px 0 32px 192px;
-}
-
-header, nav, section, footer {
-    overflow: hidden;
+    margin-top: 56px;
 }
 
 header, nav, footer, header li ul {
@@ -28,20 +24,21 @@ header {
     width: 100%;
     height: 56px;
     color: #ffffff;
-    padding: 0 0 0 200px;
+    padding: 0;
     background-color: #7e6b5d; /* Marrón apagado medio */
     z-index: 1;
 }
 
 header ul {
     list-style: none;
-    position: fixed;
+    position: absolute;
     margin: 0px 16px 0 0;
     padding: 0;
 }
 
 header > ul {
-    right: 0px;
+    right: 0;
+    top: 0;
 }
 
 header li {
@@ -64,9 +61,7 @@ header li a {
 }
 
 header li ul {
-    position: absolute;
     left: 0;
-    z-index: -1;
 }
 
 header li ul li {
@@ -95,9 +90,9 @@ header li ul li a {
 }
 
 header h1 {
-    margin: 0;
+    margin: 0 0 0 200px;
     line-height: 56px;
-    font-size: 2em;
+    font-size: 1.5em;
 }
 
 #header-control {
@@ -173,8 +168,8 @@ nav li:hover, nav li.selected {
 
 /************************************** Section ***********************************************************************/
 
-section {
-    margin: auto;
+nav + section {
+    margin-left: 192px;
 }
 
 /************************************** Footer ************************************************************************/
