@@ -9,7 +9,7 @@
     <string name="shutdown">Shutdown</string>
     <string name="reboot">Reboot</string>
     <string name="language">Language</string>
-    <string name="footer">Footer message.</string>
+    <string name="footer">University of Granada.</string>
     <string name="error">Error</string>
     <string name="error_args">Error at arguments.</string>
     <string name="error_lang_not_found">Language code not found.</string>

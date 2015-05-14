@@ -9,6 +9,8 @@
 namespace manager;
 require_once 'lib/templates.php';
 
+test_auth();
+
 if (!isset($_GET['action']))
     html_error('args');
 
@@ -54,6 +56,8 @@ function shutdown() {
         html_open('shutdown');
 
         echo <<< EOT
+<header>
+</header>
 <section>
     <h2>{$tr->strings['shutting_down']}</h2>
 </section>
@@ -75,6 +79,8 @@ function reboot() {
         html_open('shutdown');
 
         echo <<< EOT
+<header>
+</header>
 <section>
     <h2>{$tr->strings['rebooting']}</h2>
 </section>

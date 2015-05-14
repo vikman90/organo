@@ -9,7 +9,7 @@
     <string name="shutdown">Apagar</string>
     <string name="reboot">Reiniciar</string>
     <string name="language">Idioma</string>
-    <string name="footer">Pie de página.</string>
+    <string name="footer">Universidad de Granada.</string>
     <string name="error">Error</string>
     <string name="error_args">Error en los argumentos.</string>
     <string name="error_lang_not_found">Código de lenguaje no encontrado.</string>

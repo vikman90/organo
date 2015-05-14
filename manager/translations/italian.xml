@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<translation code="it" language="Italiano">
+    <string name="title">Controllo dell'organo</string>
+    <string name="player">Riproduttore</string>
+    <string name="playlists">Elenchi</string>
+    <string name="remote">Telecomando</string>
+    <string name="settings">Impostazioni</string>
+    <string name="control">Controllo</string>
+    <string name="shutdown">Spegnere</string>
+    <string name="reboot">Riavviare</string>
+    <string name="language">Linguaggio</string>
+    <string name="footer">Università di Granada.</string>
+    <string name="error">Errore</string>
+    <string name="error_args">Errore nei argomenti.</string>
+    <string name="error_lang_not_found">Linguaggio non trovato.</string>
+    <string name="shutting_down">Spegnendo...</string>
+    <string name="rebooting">Riavviando...</string>
+    <string name="error_shutting_down">Non è stato possibilie di spegnere il computer.</string>
+    <string name="shutdown_confirm">Sei sicuro di volere spegnere il computer?</string>
+    <string name="reboot_confirm">Sei sicuro di volere riavviare il computer?</string>
+    <string name="login">Accesso</string>
+    <string name="password">Password</string>
+    <string name="enter">Entrare</string>
+    <string name="wrong_password">Il password è sbagliato.</string>
+</translation>
