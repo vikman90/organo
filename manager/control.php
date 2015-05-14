@@ -22,6 +22,9 @@ switch ($_GET['action']) {
     case 'reboot':
         reboot();
         break;
+    case 'login':
+        login();
+        break;
     default:
         html_error('args');
 }
@@ -57,7 +60,6 @@ function shutdown() {
 
 EOT;
 
-
         html_footer();
         html_close();
     } else
@@ -79,9 +81,24 @@ function reboot() {
 
 EOT;
 
-
         html_footer();
         html_close();
     } else
         html_error('shutting_down');
+}
+
+function login() {
+    if (!isset($_POST['password']))
+        html_error('args');
+
+    $user = LINUX_USERNAME;
+    $pass = $_POST['password'];
+
+    exec("/usr/bin/sudo /usr/bin/python3 /home/pi/player/login.py $user $pass", $output, $retval);
+
+    if (!$retval) {
+        set_auth();
+        html_redirect('player.php');
+    } else
+        html_redirect('index.php?error=1');
 }

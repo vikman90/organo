@@ -15,7 +15,11 @@
     <string name="error_lang_not_found">Código de lenguaje no encontrado.</string>
     <string name="shutting_down">Apagando...</string>
     <string name="rebooting">Reiniciando...</string>
-    <string name="error_shutting_down">No se pudo apagar el sistema</string>
+    <string name="error_shutting_down">No se pudo apagar el sistema.</string>
     <string name="shutdown_confirm">¿Está seguro de que quiere apagar el sistema?</string>
     <string name="reboot_confirm">¿Está seguro de que quiere reiniciar el sistema?</string>
+    <string name="login">Acceso</string>
+    <string name="password">Contraseña</string>
+    <string name="enter">Entrar</string>
+    <string name="wrong_password">La contraseña no es correcta.</string>
 </translation>

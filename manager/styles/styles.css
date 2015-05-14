@@ -8,7 +8,7 @@ html {
 }
 
 body {
-    margin-top: 56px;
+    margin: 0;
 }
 
 header, nav, footer, header li ul {
@@ -34,10 +34,10 @@ header ul {
     position: absolute;
     margin: 0px 16px 0 0;
     padding: 0;
+    right: 0;
 }
 
 header > ul {
-    right: 0;
     top: 0;
 }
 
@@ -61,7 +61,7 @@ header li a {
 }
 
 header li ul {
-    left: 0;
+    margin-right: 0;
 }
 
 header li ul li {
@@ -87,12 +87,6 @@ header li ul li a {
     height: 28px;
     line-height: 28px;
     padding-left: 28px;
-}
-
-header h1 {
-    margin: 0 0 0 200px;
-    line-height: 56px;
-    font-size: 1.5em;
 }
 
 #header-control {
@@ -168,8 +162,16 @@ nav li:hover, nav li.selected {
 
 /************************************** Section ***********************************************************************/
 
+section {
+    padding-top: 56px;
+}
+
+section > * {
+    overflow: hidden;
+}
+
 nav + section {
-    margin-left: 192px;
+    padding-left: 192px;
 }
 
 /************************************** Footer ************************************************************************/
@@ -189,7 +191,53 @@ footer p {
     line-height: 32px;
 }
 
+/************************************** Login *************************************************************************/
+
+#login form {
+    background-color: #a4917e; /* Marrón apagado claro */
+    width: 320px;
+    height: 240px;
+    margin: 8px auto 0 auto;
+    padding: 8px;
+    text-align: center;
+}
+
+#login input {
+    width: 256px;
+    height: 24px;
+    margin-bottom: 8px;
+}
+
 /************************************** Player ************************************************************************/
 
-/************************************** Playlists ************************************************************************/
+/************************************** Playlists *********************************************************************/
 
+/************************************** Títulos ***********************************************************************/
+
+h1 {
+    margin: 0 0 0 200px;
+    line-height: 56px;
+    font-size: 1.5em;
+}
+
+h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.5em;
+    border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
+}
+
+/************************************** Botones ***********************************************************************/
+
+input[type="submit"] {
+    background-color: #7e6b5d; /* Marrón apagado medio */
+    border: none;
+    padding: 0;
+    border-radius: 2px;
+    box-shadow: 0 0 5px black;
+    cursor: pointer;
+    outline: none;
+}
+
+input[type="submit"]:active {
+    box-shadow: none;
+}

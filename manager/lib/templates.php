@@ -7,12 +7,12 @@
 
 
 namespace manager;
+require_once 'lib/session.php';
 require_once 'lib/translator.php';
 require_once 'lib/values.php';
 
 global $translators;
 
-session_start();
 $tr = $translators[(isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE)];
 
 function html_open($id) {
@@ -38,13 +38,19 @@ function html_close() {
 EOT;
 }
 
-function html_header() {
+function html_header($full = true) {
     global $tr;
     global $translators;
 
     echo <<< EOT
 <header>
+    <h1>{$tr->strings['title']}</h1>
     <ul>
+
+EOT;
+
+    if ($full)
+        echo <<< EOT
         <li id="header-control">
             <a href="" title="{$tr->strings['control']}"></a>
             <ul>
@@ -56,6 +62,10 @@ function html_header() {
                 </li>
             </ul>
         </li>
+
+EOT;
+
+    echo <<< EOT
         <li id="header-lang">
             <a href="" title="{$tr->strings['language']}"></a>
             <ul>
@@ -74,29 +84,33 @@ EOT;
             </ul>
         </li>
     </ul>
-    <h1>{$tr->strings['title']}</h1>
 </header>
 
 EOT;
 
 }
 
-function html_navigation() {
+function html_navigation($selected = null) {
     global $tr;
+
+    $player = $selected == 'player' ? 'selected' : '';
+    $playlists = $selected == 'playlists' ? 'selected' : '';
+    $remote = $selected == 'remote' ? 'selected' : '';
+    $settings = $selected == 'settings' ? 'selected' : '';
 
     echo <<< EOT
 <nav>
     <ul>
-        <li class="selected" id="nav-player">
-            <a href="index.php">{$tr->strings['player']}</a>
+        <li class="$player" id="nav-player">
+            <a href="player.php">{$tr->strings['player']}</a>
         </li>
-        <li id="nav-playlists">
+        <li class="$playlists" id="nav-playlists">
             <a href="playlists.php">{$tr->strings['playlists']}</a>
         </li>
-        <li id="nav-remote">
+        <li class="$remote" id="nav-remote">
             <a href="remote.php">{$tr->strings['remote']}</a>
         </li>
-        <li id="nav-settings">
+        <li class="$settings" id="nav-settings">
             <a href="settings.php">{$tr->strings['settings']}</a>
         </li>
     </ul>
@@ -109,7 +123,6 @@ function html_footer() {
     global $tr;
 
     echo <<< EOT
-
 <footer>
     <p>{$tr->strings['footer']}</p>
 </footer>

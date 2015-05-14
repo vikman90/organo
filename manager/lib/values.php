@@ -9,3 +9,4 @@
 namespace manager;
 
 const DEFAULT_LANGUAGE = 'es';
+const LINUX_USERNAME = 'pi';

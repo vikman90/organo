@@ -15,7 +15,11 @@
     <string name="error_lang_not_found">Language code not found.</string>
     <string name="shutting_down">Shutting down...</string>
     <string name="rebooting">Rebooting...</string>
-    <string name="error_shutting_down">Couldn't shutdown system</string>
+    <string name="error_shutting_down">Couldn't shutdown system.</string>
     <string name="shutdown_confirm">Are you sure you want to shutdown the system?</string>
     <string name="reboot_confirm">Are you sure you want to reboot the system?</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="enter">Enter</string>
+    <string name="wrong_password">The password was wrong.</string>
 </translation>
