@@ -12,7 +12,7 @@ session_start();
 
 function test_auth() {
     if (!isset($_SESSION['auth']))
-        html_redirect('login.php');
+        html_redirect('index.php');
 }
 
 function set_auth() {

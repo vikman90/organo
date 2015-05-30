@@ -218,6 +218,15 @@ h1 {
     margin: 0 0 0 200px;
     line-height: 56px;
     font-size: 1.5em;
+    max-width: calc(100% - (200px + 8px + 112px + 16px));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+h1 a {
+    color: inherit;
+    text-decoration: none;
 }
 
 h2 {

@@ -44,7 +44,7 @@ function html_header($full = true) {
 
     echo <<< EOT
 <header>
-    <h1>{$tr->strings['title']}</h1>
+    <h1><a href="index.php">{$tr->strings['title']}</a></h1>
     <ul>
 
 EOT;
@@ -122,9 +122,18 @@ EOT;
 function html_footer() {
     global $tr;
 
-    echo <<< EOT
+    /*echo <<< EOT
 <footer>
     <p>{$tr->strings['footer']}</p>
+</footer>
+
+EOT;*/
+
+    $time = (string)(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' s.';
+
+    echo <<< EOT
+<footer>
+    <p>$time</p>
 </footer>
 
 EOT;

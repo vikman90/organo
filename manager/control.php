@@ -9,8 +9,6 @@
 namespace manager;
 require_once 'lib/templates.php';
 
-test_auth();
-
 if (!isset($_GET['action']))
     html_error('args');
 
@@ -50,22 +48,11 @@ function language() {
 function shutdown() {
     global $tr;
 
+    test_auth();
     exec('/usr/bin/sudo /sbin/shutdown now 2>&1', $output, $retval);
 
     if ($retval == 0) {
-        html_open('shutdown');
-
-        echo <<< EOT
-<header>
-</header>
-<section>
-    <h2>{$tr->strings['shutting_down']}</h2>
-</section>
-
-EOT;
-
-        html_footer();
-        html_close();
+        html_redirect('index.php?view=shutdown');
     } else
         html_error('shutting_down');
 }
@@ -73,22 +60,11 @@ EOT;
 function reboot() {
     global $tr;
 
+    test_auth();
     exec('/usr/bin/sudo /sbin/shutdown -r now 2>&1', $output, $retval);
 
     if ($retval == 0) {
-        html_open('shutdown');
-
-        echo <<< EOT
-<header>
-</header>
-<section>
-    <h2>{$tr->strings['rebooting']}</h2>
-</section>
-
-EOT;
-
-        html_footer();
-        html_close();
+        html_redirect('index.php?view=reboot');
     } else
         html_error('shutting_down');
 }
