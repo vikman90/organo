@@ -14,7 +14,7 @@ data = ''
 def unlink():
     try:
         os.remove(SOCK_ADDR)
-    except FileNotFoundError:
+    except OSError:
         if os.path.exists(SOCK_ADDR):
             raise
 
@@ -34,12 +34,12 @@ def communicate():
         with cond:
             cond.notify()
 
-        if data == b'stop':
+        if data == 'stop':
             break
     
     unlink()
 
-if __name__ == '__main__':
+def main():
     thread = threading.Thread(target=communicate)
     cond.acquire()
     thread.start()
@@ -48,13 +48,23 @@ if __name__ == '__main__':
     while True:
         if cond.wait(1.0):
             if data == 'pause':
+                cond.wait()
 
-                while data != 'play':
-                    cond.wait()
+                while True:
+                    if data == 'play':
+                        break
+                    elif data == 'stop':
+                        return
+                    else:
+                        cond.wait()
                     
             elif data == 'stop':
                 break
             
         print(x)
         x += 1
-        
+
+    cond.release()
+
+if __name__ == '__main__':
+    main()
