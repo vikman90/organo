@@ -22,4 +22,10 @@
     <string name="password">Contraseña</string>
     <string name="enter">Entrar</string>
     <string name="wrong_password">La contraseña no es correcta.</string>
+    <string name="rewind">Anterior</string>
+    <string name="play">Reproducir</string>
+    <string name="pause">Pausa</string>
+    <string name="stop">Parar</string>
+    <string name="forward">Siguiente</string>
+    <string name="current_playlist">Lista actual</string>
 </translation>

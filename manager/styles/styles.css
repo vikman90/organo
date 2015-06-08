@@ -12,7 +12,7 @@ body {
 }
 
 header, nav, footer, header li ul {
-    box-shadow: 0px 0px 5px black;
+    box-shadow: 0 0 5px black;
 }
 
 /************************************** Header ************************************************************************/
@@ -209,10 +209,90 @@ footer p {
 }
 
 /************************************** Player ************************************************************************/
+#player-control, #player-playlist {
+    box-shadow: 0 0 5px black;
+    border-radius: 2px;
+    background-color: #cebca5; /* Marrón apagado pálido */
+}
+
+#player-control {
+    width: 320px;
+    margin: 8px auto 0 auto;
+    text-align: center;
+}
+
+.player-button {
+    width: 48px;
+    height: 48px;
+    margin: 0 4px 16px 4px;
+    border: none;
+    border-radius: 50%;
+    background-color: transparent;
+    background-size: 48px 48px;
+    box-shadow: 0 0 5px black;
+    cursor: pointer;
+    outline: none;
+}
+
+.player-button:active {
+    box-shadow: none;
+}
+
+#bt-rewind {
+    background-image: url(../images/rewind.png);
+}
+
+#bt-play {
+    background-image: url(../images/play.png);
+}
+
+#bt-pause {
+    background-image: url(../images/pause.png);
+    display: none;
+}
+
+#bt-stop {
+    background-image: url(../images/stop.png);
+}
+
+#bt-forward {
+    background-image: url(../images/forward.png);
+}
+
+#player-playlist {
+    margin: 8px;
+    padding: 8px;
+}
+
+#player-playlist ul {
+    list-style: none;
+    padding: 0;
+}
+
+#player-playlist li {
+    border-bottom: solid #a4917e 1px; /* Marrón apagado claro */
+    padding-left: 8px;
+    border-radius: 2px;
+}
+
+#player-playlist li a {
+    display: block;
+    height: 32px;
+    line-height: 32px;
+    color: black;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#player-playlist li.selected, #player-playlist li:hover {
+    background-color: #a4917e; /* Marrón apagado claro */
+}
 
 /************************************** Playlists *********************************************************************/
 
-/************************************** Títulos ***********************************************************************/
+/************************************** Titles ***********************************************************************/
 
 h1 {
     margin: 0 0 0 200px;
@@ -232,7 +312,15 @@ h1 a {
 h2 {
     margin: 0 0 8px 0;
     font-size: 1.5em;
-    border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
+    /*border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
+    border-bottom: solid 1px white;
+    color: white;
+}
+
+h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /************************************** Botones ***********************************************************************/

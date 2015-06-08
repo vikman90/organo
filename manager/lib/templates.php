@@ -5,8 +5,8 @@
  * Time: 15:51
  */
 
-
 namespace manager;
+
 require_once 'lib/session.php';
 require_once 'lib/translator.php';
 require_once 'lib/values.php';
