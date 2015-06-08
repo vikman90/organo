@@ -13,7 +13,7 @@ require_once 'lib/values.php';
 
 global $translators;
 
-$tr = $translators[(isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE)];
+$tr = $translators[(isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE)]->strings;
 
 function html_open($id) {
     global $tr;
@@ -22,7 +22,7 @@ function html_open($id) {
 <!DOCTYPE html>
 <html lang="$tr->code">
 <meta charset="UTF-8">
-<title>{$tr->strings['title']}</title>
+<title>{$tr['title']}</title>
 <link rel="shortcut icon" href="images/icon.png" type="image/png" />
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
 <body id="$id">
@@ -44,7 +44,7 @@ function html_header($full = true) {
 
     echo <<< EOT
 <header>
-    <h1><a href="index.php">{$tr->strings['title']}</a></h1>
+    <h1><a href="index.php">{$tr['title']}</a></h1>
     <ul>
 
 EOT;
@@ -52,13 +52,13 @@ EOT;
     if ($full)
         echo <<< EOT
         <li id="header-control">
-            <a href="" title="{$tr->strings['control']}"></a>
+            <a href="" title="{$tr['control']}"></a>
             <ul>
                 <li id="header-shutdown">
-                    <a href="control.php?action=shutdown" onclick="return confirm('{$tr->strings['shutdown_confirm']}')">{$tr->strings['shutdown']}</a>
+                    <a href="control.php?action=shutdown" onclick="return confirm('{$tr['shutdown_confirm']}')">{$tr['shutdown']}</a>
                 </li>
                 <li id="header-reboot">
-                    <a href="control.php?action=reboot" onclick="return confirm('{$tr->strings['reboot_confirm']}')">{$tr->strings['reboot']}</a>
+                    <a href="control.php?action=reboot" onclick="return confirm('{$tr['reboot_confirm']}')">{$tr['reboot']}</a>
                 </li>
             </ul>
         </li>
@@ -67,7 +67,7 @@ EOT;
 
     echo <<< EOT
         <li id="header-lang">
-            <a href="" title="{$tr->strings['language']}"></a>
+            <a href="" title="{$tr['language']}"></a>
             <ul>
 
 EOT;
@@ -102,16 +102,16 @@ function html_navigation($selected = null) {
 <nav>
     <ul>
         <li class="$player" id="nav-player">
-            <a href="player.php">{$tr->strings['player']}</a>
+            <a href="player.php">{$tr['player']}</a>
         </li>
         <li class="$playlists" id="nav-playlists">
-            <a href="playlists.php">{$tr->strings['playlists']}</a>
+            <a href="playlists.php">{$tr['playlists']}</a>
         </li>
         <li class="$remote" id="nav-remote">
-            <a href="remote.php">{$tr->strings['remote']}</a>
+            <a href="remote.php">{$tr['remote']}</a>
         </li>
         <li class="$settings" id="nav-settings">
-            <a href="settings.php">{$tr->strings['settings']}</a>
+            <a href="settings.php">{$tr['settings']}</a>
         </li>
     </ul>
 </nav>
@@ -124,7 +124,7 @@ function html_footer() {
 
     /*echo <<< EOT
 <footer>
-    <p>{$tr->strings['footer']}</p>
+    <p>{$tr['footer']}</p>
 </footer>
 
 EOT;*/
@@ -146,8 +146,8 @@ function html_error($type) {
 
     echo <<< EOT
 <section>
-    <h2>{$tr->strings['error']}</h2>
-    <p>{$tr->strings['error_' . $type]}</p>
+    <h2>{$tr['error']}</h2>
+    <p>{$tr['error_' . $type]}</p>
 </section>
 EOT;
 

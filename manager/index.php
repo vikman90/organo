@@ -7,8 +7,8 @@
  */
 
 namespace manager;
-
 require_once 'lib/templates.php';
+global $tr;
 
 if (isset($_GET['view']) and ($_GET['view'] == 'shutdown' or $_GET['view'] == 'reboot')) {
     html_open('shutdown');
@@ -16,7 +16,7 @@ if (isset($_GET['view']) and ($_GET['view'] == 'shutdown' or $_GET['view'] == 'r
 
     echo <<< EOT
 <section>
-    <h2>{$tr->strings[($_GET['view'] == 'shutdown') ? 'shutting_down' : 'rebooting']}</h2>
+    <h2>{$tr[($_GET['view'] == 'shutdown') ? 'shutting_down' : 'rebooting']}</h2>
 </section>
 
 EOT;
@@ -33,15 +33,15 @@ EOT;
     echo <<< EOT
 <section>
     <form action="control.php?action=login" method="post">
-        <h2>{$tr->strings['login']}</h2>
-        <input type=password required name="password" placeholder="{$tr->strings['password']}">
-        <input type="submit" value="{$tr->strings['enter']}">
+        <h2>{$tr['login']}</h2>
+        <input type=password required name="password" placeholder="{$tr['password']}">
+        <input type="submit" value="{$tr['enter']}">
 
 EOT;
 
     if (isset($_GET['error']))
         echo <<< EOT
-        <p>{$tr->strings['wrong_password']}</p>
+        <p>{$tr['wrong_password']}</p>
 
 EOT;
 
