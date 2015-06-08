@@ -13,14 +13,15 @@ require_once 'lib/values.php';
 
 global $translators;
 
-$tr = $translators[(isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE)]->strings;
+$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE;
+$tr = $translators[$lang]->strings;
 
 function html_open($id) {
-    global $tr;
+    global $tr, $lang;
 
     echo <<< EOT
 <!DOCTYPE html>
-<html lang="$tr->code">
+<html lang="$lang">
 <meta charset="UTF-8">
 <title>{$tr['title']}</title>
 <link rel="shortcut icon" href="images/icon.png" type="image/png" />
