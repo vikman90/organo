@@ -273,10 +273,6 @@ footer p {
     border-bottom: solid #a4917e 1px; /* Marrón apagado claro */
     padding-left: 8px;
     border-radius: 2px;
-}
-
-#player-playlist li a {
-    display: block;
     height: 32px;
     line-height: 32px;
     color: black;
@@ -284,6 +280,7 @@ footer p {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 #player-playlist li.selected, #player-playlist li:hover {
