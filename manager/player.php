@@ -25,11 +25,11 @@ echo <<< EOT
 <section>
     <div id="player-control">
         <h3 id="part-name">Pieza con un nombre extremadamente largo y sin apellidos, Fulgencio Marjangen Op. 34 nº 75</h3>
-        <input type="button" class="player-button" id="bt-rewind" title="{$tr['rewind']}" onclick="rewind()">
+        <input type="button" class="player-button" id="bt-previuos" title="{$tr['previuos']}" onclick="previuos()">
         <input type="button" class="player-button" id="bt-play" title="{$tr['play']}" onclick="play()">
         <input type="button" class="player-button" id="bt-pause" title="{$tr['pause']}" onclick="pause()">
         <input type="button" class="player-button" id="bt-stop" title="{$tr['stop']}" onclick="stop()">
-        <input type="button" class="player-button" id="bt-forward" title="{$tr['forward']}" onclick="forward()">
+        <input type="button" class="player-button" id="bt-next" title="{$tr['next']}" onclick="next()">
     </div>
     <div id="player-playlist">
         <h2>{$tr['current_playlist']}</h2>

@@ -150,6 +150,7 @@ function html_error($type) {
     <h2>{$tr['error']}</h2>
     <p>{$tr['error_' . $type]}</p>
 </section>
+
 EOT;
 
     html_footer();

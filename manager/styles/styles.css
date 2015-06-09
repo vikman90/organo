@@ -227,7 +227,7 @@ footer p {
     margin: 0 4px 16px 4px;
     border: none;
     border-radius: 50%;
-    background-color: transparent;
+    background-color: #a4917e; /* Marrón apagado claro */
     background-size: 48px 48px;
     box-shadow: 0 0 5px black;
     cursor: pointer;
@@ -238,8 +238,8 @@ footer p {
     box-shadow: none;
 }
 
-#bt-rewind {
-    background-image: url(../images/rewind.png);
+#bt-previuos {
+    background-image: url(../images/previuos.png);
 }
 
 #bt-play {
@@ -255,8 +255,8 @@ footer p {
     background-image: url(../images/stop.png);
 }
 
-#bt-forward {
-    background-image: url(../images/forward.png);
+#bt-next {
+    background-image: url(../images/next.png);
 }
 
 #player-playlist {
