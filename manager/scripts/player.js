@@ -37,7 +37,7 @@ function stop() {
 function previuos() {
     var playlist = document.getElementById('current-playlist');
     var selected = null;
-    var title = document.getElementById('part-name');
+    var title = document.getElementById('score-name');
     var btPlay = document.getElementById('bt-play');
     var btPause = document.getElementById('bt-pause');
 
@@ -59,7 +59,7 @@ function previuos() {
 function next() {
     var playlist = document.getElementById('current-playlist');
     var selected = null;
-    var title = document.getElementById('part-name');
+    var title = document.getElementById('score-name');
     var btPlay = document.getElementById('bt-play');
     var btPause = document.getElementById('bt-pause');
 
@@ -80,15 +80,18 @@ function next() {
     btPause.style.display = 'inline';
 }
 
-function select(idpart) {
+function select(selected) {
     var playlist = document.getElementById('current-playlist');
-    var selected = document.getElementById('part-' + idpart);
-    var title = document.getElementById('part-name');
+    var title = document.getElementById('score-name');
     var btPlay = document.getElementById('bt-play');
     var btPause = document.getElementById('bt-pause');
 
-    for (var i = 0; i < playlist.children.length; i++)
-        playlist.children[i].className = '';
+    for (var i = 0; i < playlist.children.length; i++) {
+        if (playlist.children[i].className == 'selected') {
+            playlist.children[i].className = '';
+            break;
+        }
+    }
 
     selected.className = 'selected';
     title.innerHTML = selected.innerHTML;

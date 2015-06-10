@@ -24,7 +24,7 @@ html_navigation('player');
 echo <<< EOT
 <section>
     <div id="player-control">
-        <h3 id="part-name">-</h3>
+        <h3 id="score-name">-</h3>
         <input type="button" class="player-button" id="bt-previuos" title="{$tr['previuos']}" onclick="previuos()">
         <input type="button" class="player-button" id="bt-play" title="{$tr['play']}" onclick="play()">
         <input type="button" class="player-button" id="bt-pause" title="{$tr['pause']}" onclick="pause()">
@@ -34,11 +34,11 @@ echo <<< EOT
     <div id="player-playlist">
         <h2>{$tr['current_playlist']}</h2>
         <ul id="current-playlist">
-            <li id="part-1" onclick="select(1)">Tengo un tractor amarillo, pero soy daltónico</li>
-            <li id="part-2" onclick="select(2)">Pieza con un nombre extremadamente largo y sin apellidos, Fulgencio Marjangen Op. 34 nº 75</li>
-            <li id="part-3" onclick="select(3)">Toccata e fugue</li>
-            <li id="part-4" onclick="select(4)">Marcha fúnebre para homilía</li>
-            <li id="part-5" onclick="select(5)">Hallelujah (la de Alexandra Burke)</li>
+            <li data-idscore="1" onclick="select(this)">Tengo un tractor amarillo, pero soy daltónico</li>
+            <li data-idscore="2" onclick="select(this)">Pieza con un nombre extremadamente largo y sin apellidos, Fulgencio Marjangen Op. 34 nº 75</li>
+            <li data-idscore="3" onclick="select(this)">Toccata e fugue</li>
+            <li data-idscore="4" onclick="select(this)">Marcha fúnebre para homilía</li>
+            <li data-idscore="5" onclick="select(this)">Hallelujah (la de Alexandra Burke)</li>
         </ul>
     </div>
 </section>
