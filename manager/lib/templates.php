@@ -169,3 +169,7 @@ EOT;
 
     exit();
 }
+
+function html_script($src) {
+    echo "<script src=\"scripts/$src\"></script>\n";
+}

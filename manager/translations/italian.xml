@@ -28,4 +28,12 @@
     <string name="stop">Arresto</string>
     <string name="next">Succesivo</string>
     <string name="current_playlist">Elenco attuale</string>
+    <string name="error_database">Error nella base di dati.</string>
+    <string name="add_playlist">Nuovo elenco</string>
+    <string name="playlist_empty">Vuota</string>
+    <string name="score">brano</string>
+    <string name="scores">brani</string>
+    <string name="accept">Accetare</string>
+    <string name="cancel">Cancellare</string>
+    <string name="name">Nome</string>
 </translation>

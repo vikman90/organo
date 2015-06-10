@@ -28,4 +28,12 @@
     <string name="stop">Stop</string>
     <string name="next">Next</string>
     <string name="current_playlist">Current playlist</string>
+    <string name="error_database">Database error.</string>
+    <string name="add_playlist">Add playlist</string>
+    <string name="playlist_empty">Empty</string>
+    <string name="score">score</string>
+    <string name="scores">scores</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
+    <string name="name">Name</string>
 </translation>

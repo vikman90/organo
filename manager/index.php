@@ -32,21 +32,23 @@ EOT;
 
     echo <<< EOT
 <section>
-    <form action="control.php?action=login" method="post">
+    <div>
         <h2>{$tr['login']}</h2>
-        <input type=password required name="password" placeholder="{$tr['password']}">
-        <input type="submit" value="{$tr['enter']}">
+        <form action="control.php?action=login" method="post">
+            <input type=password required name="password" placeholder="{$tr['password']}">
+            <input class="action bt-enter" type="submit" value="{$tr['enter']}">
 
 EOT;
 
     if (isset($_GET['error']))
         echo <<< EOT
-        <p>{$tr['wrong_password']}</p>
+            <p>{$tr['wrong_password']}</p>
 
 EOT;
 
     echo <<< EOT
-    </form>
+        </form>
+    </div>
 </section>
 
 EOT;

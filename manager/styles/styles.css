@@ -174,6 +174,72 @@ nav + section {
     padding-left: 192px;
 }
 
+section > div {
+    box-shadow: 0 0 5px black;
+    border-radius: 2px;
+    background-color: #cebca5; /* Marrón apagado pálido */
+    padding: 8px;
+    margin: 8px 16px 0 16px;
+}
+
+section > div:last-child {
+    margin-bottom: 40px;
+}
+
+section ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 8px 0;
+}
+
+section li {
+    border-bottom: solid #a4917e 1px; /* Marrón apagado claro */
+    border-radius: 2px;
+    height: 32px;
+    line-height: 32px;
+    color: black;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    padding: 0 8px 0 8px;
+}
+
+section li.selected, #player-playlist li:hover {
+    background-color: #a4917e; /* Marrón apagado claro */
+}
+
+section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 8px 0;
+}
+
+section tr {
+    border-bottom: solid #a4917e 1px; /* Marrón apagado claro */
+    cursor: pointer;
+    height: 32px;
+}
+
+section tr:hover td {
+    background-color: #a4917e; /* Marrón apagado claro */
+}
+
+section tr:hover td:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+section tr:hover td:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+section td {
+    padding: 0 8px 0 8px;
+}
+
 /************************************** Footer ************************************************************************/
 
 footer {
@@ -193,31 +259,31 @@ footer p {
 
 /************************************** Login *************************************************************************/
 
-#login form {
-    background-color: #a4917e; /* Marrón apagado claro */
+#login section > div {
     width: 320px;
     height: 240px;
-    margin: 8px auto 0 auto;
-    padding: 8px;
-    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #login input {
-    width: 256px;
-    height: 24px;
-    margin-bottom: 8px;
+    margin: 8px;
+}
+
+#login input[type="password"] {
+    width: 304px;
+}
+
+#login form {
+    text-align: center;
 }
 
 /************************************** Player ************************************************************************/
-#player-control, #player-playlist {
-    box-shadow: 0 0 5px black;
-    border-radius: 2px;
-    background-color: #cebca5; /* Marrón apagado pálido */
-}
 
 #player-control {
     width: 320px;
-    margin: 8px auto 0 auto;
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
 }
 
@@ -228,7 +294,9 @@ footer p {
     border: none;
     border-radius: 50%;
     background-color: #a4917e; /* Marrón apagado claro */
-    background-size: 48px 48px;
+    background-size: 32px 32px;
+    background-position: center;
+    background-repeat: no-repeat;
     box-shadow: 0 0 5px black;
     cursor: pointer;
     outline: none;
@@ -259,35 +327,15 @@ footer p {
     background-image: url(../images/next.png);
 }
 
-#player-playlist {
-    margin: 8px;
-    padding: 8px;
-}
-
-#player-playlist ul {
-    list-style: none;
-    padding: 0;
-}
-
-#player-playlist li {
-    border-bottom: solid #a4917e 1px; /* Marrón apagado claro */
-    padding-left: 8px;
-    border-radius: 2px;
-    height: 32px;
-    line-height: 32px;
-    color: black;
-    text-decoration: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-#player-playlist li.selected, #player-playlist li:hover {
-    background-color: #a4917e; /* Marrón apagado claro */
-}
-
 /************************************** Playlists *********************************************************************/
+
+a.bt-play {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-image: url(../images/play.png);
+    background-size: 24px 24px;
+}
 
 /************************************** Titles ***********************************************************************/
 
@@ -307,11 +355,11 @@ h1 a {
 }
 
 h2 {
-    margin: 0 0 8px 0;
+    margin: 8px 0 8px 0;
+    padding: 0 8px 0 8px;
     font-size: 1.5em;
-    /*border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
-    border-bottom: solid 1px white;
-    color: white;
+    border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
+    color: black;
 }
 
 h3 {
@@ -320,18 +368,100 @@ h3 {
     white-space: nowrap;
 }
 
+/************************************** Modales ***********************************************************************/
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    background: rgba(0,0,0,.5);
+}
+
+.box {
+    position: absolute;
+    width: 320px;
+    height: 240px;
+    top: 50%;
+    left: 50%;
+    margin: -128px auto auto -168px;
+    background-color: #cebca5; /* Marrón apagado pálido */
+    box-shadow: 0 0 5px black;
+    border-radius: 2px;
+    padding: 8px;
+}
+
+.box input {
+    margin: 8px;
+}
+
+.box input[type="text"] {
+    width: 256px;
+}
+
+.toolbar {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+}
+
+.toolbar .action {
+    margin: 0 8px 8px 0;
+}
+
 /************************************** Botones ***********************************************************************/
 
-input[type="submit"] {
-    background-color: #7e6b5d; /* Marrón apagado medio */
+.action {
+    background-color: #a4917e; /* Marrón apagado claro */
     border: none;
-    padding: 0;
+    padding: 0 0 0 28px;
     border-radius: 2px;
     box-shadow: 0 0 5px black;
     cursor: pointer;
     outline: none;
+    height: 24px;
+    width: 96px;
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    background-position: 4px 4px;
+    text-align: left;
 }
 
-input[type="submit"]:active {
+.action:active {
     box-shadow: none;
+}
+
+h2 .action {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #a4917e; /* Marrón apagado claro */
+    background-size: 32px 32px;
+    background-repeat: no-repeat;
+    background-position: center;
+    outline: none;
+    cursor: pointer;
+    border: none;
+    position: absolute;
+    right: 24px;
+    top: 84px; /* 56 + 8 + 8 + 8 + 28 - 24 */
+}
+
+.bt-add {
+    background-image: url(../images/add.png);
+}
+
+.bt-ok {
+    background-image: url(../images/ok.png);
+}
+
+.bt-cancel {
+    background-image: url(../images/cancel.png);
+}
+
+.bt-enter {
+    background-image: url(../images/enter.png);
 }

@@ -12,12 +12,7 @@ global $tr;
 
 test_auth();
 html_open('player');
-
-echo <<< EOT
-<script src="scripts/player.js"></script>
-
-EOT;
-
+html_script('player.js');
 html_header();
 html_navigation('player');
 

@@ -7,7 +7,7 @@
  */
 
 namespace manager;
-require_once 'lib/templates.php';
+require_once 'lib/database.php';
 
 if (!isset($_GET['action']))
     html_error('args');
@@ -24,6 +24,9 @@ switch ($_GET['action']) {
         break;
     case 'login':
         login();
+        break;
+    case 'new_playlist':
+        new_playlist();
         break;
     default:
         html_error('args');
@@ -83,4 +86,12 @@ function login() {
         html_redirect('player.php');
     } else
         html_redirect('index.php?error=1');
+}
+
+function new_playlist() {
+    if (!isset($_POST['name']))
+        html_error('args');
+
+    db_insert_playlist($_POST['name']);
+    html_redirect('playlists.php');
 }
