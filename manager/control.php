@@ -41,7 +41,7 @@ function language() {
     foreach ($translators as $t) {
         if ($t->code == $_GET['code']) {
             $_SESSION['lang'] = $t->code;
-            html_redirect('index.php');
+            html_redirect(last_page());
         }
     }
 

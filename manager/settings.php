@@ -12,9 +12,20 @@ require_once 'lib/templates.php';
 global $tr;
 
 test_auth();
+set_page('settings.php');
 
 html_open('settings');
 html_header();
 html_navigation('settings');
+
+echo <<< EOT
+<section>
+    <div>
+        <h2>{$tr['settings']}</h2>
+    </div>
+</section>
+
+EOT;
+
 html_footer();
 html_close();

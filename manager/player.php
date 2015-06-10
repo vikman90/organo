@@ -11,6 +11,8 @@ require_once 'lib/templates.php';
 global $tr;
 
 test_auth();
+set_page('player.php');
+
 html_open('player');
 html_script('player.js');
 html_header();

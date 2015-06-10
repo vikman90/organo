@@ -13,6 +13,7 @@ require_once 'lib/database.php';
 global $tr;
 
 test_auth();
+set_page('playlists.php');
 
 html_open('playlists');
 html_script('playlists.js');
@@ -56,7 +57,7 @@ echo <<< EOT
         <div class="box" onclick="event.stopPropagation()">
             <h2>{$tr['add_playlist']}</h2>
             <form action="control.php?action=new_playlist" method="post">
-                <input id="dialog-name" type="text" name="name" placeholder="{$tr['name']}" required>
+                <input id="dialog-name" type="text" name="name" placeholder="{$tr['name']}" maxlength="255" required>
                 <div class="toolbar">
                     <input class="action bt-ok" type="submit" value="{$tr['accept']}">
                     <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeDialog()">

@@ -18,3 +18,14 @@ function test_auth() {
 function set_auth() {
     $_SESSION['auth'] = 1;
 }
+
+function set_page($file) {
+    $_SESSION['last'] = $file;
+}
+
+function last_page() {
+    if (isset($_SESSION['last']))
+        return $_SESSION['last'];
+    else
+        return 'index.php';
+}
