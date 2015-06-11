@@ -83,6 +83,11 @@ header li li:hover {
     background-color: #7e6b5d; /* Marrón apagado medio */
 }
 
+header li li:last-child, header li ul {
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
 header li ul li a {
     height: 28px;
     line-height: 28px;
