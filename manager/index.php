@@ -28,6 +28,7 @@ EOT;
         html_redirect('player.php');
 
     html_open('login');
+    html_script('index.js');
     html_header(false);
 
     echo <<< EOT
@@ -37,6 +38,7 @@ EOT;
         <form action="control.php?action=login" method="post">
             <input type=password required name="password" placeholder="{$tr['password']}">
             <input class="action bt-enter" type="submit" value="{$tr['enter']}">
+        </form>
 
 EOT;
 
@@ -47,7 +49,6 @@ EOT;
 EOT;
 
     echo <<< EOT
-        </form>
     </div>
 </section>
 

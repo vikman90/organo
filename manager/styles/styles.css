@@ -267,8 +267,9 @@ footer p {
 #login section > div {
     width: 320px;
     height: 240px;
-    margin-left: auto;
-    margin-right: auto;
+    position: absolute;
+    top: 56px;
+    right: 0px;
 }
 
 #login input {
@@ -281,6 +282,15 @@ footer p {
 
 #login form {
     text-align: center;
+}
+
+#login {
+    height: 100%;
+    background-image: url(../images/background-1.jpg);
+    background-color: #cebca5; /* Marrón apagado pálido */
+    background-size: auto 100%;
+    background-position-x: center;
+    background-repeat: no-repeat;
 }
 
 /************************************** Player ************************************************************************/

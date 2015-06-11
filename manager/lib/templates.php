@@ -21,12 +21,12 @@ function html_open($id) {
 
     echo <<< EOT
 <!DOCTYPE html>
-<html lang="$lang">
+<html id="$id" lang="$lang">
 <meta charset="UTF-8">
 <title>{$tr['title']}</title>
 <link rel="shortcut icon" href="images/icon.png" type="image/png" />
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
-<body id="$id">
+<body>
 
 EOT;
 }
