@@ -36,4 +36,7 @@
     <string name="accept">Accetare</string>
     <string name="cancel">Cancellare</string>
     <string name="name">Nome</string>
+    <string name="add_score">Nuovo brano</string>
+    <string name="error_file_type">Tipo di file non accetato.</string>
+    <string name="error_file_size">File troppo lungo.</string>
 </translation>

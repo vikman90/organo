@@ -7,7 +7,6 @@
  */
 
 namespace manager;
-require_once 'lib/templates.php';
 require_once 'lib/database.php';
 
 global $tr;

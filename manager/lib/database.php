@@ -36,3 +36,46 @@ function db_insert_playlist($name) {
     $stmt->bind_param('s', $name);
     $stmt->execute();
 }
+
+function db_get_playlist($idplaylist) {
+    global $db;
+
+    $sql = "SELECT name FROM playlist WHERE idplaylist = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('i', $idplaylist);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_row();
+
+    if (!$row)
+        return null;
+
+    $name = $row[0];
+    $sql = "SELECT idscore, source, name FROM score WHERE playlist = ? ORDER BY sorting";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('i', $idplaylist);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $scores = [];
+
+    while ($row = $result->fetch_row())
+        $scores[] = ['id' => $row[0], 'source' => $row[1], 'name' => $row[2]];
+
+    return ['id' => $idplaylist, 'name' => $name, 'scores' => $scores];
+}
+
+function db_insert_score($idplaylist, $name) {
+    global $db;
+
+    $sql = "INSERT INTO score (playlist, name) VALUES (?, ?)";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('is', $idplaylist, $name);
+    $stmt->execute();
+    $idscore = $stmt->insert_id;
+    $source = $idscore . '.mid';
+    $sql = "UPDATE score SET sorting = idscore, source = ? WHERE idscore = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('si', $source, $idscore);
+    $stmt->execute();
+
+    return ['id' => $idscore, 'playlist' => $idplaylist, 'source' => $source, 'name' => $name];
+}

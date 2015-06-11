@@ -191,6 +191,10 @@ section > div:last-child {
     margin-bottom: 40px;
 }
 
+section > div.dragging {
+    background-color: lightgray;
+}
+
 section ul {
     list-style: none;
     padding: 0;
@@ -479,4 +483,8 @@ h2 .action {
 
 .bt-enter {
     background-image: url(../images/enter.png);
+}
+
+input[type="file"] {
+    display: none;
 }

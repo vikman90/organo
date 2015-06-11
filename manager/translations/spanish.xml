@@ -36,4 +36,7 @@
     <string name="accept">Acceptar</string>
     <string name="cancel">Cancelar</string>
     <string name="name">Nombre</string>
+    <string name="add_score">Nueva pieza</string>
+    <string name="error_file_type">Tipo de archivo no aceptado.</string>
+    <string name="error_file_size">El archivo es demasiado grande.</string>
 </translation>

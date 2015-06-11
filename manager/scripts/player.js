@@ -5,16 +5,22 @@
 function play() {
     var btPlay = document.getElementById('bt-play');
     var btPause = document.getElementById('bt-pause');
+    var title = document.getElementById('score-name');
+    var playlist = document.getElementById('current-playlist');
     var selected = null;
 
     for (var i = 0; i < playlist.children.length; i++) {
         if (playlist.children[i].className == 'selected') {
-            playlist.children[i].className = '';
-            selected = playlist.children[(i + 1) % playlist.children.length];
+            selected = playlist.children[i];
             break;
         }
     }
 
+    if (selected === null)
+        selected = playlist.firstElementChild;
+
+    selected.className = 'selected';
+    title.innerHTML = selected.innerHTML;
     btPlay.style.display = 'none';
     btPause.style.display = 'inline';
 }

@@ -25,8 +25,13 @@ switch ($_GET['action']) {
     case 'login':
         login();
         break;
+    case 'play':
+        play();
     case 'new_playlist':
         new_playlist();
+        break;
+    case 'new_score':
+        new_score();
         break;
     default:
         html_error('args');
@@ -88,10 +93,38 @@ function login() {
         html_redirect('index.php?error=1');
 }
 
+function play() {
+    html_redirect('player.php');
+}
+
 function new_playlist() {
     if (!isset($_POST['name']))
         html_error('args');
 
     db_insert_playlist($_POST['name']);
     html_redirect('playlists.php');
+}
+
+function new_score() {
+    if (!isset($_POST['idplaylist']))
+        html_error('args');
+    
+    if (!isset($_FILES['score']))
+        html_error('file_type');
+
+    $file = $_FILES['score'];
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+
+    if (!db_get_playlist($_POST['idplaylist']))
+        html_error('args');
+
+    if (!($ext == 'mid' or $ext == 'midi'))
+        html_error('file_type');
+
+    if ($file['size'] > FILE_MAXSIZE)
+        html_error('file_size');
+
+    $score = db_insert_score($_POST['idplaylist'], $file['name']);
+    move_uploaded_file($file['tmp_name'], FILE_DIR . '/' . $score['source']);
+    html_redirect("playlist.php?idplaylist={$_POST['idplaylist']}");
 }
