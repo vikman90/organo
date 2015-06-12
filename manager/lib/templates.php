@@ -52,8 +52,11 @@ EOT;
 
     if ($full)
         echo <<< EOT
+        <li id="header-logout">
+            <a href="control.php?action=logout" title="{$tr['logout']}"></a>
+        </li>
         <li id="header-control">
-            <a href="" title="{$tr['control']}"></a>
+            <a href="index.php" title="{$tr['control']}"></a>
             <ul>
                 <li id="header-shutdown">
                     <a href="control.php?action=shutdown" onclick="return confirm('{$tr['shutdown_confirm']}')">{$tr['shutdown']}</a>
@@ -130,11 +133,11 @@ function html_footer() {
 
 EOT;*/
 
-    $time = (string)(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) . ' s.';
+    $time = round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3);
 
     echo <<< EOT
 <footer>
-    <p>$time</p>
+    <p>Página generada en $time s.</p>
 </footer>
 
 EOT;

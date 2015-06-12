@@ -13,6 +13,9 @@ if (!isset($_GET['action']))
     html_error('args');
 
 switch ($_GET['action']) {
+    case 'logout':
+        logout();
+        break;
     case 'language':
         language();
         break;
@@ -41,6 +44,11 @@ switch ($_GET['action']) {
         break;
     default:
         html_error('args');
+}
+
+function logout() {
+    unset_auth();
+    html_redirect('index.php');
 }
 
 function language() {

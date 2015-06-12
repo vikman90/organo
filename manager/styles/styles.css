@@ -52,6 +52,10 @@ header > ul > li {
     float: left;
 }
 
+header > ul > li:hover {
+    background-color: #a4917e; /* Marrón apagado claro */
+}
+
 header li a {
     display: block;
     height: 56px;
@@ -92,6 +96,10 @@ header li ul li a {
     height: 28px;
     line-height: 28px;
     padding-left: 28px;
+}
+
+#header-logout {
+    background-image: url(../images/exit.png);
 }
 
 #header-control {

@@ -45,4 +45,5 @@
     <string name="rename_playlist">Renombrar lista</string>
     <string name="delete_playlist">Eliminar lista</string>
     <string name="confirm_delete_playlist">¿Está seguro? Cualquier pieza incluida en la lista será también eliminada.</string>
+    <string name="logout">Salir</string>
 </translation>
