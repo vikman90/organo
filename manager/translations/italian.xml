@@ -46,4 +46,7 @@
     <string name="delete_playlist">Cancellare playlist</string>
     <string name="confirm_delete_playlist">È sicuro? Ogni brano incluso nella playlist verrà anche eliminato.</string>
     <string name="logout">Uscire</string>
+    <string name="rename_score">Rinominare brano</string>
+    <string name="delete_score">Cancellare brano</string>
+    <string name="confirm_delete_score">É sicuro?</string>
 </translation>

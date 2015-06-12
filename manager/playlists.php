@@ -40,7 +40,7 @@ foreach (db_get_playlists() as $playlist) {
 
     echo <<< EOT
             <tr data-idplaylist="{$playlist['id']}" onclick="list(this)">
-                <td><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}" title="{$tr['play']}"></a></td>
+                <td class="icon"><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}" title="{$tr['play']}"></a></td>
                 <td><strong>{$playlist['name']}</strong></td>
                 <td>$scores</td>
             </tr>

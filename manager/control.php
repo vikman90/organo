@@ -42,6 +42,12 @@ switch ($_GET['action']) {
     case 'new_score':
         new_score();
         break;
+    case 'rename_score':
+        rename_score();
+        break;
+    case 'delete_score':
+        delete_score();
+        break;
     default:
         html_error('args');
 }
@@ -170,4 +176,29 @@ function new_score() {
     $score = db_insert_score($_POST['idplaylist'], $file['name']);
     move_uploaded_file($file['tmp_name'], SCORE_DIR . '/' . $score['source']);
     html_redirect("playlist.php?idplaylist={$_POST['idplaylist']}");
+}
+
+function rename_score() {
+    if (!(isset($_POST['name']) and isset($_POST['idscore'])))
+        html_error('args');
+
+    if (!db_get_score($_POST['idscore']))
+        html_error('args');
+
+    db_rename_score($_POST['idscore'], $_POST['name']);
+    html_redirect(last_page());
+}
+
+function delete_score() {
+    if (!isset($_POST['idscore']))
+        html_error('args');
+
+    $score = db_get_score($_POST['idscore']);
+
+    if (!$score)
+        html_error('args');
+
+    unlink(SCORE_DIR . '/' . $score['source']);
+    db_delete_score($score['id']);
+    html_redirect(last_page());
 }

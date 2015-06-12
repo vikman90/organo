@@ -46,4 +46,7 @@
     <string name="delete_playlist">Delete playlist</string>
     <string name="confirm_delete_playlist">Are you sure? Every score included in the playlist will be also deleted.</string>
     <string name="logout">Logout</string>
+    <string name="rename_score">Rename score</string>
+    <string name="delete_score">Delete score</string>
+    <string name="confirm_delete_score">Are you sure?</string>
 </translation>

@@ -100,6 +100,26 @@ function db_insert_score($idplaylist, $name) {
     return ['id' => $idscore, 'playlist' => $idplaylist, 'source' => $source, 'name' => $name];
 }
 
+function db_get_score($idscore) {
+    global $db;
+
+    $sql = "SELECT source, name FROM score WHERE idscore = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('i', $idscore);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_row();
+    return $row ? ['id' => $idscore, 'source' => $row[0], 'name' => $row[1]] : null;
+}
+
+function db_rename_score($idscore, $name) {
+    global $db;
+
+    $sql = "UPDATE score SET name = ? WHERE idscore = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('si', $name, $idscore);
+    $stmt->execute();
+}
+
 function db_delete_score($idscore) {
     global $db;
 

@@ -52,8 +52,10 @@ foreach ($playlist['scores'] as $score) {
 
     echo <<< EOT
             <tr data-idscore="{$score['id']}" onclick="show(this)">
-                <td><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}&idscore={$score['id']}" title="{$tr['play']}"></a></td>
+                <td class="icon"><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}&idscore={$score['id']}" title="{$tr['play']}"></a></td>
                 <td>$name</td>
+                <td class="icon"><a class="bt-rename" href="javascript: renameScore({$score['id']}, '$name')"></a></td>
+                <td class="icon"><a class="bt-delete" href="javascript: deleteScore({$score['id']})"></td></td>
             </tr>
 EOT;
 }
@@ -82,6 +84,32 @@ echo <<< EOT
         <form action="control.php?action=delete_playlist" method="post">
             <input id="input-idplaylist" type="hidden" name="idplaylist" value="{$playlist['id']}">
             <p>{$tr['confirm_delete_playlist']}</p>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal" id="dialog-rename-score" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['rename_score']}</h2>
+        <form action="control.php?action=rename_score" method="post">
+            <input id="input-rename-idscore" type="hidden" name="idscore">
+            <input id="input-scorename" type="text" name="name" placeholder="{$tr['name']}" maxlength="255" required>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal" id="dialog-delete-score" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['delete_score']}</h2>
+        <form action="control.php?action=delete_score" method="post">
+            <input id="input-delete-idscore" type="hidden" name="idscore">
+            <p>{$tr['confirm_delete_score']}</p>
             <div class="toolbar">
                 <input class="action bt-ok" type="submit" value="{$tr['accept']}">
                 <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">

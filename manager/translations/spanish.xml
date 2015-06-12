@@ -46,4 +46,7 @@
     <string name="delete_playlist">Eliminar lista</string>
     <string name="confirm_delete_playlist">¿Está seguro? Cualquier pieza incluida en la lista será también eliminada.</string>
     <string name="logout">Salir</string>
+    <string name="rename_score">Renombrar pieza</string>
+    <string name="delete_score">Eliminar pieza</string>
+    <string name="confirm_delete_score">¿Está seguro?</string>
 </translation>

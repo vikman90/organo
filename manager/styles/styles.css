@@ -261,7 +261,7 @@ section td {
     max-width: 64px; /* WTF */
 }
 
-section td:first-child {
+section td.icon {
     width: 32px;
 }
 
@@ -368,11 +368,10 @@ footer p {
 
 /************************************** Playlists *********************************************************************/
 
-a.bt-play {
+#playlists table a {
     display: block;
     width: 24px;
     height: 24px;
-    background-image: url(../images/play.png);
     background-size: 24px 24px;
 }
 
@@ -521,6 +520,10 @@ h2 .action {
 
 .bt-delete {
     background-image: url(../images/delete.png);
+}
+
+.bt-play {
+    background-image: url(../images/play.png);
 }
 
 input[type="file"] {

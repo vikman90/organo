@@ -52,6 +52,22 @@ function deletePlaylist() {
     dialog.style.display = 'block';
 }
 
+function renameScore(id, name) {
+    var dialog = document.getElementById('dialog-rename-score');
+    var idscore = document.getElementById('input-rename-idscore');
+    var scorename = document.getElementById('input-scorename');
+    idscore.value = id;
+    scorename.value = name;
+    dialog.style.display = 'block';
+}
+
+function deleteScore(id) {
+    var dialog = document.getElementById('dialog-delete-score');
+    var idscore = document.getElementById('input-delete-idscore');
+    idscore.value = id;
+    dialog.style.display = 'block';
+}
+
 function closeModal() {
     var dialogs = document.getElementsByClassName('modal');
 
