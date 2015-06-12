@@ -329,7 +329,7 @@ footer p {
 .player-button {
     width: 48px;
     height: 48px;
-    margin: 0 4px 16px 4px;
+    margin: 16px 4px 8px 4px;
     border: none;
     border-radius: 50%;
     background-color: #a4917e; /* Marrón apagado claro */
@@ -405,6 +405,8 @@ h2 {
 }
 
 h3 {
+    margin: 8px 0 8px 0;
+    padding: 0 8px 0 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -463,7 +465,7 @@ h3 {
 .action {
     background-color: #a4917e; /* Marrón apagado claro */
     border: none;
-    padding: 0 0 0 28px;
+    padding: 0 0 0 32px;
     border-radius: 2px;
     box-shadow: 0 0 5px black;
     cursor: pointer;
@@ -472,8 +474,9 @@ h3 {
     width: 96px;
     background-size: 16px 16px;
     background-repeat: no-repeat;
-    background-position: 4px 4px;
+    background-position:8px 4px;
     text-align: left;
+    color: white;
 }
 
 .action:active {

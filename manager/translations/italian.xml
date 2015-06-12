@@ -34,16 +34,16 @@
     <string name="score">brano</string>
     <string name="scores">brani</string>
     <string name="accept">Accetare</string>
-    <string name="cancel">Cancellare</string>
+    <string name="cancel">Chiudere</string>
     <string name="name">Nome</string>
     <string name="add_score">Nuovo brano</string>
     <string name="error_file_type">Tipo di file non accetato.</string>
     <string name="error_file_size">File troppo lungo.</string>
-    <string name="tip_dragdrop">Si può fare drag &amp; drop.</string>
-    <string name="rename">Rinominare</string>
-    <string name="delete">Rimuovere</string>
+    <string name="tip_dragdrop">Si può caricare nuovi brani con drag &amp; drop.</string>
+    <string name="rename">Modifica</string>
+    <string name="delete">Cancella</string>
     <string name="rename_playlist">Rinominare playlist</string>
-    <string name="delete_playlist">Delete playlist</string>
+    <string name="delete_playlist">Cancellare playlist</string>
     <string name="confirm_delete_playlist">È sicuro? Ogni brano incluso nella playlist verrà anche eliminato.</string>
     <string name="logout">Uscire</string>
 </translation>

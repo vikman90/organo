@@ -39,8 +39,8 @@
     <string name="add_score">Nueva pieza</string>
     <string name="error_file_type">Tipo de archivo no aceptado.</string>
     <string name="error_file_size">El archivo es demasiado grande.</string>
-    <string name="tip_dragdrop">Puede arrastrar y soltar.</string>
-    <string name="rename">Renombrar</string>
+    <string name="tip_dragdrop">Puede arrastrar y soltar nuevos archivos.</string>
+    <string name="rename">Editar</string>
     <string name="delete">Eliminar</string>
     <string name="rename_playlist">Renombrar lista</string>
     <string name="delete_playlist">Eliminar lista</string>
