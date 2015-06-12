@@ -39,4 +39,10 @@
     <string name="add_score">Add score</string>
     <string name="error_file_type">File type not accepted.</string>
     <string name="error_file_size">The file is too big.</string>
+    <string name="tip_dragdrop">You can also do drag &amp; drop.</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Remove</string>
+    <string name="rename_playlist">Rename playlist</string>
+    <string name="delete_playlist">Delete playlist</string>
+    <string name="confirm_delete_playlist">Are you sure? Every score included in the playlist will be also deleted.</string>
 </translation>

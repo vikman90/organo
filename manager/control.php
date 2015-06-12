@@ -30,6 +30,12 @@ switch ($_GET['action']) {
     case 'new_playlist':
         new_playlist();
         break;
+    case 'rename_playlist':
+        rename_playlist();
+        break;
+    case 'delete_playlist':
+        delete_playlist();
+        break;
     case 'new_score':
         new_score();
         break;
@@ -105,6 +111,35 @@ function new_playlist() {
     html_redirect('playlists.php');
 }
 
+function rename_playlist() {
+    if (!(isset($_POST['name']) and isset($_POST['idplaylist'])))
+        html_error('args');
+
+    if (!db_get_playlist($_POST['idplaylist']))
+        html_error('args');
+
+    db_rename_playlist($_POST['idplaylist'], $_POST['name']);
+    html_redirect('playlist.php?idplaylist=' . $_POST['idplaylist']);
+}
+
+function delete_playlist() {
+    if (!isset($_POST['idplaylist']))
+        html_error('args');
+
+    $playlist = db_get_playlist($_POST['idplaylist']);
+
+    if (!$playlist)
+        html_error('args');
+
+    foreach ($playlist['scores'] as $score) {
+        db_delete_score($score['id']);
+        unlink(SCORE_DIR . '/' . $score['source']);
+    }
+
+    db_delete_playlist($playlist['id']);
+    html_redirect('playlists.php');
+}
+
 function new_score() {
     if (!isset($_POST['idplaylist']))
         html_error('args');
@@ -125,6 +160,6 @@ function new_score() {
         html_error('file_size');
 
     $score = db_insert_score($_POST['idplaylist'], $file['name']);
-    move_uploaded_file($file['tmp_name'], FILE_DIR . '/' . $score['source']);
+    move_uploaded_file($file['tmp_name'], SCORE_DIR . '/' . $score['source']);
     html_redirect("playlist.php?idplaylist={$_POST['idplaylist']}");
 }

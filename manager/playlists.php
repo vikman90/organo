@@ -53,17 +53,17 @@ echo <<< EOT
     </div>
 </section>
 <div class="modal" id="dialog" onclick="closeDialog()">
-        <div class="box" onclick="event.stopPropagation()">
-            <h2>{$tr['add_playlist']}</h2>
-            <form action="control.php?action=new_playlist" method="post">
-                <input id="dialog-name" type="text" name="name" placeholder="{$tr['name']}" maxlength="255" required>
-                <div class="toolbar">
-                    <input class="action bt-ok" type="submit" value="{$tr['accept']}">
-                    <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeDialog()">
-                </div>
-            </form>
-        </div>
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['add_playlist']}</h2>
+        <form action="control.php?action=new_playlist" method="post">
+            <input id="dialog-name" type="text" name="name" placeholder="{$tr['name']}" maxlength="255" required>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeDialog()">
+            </div>
+        </form>
     </div>
+</div>
 EOT;
 
 

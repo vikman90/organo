@@ -21,7 +21,7 @@ if (isset($_GET['idplaylist']))
 if ($playlist === null)
     html_error('args');
 
-set_page("playlists.php?idplaylist={$_GET['idplaylist']}");
+set_page("playlist.php?idplaylist={$_GET['idplaylist']}");
 
 html_open('playlists');
 html_script('playlist.js');
@@ -30,11 +30,15 @@ html_navigation('playlists');
 
 echo <<< EOT
 <section>
-    <div ondragover="drag(event)" ondragleave="dragstop()" ondrop="drop(event)" id="playlist">
+    <div ondragover="drag(event)" ondragleave="dragstop()" ondrop="drop(event)" id="playlist" data-idplaylist="{$playlist['id']}">
         <h2>
-            <span>{$playlist['name']}</span>
+            <span id="plname">{$playlist['name']}</span>
             <input class="action bt-add" type="button" title="{$tr['add_score']}" onclick="add()">
         </h2>
+        <div class="toolbar">
+            <input type="button" class="action bt-rename" value="{$tr['rename']}" onclick="renamePlaylist()">
+            <input type="button" class="action bt-delete" value="{$tr['delete']}" onclick="deletePlaylist()">
+        </div>
         <form id="form-score" action="control.php?action=new_score" method="post" enctype="multipart/form-data">
             <input type="hidden" name="idplaylist" value="{$playlist['id']}">
             <input type="file" name="score" id="input-score" onchange="submit()" accept="audio/mid">
@@ -47,7 +51,8 @@ foreach ($playlist['scores'] as $score) {
     $name = $score['name'] === null ? $score['source'] : $score['name'];
 
     echo <<< EOT
-            <tr data-idscore="{$score['id']}">
+            <tr data-idscore="{$score['id']}" onclick="show(this)">
+                <td><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}&idscore={$score['id']}" title="{$tr['play']}"></a></td>
                 <td>$name</td>
             </tr>
 EOT;
@@ -55,8 +60,36 @@ EOT;
 
 echo <<< EOT
         </table>
+        <p>{$tr['tip_dragdrop']}</p>
     </div>
 </section>
+<div class="modal" id="dialog-rename-playlist" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['rename_playlist']}</h2>
+        <form action="control.php?action=rename_playlist" method="post">
+            <input id="input-idplaylist" type="hidden" name="idplaylist" value="{$playlist['id']}">
+            <input id="input-plname" type="text" name="name" placeholder="{$tr['name']}" maxlength="255" required>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal" id="dialog-delete-playlist" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['delete_playlist']}</h2>
+        <form action="control.php?action=delete_playlist" method="post">
+            <input id="input-idplaylist" type="hidden" name="idplaylist" value="{$playlist['id']}">
+            <p>{$tr['confirm_delete_playlist']}</p>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+
 EOT;
 
 

@@ -198,7 +198,7 @@ section > div.dragging {
 section ul {
     list-style: none;
     padding: 0;
-    margin: 8px 0 8px 0;
+    margin: 16px 0 8px 0;
 }
 
 section li {
@@ -222,7 +222,7 @@ section li.selected, #player-playlist li:hover {
 section table {
     width: 100%;
     border-collapse: collapse;
-    margin: 8px 0 8px 0;
+    margin: 16px 0 8px 0;
 }
 
 section tr {
@@ -247,6 +247,18 @@ section tr:hover td:last-child {
 
 section td {
     padding: 0 8px 0 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 64px; /* WTF */
+}
+
+section td:first-child {
+    width: 32px;
+}
+
+section p {
+    margin: 16px 8px 8px 8px;
 }
 
 /************************************** Footer ************************************************************************/
@@ -379,6 +391,9 @@ h2 {
     font-size: 1.5em;
     border-bottom: solid 1px #7e6b5d; /* Marrón apagado medio */
     color: black;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 h3 {
@@ -421,14 +436,18 @@ h3 {
     width: 256px;
 }
 
-.toolbar {
+.box .toolbar {
     position: absolute;
     right: 8px;
     bottom: 8px;
 }
 
-.toolbar .action {
+.box .toolbar .action {
     margin: 0 8px 8px 0;
+}
+
+.box p {
+    margin: 16px 8px 8px 8px;
 }
 
 /************************************** Botones ***********************************************************************/
@@ -485,6 +504,23 @@ h2 .action {
     background-image: url(../images/enter.png);
 }
 
+.bt-rename {
+    background-image: url(../images/rename.png);
+}
+
+.bt-delete {
+    background-image: url(../images/delete.png);
+}
+
 input[type="file"] {
     display: none;
 }
+
+.toolbar {
+    margin: 16px 8px 16px 0px;
+}
+
+.toolbar .action {
+    margin-left: 8px;
+}
+

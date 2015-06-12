@@ -15,6 +15,8 @@ $db = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 if ($db->connect_error)
     html_error('database');
 
+$db->set_charset('utf8');
+
 function db_get_playlists() {
     global $db;
 
@@ -63,6 +65,24 @@ function db_get_playlist($idplaylist) {
     return ['id' => $idplaylist, 'name' => $name, 'scores' => $scores];
 }
 
+function db_rename_playlist($idplaylist, $name) {
+    global $db;
+
+    $sql = "UPDATE playlist SET name = ? WHERE idplaylist = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('si', $name, $idplaylist);
+    $stmt->execute();
+}
+
+function db_delete_playlist($idplaylist) {
+    global $db;
+
+    $sql = "DELETE FROM playlist WHERE idplaylist = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('i', $idplaylist);
+    $stmt->execute();
+}
+
 function db_insert_score($idplaylist, $name) {
     global $db;
 
@@ -78,4 +98,13 @@ function db_insert_score($idplaylist, $name) {
     $stmt->execute();
 
     return ['id' => $idscore, 'playlist' => $idplaylist, 'source' => $source, 'name' => $name];
+}
+
+function db_delete_score($idscore) {
+    global $db;
+
+    $sql = "DELETE FROM score WHERE idscore = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('i', $idscore);
+    $stmt->execute();
 }
