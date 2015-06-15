@@ -114,10 +114,13 @@ function login() {
 }
 
 function play() {
+    test_auth();
     html_redirect('player.php');
 }
 
 function new_playlist() {
+    test_auth();
+
     if (!isset($_POST['name']))
         html_error('args');
 
@@ -126,6 +129,8 @@ function new_playlist() {
 }
 
 function rename_playlist() {
+    test_auth();
+
     if (!(isset($_POST['name']) and isset($_POST['idplaylist'])))
         html_error('args');
 
@@ -137,6 +142,8 @@ function rename_playlist() {
 }
 
 function delete_playlist() {
+    test_auth();
+
     if (!isset($_POST['idplaylist']))
         html_error('args');
 
@@ -155,6 +162,8 @@ function delete_playlist() {
 }
 
 function new_score() {
+    test_auth();
+
     if (!isset($_POST['idplaylist']))
         html_error('args');
     
@@ -179,6 +188,8 @@ function new_score() {
 }
 
 function rename_score() {
+    test_auth();
+
     if (!(isset($_POST['name']) and isset($_POST['idscore'])))
         html_error('args');
 
@@ -190,6 +201,8 @@ function rename_score() {
 }
 
 function delete_score() {
+    test_auth();
+
     if (!isset($_POST['idscore']))
         html_error('args');
 
