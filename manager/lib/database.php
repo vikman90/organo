@@ -37,6 +37,7 @@ function db_insert_playlist($name) {
     $stmt = $db->prepare($sql);
     $stmt->bind_param('s', $name);
     $stmt->execute();
+    return $stmt->insert_id;
 }
 
 function db_get_playlist($idplaylist) {
@@ -128,3 +129,5 @@ function db_delete_score($idscore) {
     $stmt->bind_param('i', $idscore);
     $stmt->execute();
 }
+
+

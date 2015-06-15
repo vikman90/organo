@@ -124,8 +124,8 @@ function new_playlist() {
     if (!isset($_POST['name']))
         html_error('args');
 
-    db_insert_playlist($_POST['name']);
-    html_redirect('playlists.php');
+    $id = db_insert_playlist($_POST['name']);
+    html_redirect("playlist.php?idplaylist=$id");
 }
 
 function rename_playlist() {
