@@ -54,9 +54,10 @@ foreach ($playlist['scores'] as $score) {
             <tr data-idscore="{$score['id']}" onclick="show(this)">
                 <td class="icon"><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}&idscore={$score['id']}" title="{$tr['play']}"></a></td>
                 <td>$name</td>
-                <td class="icon"><a class="bt-rename" href="javascript: renameScore({$score['id']}, '$name')"></a></td>
-                <td class="icon"><a class="bt-delete" href="javascript: deleteScore({$score['id']})"></td></td>
+                <td class="icon"><a class="bt-rename" onclick="renameScore({$score['id']}, '$name')" title="{$tr['rename']}"></a></td>
+                <td class="icon"><a class="bt-delete" onclick="deleteScore({$score['id']})" title="{$tr['delete']}"></td></td>
             </tr>
+
 EOT;
 }
 
