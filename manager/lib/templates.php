@@ -56,13 +56,13 @@ EOT;
             <a href="control.php?action=logout" title="{$tr['logout']}"></a>
         </li>
         <li id="header-control">
-            <a href="index.php" title="{$tr['control']}"></a>
+            <a title="{$tr['control']}"></a>
             <ul>
                 <li id="header-shutdown">
-                    <a href="control.php?action=shutdown" onclick="return confirm('{$tr['shutdown_confirm']}')">{$tr['shutdown']}</a>
+                    <a onclick="shutdown()">{$tr['shutdown']}</a>
                 </li>
                 <li id="header-reboot">
-                    <a href="control.php?action=reboot" onclick="return confirm('{$tr['reboot_confirm']}')">{$tr['reboot']}</a>
+                    <a onclick="reboot()">{$tr['reboot']}</a>
                 </li>
             </ul>
         </li>
@@ -71,7 +71,7 @@ EOT;
 
     echo <<< EOT
         <li id="header-lang">
-            <a href="" title="{$tr['language']}"></a>
+            <a title="{$tr['language']}"></a>
             <ul>
 
 EOT;
@@ -92,6 +92,37 @@ EOT;
 
 EOT;
 
+    if ($full) {
+        html_script('header.js');
+
+        echo <<< EOT
+<div class="modal" id="dialog-shutdown" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['shutdown']}</h2>
+        <form action="control.php?action=shutdown" method="post">
+            <p>{$tr['shutdown_confirm']}</p>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal" id="dialog-reboot" onclick="closeModal()">
+    <div class="box" onclick="event.stopPropagation()">
+        <h2>{$tr['reboot']}</h2>
+        <form action="control.php?action=reboot" method="post">
+            <p>{$tr['reboot_confirm']}</p>
+            <div class="toolbar">
+                <input class="action bt-ok" type="submit" value="{$tr['accept']}">
+                <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
+            </div>
+        </form>
+    </div>
+</div>
+
+EOT;
+    }
 }
 
 function html_navigation($selected = null) {
