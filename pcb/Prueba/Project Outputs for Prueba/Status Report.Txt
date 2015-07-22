@@ -1,0 +1,13 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [Prueba.PrjPcb]
+   Generated File[PCB_Organo_Prueba_V4-RoundHoles.TXT]
+   Generated File[PCB_Organo_Prueba_V4-SquareHoles.TXT]
+   Generated File[PCB_Organo_Prueba_V4.LDP]
+   Generated File[PCB_Organo_Prueba_V4.DRR]
+
+
+Files Generated   : 4
+Documents Printed : 0
+
+Finished Output Generation At 20:34:37 On 19/07/2015

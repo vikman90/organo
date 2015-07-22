@@ -1,0 +1,18 @@
+*************************************************************
+FileName = PCB_Organo_Prueba_V4.GBR
+AutoAperture = True
+*************************************************************
+Generating : Bottom Paste
+      File : PCB_Organo_Prueba_V4.GBP
+
+    Adding Layer      : Bottom Paste
+
+    Adding Layer      : Bottom Layer
+
+    Adding Layer      : Multi-Layer
+
+
+Used DCodes :
+    D10
+*************************************************************
+
