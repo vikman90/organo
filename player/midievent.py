@@ -104,6 +104,7 @@ class MidiEvent:
     def program():
         '''Program number, for PROGRAM_CHANGE'''
         return self.param1
+    
     def pitch():
         '''Pitch value, for PITCH_BEND'''
         return self.param1 | (self.param2 << 7)

@@ -49,7 +49,7 @@ class MidiFile:
             self.formattype = SINGLE_TRACK
         elif chunk[2] == 1:
             self.formattype = MULTIPLE_SIMULTANEOUS
-        elif chunk[2] == 0:
+        elif chunk[2] == 2:
             self.formattype = MULTIPLE_INDEPENDENT
         else:
             raise Exception('Invalid format type')
