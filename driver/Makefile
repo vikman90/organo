@@ -27,7 +27,7 @@ LDFLAGS		= -Wl,-O1 -Wl,-s -pthread
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/test
+TARGET		= $(BIN)/midinfo $(BIN)/test $(BIN)/gpio
 
 .PHONY: all clean objclean
 
@@ -46,6 +46,9 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/test: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/monitor.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	
+$(BIN)/gpio: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/gpio.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ)/midi.o: $(INC)/midi.h
