@@ -19,16 +19,15 @@ SRC	= src
 
 CC			= gcc
 DEFINES		=
-CFLAGS		= -pipe -O2 -Wall -Wextra $(DEFINES)
+CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
 INCPATH		= -I$(INC)
 LIBS		= 
-LDFLAGS		= -Wl,-O1 -Wl,-s
+LDFLAGS		= -Wl,-O1 -Wl,-s -pthread
 
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/player
-OBJECTS		= $(OBJ)/midi.o $(OBJ)/player.o
+TARGET		= $(BIN)/midinfo $(BIN)/test
 
 .PHONY: all clean objclean
 
@@ -41,10 +40,15 @@ clean: objclean
 	$(RM_FILE) $(TARGET)
 	
 objclean:
-	$(RM_FILE) $(OBJECTS)
+	$(RM_FILE) $(OBJ)/*.o
 
-$(TARGET): $(OBJECTS)
+$(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(BIN)/test: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/monitor.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ)/midi.o: $(INC)/midi.h
-$(OBJ)/player.o: $(INC)/midi.h
+$(OBJ)/midinfo.o: $(INC)/midi.h
+$(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h
+$(OBJ)/test.o: $(INC)/midi.h $(INC)/player.h
