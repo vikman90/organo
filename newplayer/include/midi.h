@@ -18,7 +18,8 @@ enum midievent_type_t {
 	CONTROLLER = 0xB0,
 	PROGRAM_CHANGE = 0xC0,
 	CHANNEL_AFTERTOUCH = 0xD0,
-	PITCH_BEND = 0xE0
+	PITCH_BEND = 0xE0,
+	METAEVENT = 0xFF
 };
 
 enum metaevent_type_t {
@@ -42,47 +43,47 @@ enum metaevent_type_t {
 };
 
 typedef struct midioffset_t {
-	unsigned char fps;
-	unsigned char hour;
-	unsigned char min;
-	unsigned char sec;
+	char fps;
+	char hour;
+	char min;
+	char sec;
 	float fr;
 } midioffset_t;
 
 typedef struct miditime_t {
-	unsigned char numerator;
-	unsigned char denominator;
-	unsigned char metronome;
-	unsigned char quantization;
+	char numerator;
+	char denominator;
+	char metronome;
+	char quantization;
 } miditime_t;
 
 typedef struct midikey_t {
-	unsigned char flats;
-	unsigned char mode;
+	char flats;
+	char mode;
 } midikey_t;
 
 typedef struct metaevent_t {
-	unsigned char type;
+	char type;
 	unsigned int length;
-	unsigned char *data;
+	char *data;
 } metaevent_t;
 
 typedef struct midievent_t {
-	unsigned int delta;
-	unsigned char type;
-	unsigned char channel;
+	int delta;
+	char type;
+	char channel;
 	
 	union {
-		unsigned char param1;
-		unsigned char note;			// NOTE_OFF, NOTE_ON, NOTE_AFTERTOUCH
-		unsigned char controller;	// CONTROLLER
-		unsigned char program;		// PROGRAM_CHANGE
+		char param1;
+		char note;			// NOTE_OFF, NOTE_ON, NOTE_AFTERTOUCH
+		char controller;	// CONTROLLER
+		char program;		// PROGRAM_CHANGE
 	};
 	
 	union {
-		unsigned char param2;
-		unsigned char velocity;		// NOTE_OFF, NOTE_ON
-		unsigned char value;		// CONTROLLER
+		char param2;
+		char velocity;		// NOTE_OFF, NOTE_ON
+		char value;		// CONTROLLER
 	};
 	
 	struct metaevent_t *metaevent;
@@ -90,11 +91,11 @@ typedef struct midievent_t {
 } midievent_t;
 
 typedef struct midifile_t {
-	unsigned short format;
-	unsigned short division;
-	unsigned short time;
+	short format;
+	short division;
+	short timediv;
 	unsigned short ntracks;
-	struct midievent_t *tracks;
+	struct midievent_t **tracks;
 } midifile_t;
 
 // Creates a complete MIDI file from a file path
@@ -104,22 +105,22 @@ int midifile_init(midifile_t *score, const char *path);
 void midifile_destroy(midifile_t *file);
 
 // Aftertouch value, for NOTE_AFTERTOUCH and CHANNEL_AFTERTOUCH
-unsigned char midievent_aftertouch(const midievent_t *event);
+char midievent_aftertouch(const midievent_t *event);
 
 // Pitch value, for PITCH_BEND
-unsigned short midievent_pitch(const midievent_t *event);
+short midievent_pitch(const midievent_t *event);
 
 // Sequence number
-unsigned short metaevent_number(const metaevent_t *event);
+short metaevent_number(const metaevent_t *event);
 
 // Text for TEXT_EVENT, COPYRIGHT_NOTICE, SEQUENCE_NAME, INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME
-char* metaevent_text(const metaevent_t *event);
+const char* metaevent_text(const metaevent_t *event);
 
 // Channel prefix
-unsigned char metaevent_channel(const metaevent_t *event);
+char metaevent_channel(const metaevent_t *event);
 
 // Tempo in microseconds per quarter-note
-unsigned char metaevent_tempo(const metaevent_t *event);
+int metaevent_tempo(const metaevent_t *event);
 
 // SMPTE offset
 void metaevent_offset(const metaevent_t *event, midioffset_t *offset);
