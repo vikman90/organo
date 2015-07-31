@@ -21,7 +21,6 @@ static void* player_run(void *arg) {
 	char active = 1;
 
 	memset(finished, 0, score->ntracks);
-	output_init();
 	output_panic();
 	
 	while (1) {
@@ -63,9 +62,9 @@ static void* player_run(void *arg) {
 						min_delta = event->delta;
 					}
 				}
+				
+				score->tracks[i] = event;
 			}
-			
-			score->tracks[i] = event;
 		}
 		
 		output_update();
@@ -74,8 +73,6 @@ static void* player_run(void *arg) {
 			break;
 				
 		// 3 Restar delta minimo a todos
-		
-		if (min_delta < 0) { exit(1); }
 	
 		for (i = 0; i < score->ntracks; i++) {
 			if (!finished[i]) 
@@ -91,7 +88,6 @@ static void* player_run(void *arg) {
 	}
 	
 	output_panic();
-	output_destroy();
 	return NULL;
 }
 

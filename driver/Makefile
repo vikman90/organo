@@ -51,4 +51,4 @@ $(BIN)/test: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/monitor.o
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h
-$(OBJ)/test.o: $(INC)/midi.h $(INC)/player.h
+$(OBJ)/test.o: $(INC)/midi.h $(INC)/player.h $(INC)/output.h
