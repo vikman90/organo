@@ -1,4 +1,8 @@
-// 1 August 2015
+/*
+ * Daemon for listening requests
+ * Victor Manuel Fernandez Castro
+ * 1 August 2015
+ */
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -10,19 +14,24 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-#define BUFFER_LENGTH 256
-#define BACKLOG 5
+#define BUFFER_LENGTH 256	// Length of receiving buffer
+#define BACKLOG 5			// Listening queue length
 
-static const char PID_PATH[] = "/run/organd.pid";
-static const char SOCKET_PATH[] = "/run/organd.sock";
+static const char PID_PATH[] = "/run/organd.pid";		// Path for pid file
+static const char SOCKET_PATH[] = "/run/organd.sock";	// Path for socket file
+
 static char buffer[BUFFER_LENGTH];
 
-static void destroy() {
+// Cleanup function, called automatically on exiting.
+
+static void cleanup() {
 	unlink(PID_PATH);
 	unlink(SOCKET_PATH);
 }
 
-static int init() {
+// Setup function. Returns socket id, or -1 on error.
+
+static int setup() {
 	int fd;
 	int sock;
 	struct sockaddr_un addr;
@@ -32,7 +41,7 @@ static int init() {
 		return -1;
 	}
 
-	atexit(destroy);
+	atexit(cleanup);
 	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 	
 	if (fd < 0) {
@@ -68,7 +77,7 @@ static int init() {
 int main() {
 	int peer;
 	int length;
-	int sock = init();
+	int sock = setup();
 	
 	if (sock < 0)
 		return EXIT_FAILURE;
