@@ -27,15 +27,16 @@ INSTALL_INIT	= /etc/init.d
 CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
-INCPATH		= -I$(INC)
-LIBS		=
-LDFLAGS		= -Wl,-O1 -Wl,-s -pthread
+INCPATH		= -I$(INC) -I/usr/include/mysql
+LIBS		= -L/usr/lib/arm-linux-gnueabihf -lmysqlclient
+LDFLAGS		= -O1 -s -pthread
 
 CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/miditest $(BIN)/organd
+TARGET		= $(BIN)/midinfo $(BIN)/organd
+INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ
 
 .PHONY: all install uninstall clean objclean
 
@@ -44,18 +45,21 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 all: $(TARGET)
 
-install: all
-	service organ stop 2> /dev/null; true
-	$(CP_FILE) $(BIN)/organd $(INSTALL_SBIN)
-	$(CP_FILE) $(SCRIPTS)/organ $(INSTALL_INIT)
+install: $(INSTALLS)
 	update-rc.d organ defaults
 	service organ start
 
+$(INSTALL_SBIN)/organd: $(BIN)/organd
+	service organ stop 2> /dev/null; true
+	$(CP_FILE) $< $@
+	
+$(INSTALL_INIT)/organ: $(SCRIPTS)/organ
+	$(CP_FILE) $< $@
+	
 uninstall:
 	service organ stop 2> /dev/null; true
 	update-rc.d organ remove
-	$(RM_FILE) $(INSTALL_SBIN)/organd
-	$(RM_FILE) $(INSTALL_SBIN)/organ
+	$(RM_FILE) $(INSTALLS)
 
 clean: objclean
 	$(RM_FILE) $(TARGET)
@@ -66,13 +70,11 @@ objclean:
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/miditest: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/monitor.o
+$(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/organd: $(OBJ)/organd.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
+$(OBJ)/database.o: $(INC)/database.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h
-$(OBJ)/test.o: $(INC)/midi.h $(INC)/player.h $(INC)/output.h
+$(OBJ)/organd.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h

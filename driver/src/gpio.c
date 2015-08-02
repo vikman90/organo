@@ -78,20 +78,19 @@ void output_noteon(int track, int note) {
 	note -= OFFSET;
 	
 	if (note >= 0 && note < LENGTH)
-		state[note * NTRACKS + track] = 1;
+		state[note][track] = 1;
 }
 
 void output_noteoff(int track, int note) {
 	note -= OFFSET;
 	
 	if (note >= 0 && note < LENGTH)
-		state[note * NTRACKS + track] = 0;
+		state[note][track] = 0;
 }
 
 void output_update() {
 	int i, j;
 	unsigned int setmask, clearmask;
-	char *p = state;
 	
 	for (i = LENGTH - 1; i >= 0; i--) {
 		setmask = clearmask = 0;

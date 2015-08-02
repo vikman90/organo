@@ -22,12 +22,11 @@ pulsewidth = 0.000001
 
 c1 = [1, 0, 0, 0, 0, 0, 0]
 d1 = [0, 1, 0, 0, 0, 0, 0]
-e1 = [1, 0, 1, 0, 0, 0, 0]
-f1 = [1, 0, 0, 1, 0, 0, 0]
-g1 = [1, 0, 0, 0, 1, 0, 0]
-a1 = [1, 0, 0, 0, 0, 1, 0]
-b1 = [1, 0, 0, 0, 0, 0, 1]
-c2 = [1, 0, 0, 0, 0, 0, 0]
+e1 = [0, 0, 1, 0, 0, 0, 0]
+f1 = [0, 0, 0, 1, 0, 0, 0]
+g1 = [0, 0, 0, 0, 1, 0, 0]
+a1 = [0, 0, 0, 0, 0, 1, 0]
+b1 = [0, 0, 0, 0, 0, 0, 1]
 rest = [0 for i in range(regsize)]
 regs1 = [1, 1, 0, 0, 0, 0, 0]
 regs2 = [0, 0, 1, 1, 0, 0, 0]
@@ -42,7 +41,7 @@ def dump(data):
 
     for i in range(regsize):
         for j in range(len(ports)):
-            gpio.output(ports[j], data[j][i])
+            gpio.output(ports[j], data[j][regsize - 1 - i])
 
         gpio.output(srckl, True)
 

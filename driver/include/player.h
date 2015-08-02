@@ -3,10 +3,15 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-int player_start(midifile_t *score);
+#include "database.h"
+
+enum player_state_t { PLAYING, STOPPED, PAUSED };
+
+int player_start(score_t *scores, int n, int idplaylist, int idscore);
 int player_wait();
-void player_pause();
-void player_resume();
-void player_stop();
+int player_pause();
+int player_resume();
+int player_stop();
+enum player_state_t player_state(int *idplaylist, int *idscore);
 
 #endif // PLAYER_H

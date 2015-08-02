@@ -14,6 +14,9 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include "database.h"
+#include "player.h"
+#include "output.h"
 
 #define BUFFER_LENGTH 256	// Length of receiving buffer
 #define BACKLOG 5			// Listening queue length
@@ -28,6 +31,9 @@ static char buffer[BUFFER_LENGTH];
 static void cleanup() {
 	unlink(PID_PATH);
 	unlink(SOCKET_PATH);
+	database_destroy();
+	player_stop();
+	output_destroy();
 }
 
 // Action on SIGTERM
@@ -42,6 +48,8 @@ static int setup() {
 	int fd;
 	int sock;
 	struct sockaddr_un addr;
+	
+	// Daemon
 
 	if (daemon(0, 0) < 0) {
 		perror("daemon()");
@@ -50,6 +58,8 @@ static int setup() {
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
+	
+	// PID file
 
 	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
@@ -60,6 +70,9 @@ static int setup() {
 
 	dprintf(fd, "%d", getpid());
 	close(fd);
+	
+	// Socket
+	
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sock < 0) {
@@ -79,13 +92,34 @@ static int setup() {
 		perror("listen()");
 		return -1;
 	}
+	
+	// Database and output
+	
+	if (database_init() < 0 || output_init() < 0)
+		return -1;
+	
+
 
 	return sock;
 }
 
+// Plays a playlist starting at a score
+
+int playlist(const char *buffer) {
+	int idplaylist, idscore, n;
+	score_t *scores;
+	
+	sscanf(buffer, "%d %d", &idplaylist, &idscore);
+	n = database_query(&scores, idplaylist);
+	
+	if (n < 0)
+		return -1;
+	
+	return player_start(scores, n, idplaylist, idscore);
+}
+
 int main() {
 	int peer;
-	int length;
 	int sock = setup();
 
 	if (sock < 0)
@@ -99,19 +133,31 @@ int main() {
 			return EXIT_FAILURE;
 		}
 
-		length = recv(peer, buffer, BUFFER_LENGTH, 0);
-
-		if (!strcmp(buffer, "PING")) {
-			printf("Recibido PING\n");
-			send(peer, "OLA K ASE", 10, 0);
-		}
-		else if (!strcmp(buffer, "EXIT")) {
-			printf("Recibido EXIT\n");
-			break;
-		} else {
-			buffer[length] = 0;
-			printf("Recbido: %s\n", buffer);
-		}
+		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1)
+			send(peer, "ERROR", 5, 0);
+		else if (!strcmp(buffer, "PLAY")) {
+			if (playlist(buffer + 5) < 0)
+				send(peer, "ERROR", 5, 0);
+			else
+				send(peer, "OK", 2, 0);
+			
+		} else if (!strcmp(buffer, "STOP")) {
+			if (player_stop() < 0)
+				send(peer, "ERROR", 5, 0);
+			else
+				send(peer, "OK", 2, 0);
+		} else if (!strcmp(buffer, "PAUSE")) {
+			if (player_pause() < 0)
+				send(peer, "ERROR", 5, 0);
+			else
+				send(peer, "OK", 2, 0);
+		} else if (!strcmp(buffer, "RESUME")) {
+			if (player_resume() < 0)
+				send(peer, "ERROR", 5, 0);
+			else
+				send(peer, "OK", 2, 0);
+		} else
+			send(peer, "ERROR", 5, 0);
 	}
 
 	return EXIT_SUCCESS;
