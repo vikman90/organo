@@ -19,6 +19,8 @@ case $1 in
 			if [ $? != "0" ]; then
 				log_failure_msg "No se pudo iniciar el servicio"
 				exit 1
+			else			
+				log_end_msg 0
 			fi
 		fi
 		;;

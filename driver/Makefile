@@ -28,13 +28,12 @@ CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
 INCPATH		= -I$(INC)
-LIBS		= 
+LIBS		=
 LDFLAGS		= -Wl,-O1 -Wl,-s -pthread
 
 CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
-
 
 TARGET		= $(BIN)/midinfo $(BIN)/miditest $(BIN)/organd
 
@@ -51,17 +50,16 @@ install: all
 	$(CP_FILE) $(SCRIPTS)/organ $(INSTALL_INIT)
 	update-rc.d organ defaults
 	service organ start
-	
+
 uninstall:
 	service organ stop 2> /dev/null; true
 	update-rc.d organ remove
 	$(RM_FILE) $(INSTALL_SBIN)/organd
 	$(RM_FILE) $(INSTALL_SBIN)/organ
-	
 
 clean: objclean
 	$(RM_FILE) $(TARGET)
-	
+
 objclean:
 	$(RM_FILE) $(OBJ)/*.o
 
@@ -70,8 +68,8 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 
 $(BIN)/miditest: $(OBJ)/midi.o $(OBJ)/test.o $(OBJ)/player.o $(OBJ)/monitor.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-	
-$(BIN)/organd: $(OBJ)/daemon.o
+
+$(BIN)/organd: $(OBJ)/organd.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ)/midi.o: $(INC)/midi.h

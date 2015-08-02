@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <stdio.h>
 
@@ -29,48 +30,56 @@ static void cleanup() {
 	unlink(SOCKET_PATH);
 }
 
+// Action on SIGTERM
+
+static void onsigterm() {
+	exit(0);
+}
+
 // Setup function. Returns socket id, or -1 on error.
 
 static int setup() {
 	int fd;
 	int sock;
 	struct sockaddr_un addr;
-	
+
 	if (daemon(0, 0) < 0) {
 		perror("daemon()");
 		return -1;
 	}
 
 	atexit(cleanup);
+	signal(SIGTERM, onsigterm);
+
 	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
-	
+
 	if (fd < 0) {
 		perror("open()");
 		return -1;
 	}
-	
+
 	dprintf(fd, "%d", getpid());
-	close(fd);	
+	close(fd);
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sock < 0) {
 		perror("socket()");
 		return -1;
 	}
-	
+
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, SOCKET_PATH);
-	
+
 	if (bind(sock, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		perror("bind()");
 		return -1;
 	}
-	
+
 	if (listen(sock, BACKLOG)) {
 		perror("listen()");
 		return -1;
 	}
-	
+
 	return sock;
 }
 
@@ -78,20 +87,20 @@ int main() {
 	int peer;
 	int length;
 	int sock = setup();
-	
+
 	if (sock < 0)
 		return EXIT_FAILURE;
-	
+
 	while (1) {
 		peer = accept(sock, NULL, 0);
-		
+
 		if (peer < 0) {
 			perror("accept()");
 			return EXIT_FAILURE;
 		}
-		
+
 		length = recv(peer, buffer, BUFFER_LENGTH, 0);
-		
+
 		if (!strcmp(buffer, "PING")) {
 			printf("Recibido PING\n");
 			send(peer, "OLA K ASE", 10, 0);
@@ -104,7 +113,6 @@ int main() {
 			printf("Recbido: %s\n", buffer);
 		}
 	}
-	
-	destroy(sock);
+
 	return EXIT_SUCCESS;
 }
