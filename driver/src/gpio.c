@@ -6,7 +6,7 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
+#include <strings.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -35,15 +35,13 @@ static volatile unsigned int *gpio_addr;
  */
 
 #define NTRACKS  4	// Number of tracks
-#define LENGTH 8	// Length of each register
+#define LENGTH 7	// Length of each register
 #define OFFSET 60	// Base MIDI note
 #define RCKL 27		// Register clock
 #define SRCKL 22	// Shifting clock
 
-//static const char OFFSET[] = { 60, 60, 60, 60 };
-//statuc const char LENGTH[] = { 8, 8, 8, 8 };
 static const char PORTS[] = { 2, 3, 4, 17 };
-static char *state;	// Matrix of LENGTH rows and NTRACKS columns
+static char state[LENGTH][NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
 
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
 
@@ -61,15 +59,6 @@ int output_init() {
 	if (gpio_addr == MAP_FAILED)
 		return -1;
 	
-	// Allocate memory
-	
-	state = (char *)malloc(LENGTH * NTRACKS * sizeof(char));
-	
-	if (!state) {
-		munmap((void *)gpio_addr, GPIO_LENGTH);
-		return -1;
-	}
-	
 	// Set GPIO function
 	
 	gpio_fsel(RCKL, GPIO_OUTPUT);
@@ -82,7 +71,6 @@ int output_init() {
 }
 
 void output_destroy() {
-	free(state);
 	munmap((void *)gpio_addr, GPIO_LENGTH);
 }
 
@@ -105,13 +93,12 @@ void output_update() {
 	unsigned int setmask, clearmask;
 	char *p = state;
 	
-	for (i = 0; i < LENGTH; i++) {
+	for (i = LENGTH - 1; i >= 0; i--) {
 		setmask = clearmask = 0;
 		
 		for (j = 0; j < NTRACKS; j++) {
-			setmask |= *p & (1 << PORTS[j]);
-			clearmask |= ~*p & (1 << PORTS[j]);
-			p++;
+			setmask |= state[i][j] & (1 << PORTS[j]);
+			clearmask |= ~state[i][j] & (1 << PORTS[j]);
 		}
 		
 		// Dump
@@ -129,7 +116,7 @@ void output_update() {
 }
 
 void output_panic() {
-	memset(state, 0, LENGTH * NTRACKS);
+	bzero(state, LENGTH * NTRACKS);
 	output_update();
 }
 
