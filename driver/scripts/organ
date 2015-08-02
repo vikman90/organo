@@ -1,0 +1,47 @@
+#!/bin/sh
+
+PIDFILE="/run/organd.pid"
+DAEMON="/usr/sbin/organd"
+
+. /lib/lsb/init-functions
+
+case $1 in
+	"start")
+		log_daemon_msg "Iniciando servicio..."
+
+		if [ -f $PIDFILE ]; then
+			log_progress_msg "Servicio ya iniciado"
+			log_end_msg 0
+		else
+
+			$DAEMON
+
+			if [ $? != "0" ]; then
+				log_failure_msg "No se pudo iniciar el servicio"
+				exit 1
+			fi
+		fi
+		;;
+
+	"stop")
+		log_daemon_msg "Parando servicio..."
+
+		if [ ! -f $PIDFILE ]; then
+			log_progress_msg "El servicio no estaba iniciado"
+			log_end_msg 0
+		else
+			kill $(cat $PIDFILE)
+
+			if [ $? != 0 ]; then
+				log_failure_msg "No se pudo parar el servicio"
+				exit 1
+			else
+				log_end_msg 0
+			fi
+		fi
+		;;
+
+	*)
+		echo "Sintaxis:" $0 "start|stop"
+		exit 1
+esac
