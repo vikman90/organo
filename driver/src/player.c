@@ -122,13 +122,18 @@ static void* player_run(void *arg) {
 	
 	arg = arg;
 
-	// Find first score
+	// Find first score, if indicated
+	
+	if (cur_idscore < 0)
+		i = 0;
+	else {
 
-	for (i = 0; i < nscores; i++)
-		if (scores[i].idscore == cur_idscore)
-			break;
+		for (i = 0; i < nscores; i++)
+			if (scores[i].idscore == cur_idscore)
+				break;
 
-	i = (i < nscores) ? nscores : 0;
+		i = (i < nscores) ? nscores : 0;
+	}
 
 	while (1) {
 		strcpy(buffer, SCORE_HOME);
@@ -151,6 +156,8 @@ static void* player_run(void *arg) {
 	return NULL;
 }
 
+// Play a playlist (idscore = -1 for playing the first score)
+
 int player_start(score_t *_scores, int n, int idplaylist, int idscore) {
 	if (state != STOPPED)
 		player_stop();
@@ -163,9 +170,7 @@ int player_start(score_t *_scores, int n, int idplaylist, int idscore) {
 	return pthread_create(&thread, NULL, player_run, NULL);
 }
 
-int player_wait() {
-	return pthread_join(thread, NULL);
-}
+// Pause player, if running
 
 int player_pause() {
 	if (state == STOPPED)
@@ -175,6 +180,8 @@ int player_pause() {
 	return 0;
 }
 
+// Resume player, if paused
+
 int player_resume() {
 	if (state == STOPPED)
 		return -1;
@@ -182,6 +189,8 @@ int player_resume() {
 	state = PLAYING;
 	return 0;
 }
+
+// Stop player
 
 int player_stop() {
 	if (state == STOPPED)
@@ -193,6 +202,8 @@ int player_stop() {
 	
 	return 0;
 }
+
+// Get state and current idplaylist and idscore
 
 enum player_state_t player_state(int *idplaylist, int *idscore) {
 	if (state == PLAYING && idplaylist && idscore) {
