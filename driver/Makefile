@@ -35,7 +35,7 @@ CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/organd
+TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test
 INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ
 
 .PHONY: all install uninstall clean objclean
@@ -73,8 +73,11 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 $(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+$(BIN)/test: $(OBJ)/test.o 
+
 $(OBJ)/database.o: $(INC)/database.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
 $(OBJ)/organd.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/test.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h

@@ -98,8 +98,6 @@ static int setup() {
 	if (database_init() < 0 || output_init() < 0)
 		return -1;
 	
-
-
 	return sock;
 }
 
@@ -115,7 +113,7 @@ int playlist(const char *buffer) {
 	if (n < 0)
 		return -1;
 	
-	return player_start(scores, n, idplaylist, idscore);
+	return player_start(scores, n, idplaylist, idscore, 1);
 }
 
 int main() {

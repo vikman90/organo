@@ -4,11 +4,12 @@
 #define PLAYER_H
 
 #include "database.h"
+#include "midi.h"
 
 enum player_state_t { PLAYING, STOPPED, PAUSED };
 
-// Play a playlist (idscore = -1 for playing the first score)
-int player_start(score_t *scores, int n, int idplaylist, int idscore);
+// Play a playlist
+int player_start(score_t *scores, int n, int idplaylist, int idscore, int loop);
 
 // Pause player, if running
 int player_pause();

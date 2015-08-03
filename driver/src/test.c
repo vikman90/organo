@@ -4,9 +4,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "midi.h"
 #include "player.h"
 #include "output.h"
+#include "database.h"
 
 int main(int argc, char **argv) {
 	midifile_t score;

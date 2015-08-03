@@ -19,6 +19,7 @@ static pthread_t thread;
 static enum player_state_t state = STOPPED;
 static score_t *scores;
 static int nscores;
+static int loop;
 static int cur_idplaylist = 0;
 static int cur_idscore = 0;
 
@@ -122,44 +123,63 @@ static void* player_run(void *arg) {
 	char error[nscores];
 	
 	arg = arg;
-	bzero(error, nscores);
-
-	// Find first score, if indicated
 	
-	if (cur_idscore < 0)
-		i = 0;
-	else {
+	if (loop) {
+		bzero(error, nscores);
 
-		for (i = 0; i < nscores; i++)
-			if (scores[i].idscore == cur_idscore)
-				break;
-
-		i = (i < nscores) ? nscores : 0;
-	}
-
-	while (1) {
-		strcpy(buffer, SCORE_HOME);
-		strcat(buffer, scores[i].source);
+		// Find first score, if indicated
 		
-		if (midifile_init(&file, buffer) < 0) {
-			midifile_destroy(&file);
-			
-			if (!error[i]) {
-				error[i] = 1;
-				
-				if (++nerrors >= nscores)
+		if (cur_idscore < 0)
+			i = 0;
+		else {
+
+			for (i = 0; i < nscores; i++)
+				if (scores[i].idscore == cur_idscore)
 					break;
-			}
-		} else {
-			cur_idscore = scores[i].idscore;
-			int retval = playscore(&file);
-			midifile_destroy(&file);
-			
-			if (retval)
-				break;
+
+			i = (i < nscores) ? nscores : 0;
 		}
 
-		i = (i + 1) % nscores;
+		while (1) {
+			strcpy(buffer, SCORE_HOME);
+			strcat(buffer, scores[i].source);
+			
+			if (midifile_init(&file, buffer) < 0) {
+				midifile_destroy(&file);
+				
+				if (!error[i]) {
+					error[i] = 1;
+					
+					if (++nerrors >= nscores)
+						break;
+				}
+			} else {
+				cur_idscore = scores[i].idscore;
+				int retval = playscore(&file);
+				midifile_destroy(&file);
+				
+				if (retval)
+					break;
+			}
+
+			i = (i + 1) % nscores;
+		}
+	} else {
+		for (i = 0; i < nscores; i++) {
+			strcpy(buffer, SCORE_HOME);
+			strcat(buffer, scores[i].source);
+			
+			if (midifile_init(&file, buffer) < 0) {
+				midifile_destroy(&file);
+			} else {
+				cur_idscore = scores[i].idscore;
+				int retval = playscore(&file);
+				midifile_destroy(&file);
+				
+				if (retval)
+					break;
+			}
+		}
 	}
 
 	return NULL;
@@ -167,12 +187,13 @@ static void* player_run(void *arg) {
 
 // Play a playlist (idscore = -1 for playing the first score)
 
-int player_start(score_t *_scores, int n, int idplaylist, int idscore) {
+int player_start(score_t *_scores, int n, int idplaylist, int idscore, int _loop) {
 	if (state != STOPPED)
 		player_stop();
 
 	scores = _scores;
 	nscores = n;
+	loop = _loop;
 	cur_idplaylist = idplaylist;
 	cur_idscore = idscore;
 
