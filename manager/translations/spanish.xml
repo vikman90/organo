@@ -49,4 +49,5 @@
     <string name="rename_score">Renombrar pieza</string>
     <string name="delete_score">Eliminar pieza</string>
     <string name="confirm_delete_score">¿Está seguro?</string>
+    <string name="error_socket">No se pudo conectar al socket del controlador.</string>
 </translation>

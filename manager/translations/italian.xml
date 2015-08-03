@@ -49,4 +49,5 @@
     <string name="rename_score">Rinominare brano</string>
     <string name="delete_score">Cancellare brano</string>
     <string name="confirm_delete_score">É sicuro?</string>
+    <string name="error_socket">Non è stato possibile collegare al socket.</string>
 </translation>
