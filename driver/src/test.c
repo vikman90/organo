@@ -3,21 +3,17 @@
 // 31 July 2015
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include "player.h"
 #include "output.h"
 #include "database.h"
 
 int main(int argc, char **argv) {
-	midifile_t score;
+	score_t *scores = (score_t *)malloc(sizeof(score_t));;
 	
 	if (argc < 2) {
 		fprintf(stderr, "Sintaxis: %s <archivo>\n", *argv);
-		return EXIT_FAILURE;
-	}
-	
-	if (midifile_init(&score, argv[1])) {
-		perror("No se pudo leer el archivo");
 		return EXIT_FAILURE;
 	}
 	
@@ -26,7 +22,10 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	
-	if (player_start(&score)) {
+	scores->idscore = 0;
+	scores->path = argv[1];
+	
+	if (player_start(scores, 1, -1, -1, 0)) {
 		perror("No se pudo ejecutar el reproductor");
 		return EXIT_FAILURE;
 	}
