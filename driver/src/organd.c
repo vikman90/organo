@@ -138,7 +138,6 @@ int main() {
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
-			
 		} else if (!strcmp(buffer, "STOP")) {
 			if (player_stop() < 0)
 				send(peer, "ERROR", 5, 0);
@@ -154,6 +153,19 @@ int main() {
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
+		} else if (!strcmp(buffer, "STATUS")) {
+			int idplaylist, idscore;
+			enum player_state_t state = player_state(&idplaylist, &idscore);
+			
+			if (state == PLAYING) {
+				sprintf(buffer, "PLAYING %d %d", idplaylist, idscore);
+				send(peer, buffer, strlen(buffer), 0);
+			} else if (state == PAUSED)
+				send(peer, "PAUSED", 6, 0);
+			else if (state == STOPPED)
+				send(peer, "STOPPED", 7, 0);
+			else
+				send(peer, "ERROR", 5, 0);
 		} else
 			send(peer, "ERROR", 5, 0);
 	}
