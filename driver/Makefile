@@ -35,8 +35,8 @@ CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login
-INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ $(INSTALL_BIN)/organ-login
+TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login $(BIN)/organ
+INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ $(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ
 
 .PHONY: all install uninstall clean objclean
 
@@ -52,11 +52,14 @@ install: $(INSTALLS)
 $(INSTALL_SBIN)/organd: $(BIN)/organd
 	service organ stop 2> /dev/null; true
 	$(CP_FILE) $< $@
-	
+
 $(INSTALL_INIT)/organ: $(SCRIPTS)/organ
 	$(CP_FILE) $< $@
 
 $(INSTALL_BIN)/organ-login: $(BIN)/login
+	$(CP_FILE) $< $@
+
+$(INSTALL_BIN)/organ: $(BIN)/organ
 	$(CP_FILE) $< $@
 
 uninstall:
@@ -74,6 +77,9 @@ $(BIN)/login: $(OBJ)/login.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lcrypt
 
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o

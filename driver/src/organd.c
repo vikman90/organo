@@ -135,27 +135,27 @@ int main() {
 
 		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1)
 			send(peer, "ERROR", 5, 0);
-		else if (!strcmp(buffer, "PLAY")) {
+		else if (!strncmp(buffer, "PLAY", 4)) {
 			if (playlist(buffer + 5) < 0)
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
-		} else if (!strcmp(buffer, "STOP")) {
+		} else if (!strncmp(buffer, "STOP", 4)) {
 			if (player_stop() < 0)
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
-		} else if (!strcmp(buffer, "PAUSE")) {
+		} else if (!strncmp(buffer, "PAUSE", 5)) {
 			if (player_pause() < 0)
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
-		} else if (!strcmp(buffer, "RESUME")) {
+		} else if (!strncmp(buffer, "RESUME", 6)) {
 			if (player_resume() < 0)
 				send(peer, "ERROR", 5, 0);
 			else
 				send(peer, "OK", 2, 0);
-		} else if (!strcmp(buffer, "STATUS")) {
+		} else if (!strncmp(buffer, "STATUS", 6)) {
 			int idplaylist, idscore;
 			enum player_state_t state = player_state(&idplaylist, &idscore);
 			
