@@ -9,7 +9,7 @@
 
 typedef struct score_t {
 	int idscore;
-	char *source;
+	char *path;
 } score_t;
 
 // Initializes the database. Returns 0 on success or -1 on error

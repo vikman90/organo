@@ -10,9 +10,7 @@
 #include "output.h"
 
 #define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
-#define BUFFER_MAX 256
 
-static const char SCORE_HOME[] = "/home/pi/midi/";
 static const struct timespec PAUSE_SLEEP = { 0, 100000000 };
 
 static pthread_t thread;
@@ -119,7 +117,6 @@ static int playscore(midifile_t *file) {
 static void* player_run(void *arg) {
 	int i, nerrors = 0;
 	midifile_t file;
-	char buffer[BUFFER_MAX];
 	char error[nscores];
 	
 	arg = arg;
@@ -140,11 +137,8 @@ static void* player_run(void *arg) {
 			i = (i < nscores) ? nscores : 0;
 		}
 
-		while (1) {
-			strcpy(buffer, SCORE_HOME);
-			strcat(buffer, scores[i].source);
-			
-			if (midifile_init(&file, buffer) < 0) {
+		while (1) {			
+			if (midifile_init(&file, scores[i].path) < 0) {
 				midifile_destroy(&file);
 				
 				if (!error[i]) {
@@ -165,11 +159,8 @@ static void* player_run(void *arg) {
 			i = (i + 1) % nscores;
 		}
 	} else {
-		for (i = 0; i < nscores; i++) {
-			strcpy(buffer, SCORE_HOME);
-			strcat(buffer, scores[i].source);
-			
-			if (midifile_init(&file, buffer) < 0) {
+		for (i = 0; i < nscores; i++) {	
+			if (midifile_init(&file, scores[i].path) < 0) {
 				midifile_destroy(&file);
 			} else {
 				cur_idscore = scores[i].idscore;

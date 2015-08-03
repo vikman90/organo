@@ -14,6 +14,7 @@ static const char DB_HOST[] = "localhost";
 static const char DB_USER[] = "organo";
 static const char DB_PASS[] = "ugr2015";
 static const char DB_NAME[] = "organo";
+static const char SCORE_HOME[] = "/home/pi/midi/";
 
 static MYSQL *conn;
 
@@ -64,8 +65,9 @@ int database_query(score_t **scores, int idplaylist) {
 		score_t *score = (*scores) + i;
 		MYSQL_ROW row = mysql_fetch_row(result);
 		score->idscore = atoi(row[0]);
-		score->source = (char *)malloc(strlen(row[1]));
-		strcpy(score->source, row[1]);
+		score->path = (char *)malloc(strlen(row[1]) + 15);
+		strcpy(score->path, SCORE_HOME);
+		strcat(score->path, row[1]);
 	}
 	
 	return nrows;
@@ -77,7 +79,7 @@ void score_destroy(score_t *scores, int n) {
 	int i;
 	
 	for (i = 0; i < n; i++)
-		free(scores[i].source);
+		free(scores[i].path);
 	
 	free(scores);
 }
