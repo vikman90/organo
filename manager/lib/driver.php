@@ -60,10 +60,5 @@ function driver_status() {
 
     socket_send($sock, $buffer, strlen($buffer), 0);
     socket_recv($sock, $buffer, BUFFER_MAX, 0);
-
-    if ($buffer == 'PLAYING') {
-        $r = sscanf($buffer, "PLAYING %d %d");
-        return ["PLAYING", $r[0], $r[1]];
-    } else
-        return $buffer;
+    return sscanf($buffer, "%s %d %d");
 }

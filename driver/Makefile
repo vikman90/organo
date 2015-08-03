@@ -80,7 +80,7 @@ $(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(O
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lmysqlclient
 
 $(BIN)/test: $(OBJ)/database.o $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lmysqlclient
 
 $(OBJ)/database.o: $(INC)/database.h
 $(OBJ)/midi.o: $(INC)/midi.h

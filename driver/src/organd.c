@@ -162,9 +162,10 @@ int main() {
 			if (state == PLAYING) {
 				sprintf(buffer, "PLAYING %d %d", idplaylist, idscore);
 				send(peer, buffer, strlen(buffer), 0);
-			} else if (state == PAUSED)
-				send(peer, "PAUSED", 6, 0);
-			else if (state == STOPPED)
+			} else if (state == PAUSED) {
+				sprintf(buffer, "PAUSED %d %d", idplaylist, idscore);
+				send(peer, buffer, strlen(buffer), 0);
+			} else if (state == STOPPED)
 				send(peer, "STOPPED", 7, 0);
 			else
 				send(peer, "ERROR", 5, 0);

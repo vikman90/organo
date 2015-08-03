@@ -14,7 +14,7 @@
 static const struct timespec PAUSE_SLEEP = { 0, 100000000 };
 
 static pthread_t thread;
-static enum player_state_t state = STOPPED;
+static volatile enum player_state_t state = STOPPED;
 static score_t *scores;
 static int nscores;
 static int loop;
@@ -234,7 +234,7 @@ int player_stop() {
 // Get state and current idplaylist and idscore
 
 enum player_state_t player_state(int *idplaylist, int *idscore) {
-	if (state == PLAYING && idplaylist && idscore) {
+	if ((state == PLAYING || state == PAUSED) && idplaylist && idscore) {
 		*idplaylist = cur_idplaylist;
 		*idscore = cur_idscore;
 		return PLAYING;
