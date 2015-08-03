@@ -171,9 +171,15 @@ static int parse(midievent_t **first, int fd) {
 			}
 		}
 		
-		else if (value == 0xF0 || value == 0xF7)
-			; // System exclusive event, discard
-		else
+		else if (value == 0xF0) {
+			 // System exclusive event, discard
+			 
+			 char byte;
+				
+			 do {
+				 read(fd, &byte, 1);
+			 } while (byte != 0xF7);
+		} else
 			return -1;
 		
 		current->next = (midievent_t *)malloc(sizeof(midievent_t));
