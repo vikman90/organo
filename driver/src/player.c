@@ -116,11 +116,13 @@ static int playscore(midifile_t *file) {
 // Thread main
 
 static void* player_run(void *arg) {
-	int i;
+	int i, nerrors = 0;
 	midifile_t file;
 	char buffer[BUFFER_MAX];
+	char error[nscores];
 	
 	arg = arg;
+	bzero(error, nscores);
 
 	// Find first score, if indicated
 	
@@ -139,9 +141,16 @@ static void* player_run(void *arg) {
 		strcpy(buffer, SCORE_HOME);
 		strcat(buffer, scores[i].source);
 		
-		if (midifile_init(&file, buffer) < 0)
+		if (midifile_init(&file, buffer) < 0) {
 			midifile_destroy(&file);
-		else {
+			
+			if (!error[i]) {
+				error[i] = 1;
+				
+				if (++nerrors >= nscores)
+					break;
+			}
+		} else {
 			cur_idscore = scores[i].idscore;
 			int retval = playscore(&file);
 			midifile_destroy(&file);
