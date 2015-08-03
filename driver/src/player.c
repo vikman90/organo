@@ -1,6 +1,7 @@
 // 29 July 2015
 
 #include <pthread.h>
+#include <strings.h>
 #include <string.h>
 #include <limits.h>
 #include <time.h>
@@ -25,12 +26,16 @@ static int cur_idscore = 0;
 
 static int playscore(midifile_t *file) {
 	midievent_t *event;
+	midievent_t *tracks[file->ntracks];
 	struct timespec timereq;
 	int active, min_delta, tempo = DEFAULT_TEMPO;
 	unsigned short i;
 	char finished[file->ntracks];
+	
+	for (i = 0; i < file->ntracks; i++)
+		tracks[i] = file->tracks[i];
 
-	memset(finished, 0, file->ntracks);
+	bzero(finished, file->ntracks);
 	output_panic();
 
 	while (1) {
@@ -46,7 +51,7 @@ static int playscore(midifile_t *file) {
 
 		for (i = 0; i < file->ntracks; i++) {
 			if (!finished[i]) {
-				event = file->tracks[i];
+				event = tracks[i];
 
 				// 1 Los que no deban esperar, ejecutar
 
@@ -80,7 +85,7 @@ static int playscore(midifile_t *file) {
 					}
 				}
 
-				file->tracks[i] = event;
+				tracks[i] = event;
 			}
 		}
 
@@ -93,7 +98,7 @@ static int playscore(midifile_t *file) {
 
 		for (i = 0; i < file->ntracks; i++) {
 			if (!finished[i])
-				file->tracks[i]->delta -= min_delta;
+				tracks[i]->delta -= min_delta;
 		}
 
 		// 4 Esperar
