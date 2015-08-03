@@ -11,6 +11,9 @@ enum player_state_t { PLAYING, STOPPED, PAUSED };
 // Play a playlist
 int player_start(score_t *scores, int n, int idplaylist, int idscore, int loop);
 
+// Wait thread to end (only if loop = 0)
+int player_wait();
+
 // Pause player, if running
 int player_pause();
 

@@ -182,6 +182,9 @@ static void* player_run(void *arg) {
 		}
 	}
 
+	state = STOPPED;
+	score_destroy(scores, nscores);
+	
 	return NULL;
 }
 
@@ -198,6 +201,12 @@ int player_start(score_t *_scores, int n, int idplaylist, int idscore, int _loop
 	cur_idscore = idscore;
 
 	return pthread_create(&thread, NULL, player_run, NULL);
+}
+
+// Wait thread to end (only if loop = 0)
+
+int player_wait() {
+	return pthread_join(thread, NULL);
 }
 
 // Pause player, if running
@@ -227,9 +236,7 @@ int player_stop() {
 		return 0;
 	
 	state = STOPPED;
-	pthread_join(thread, NULL);
-	score_destroy(scores, nscores);
-	
+	pthread_join(thread, NULL);	
 	return 0;
 }
 
