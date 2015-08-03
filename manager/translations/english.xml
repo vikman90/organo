@@ -50,4 +50,6 @@
     <string name="delete_score">Delete score</string>
     <string name="confirm_delete_score">Are you sure?</string>
     <string name="error_socket">Cannot connect to driver's socket.</string>
+    <string name="error_driver">Error at driver.</string>
+    <string name="unknown">Unknown</string>
 </translation>

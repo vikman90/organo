@@ -7,7 +7,9 @@
  */
 
 namespace manager;
+
 require_once 'lib/database.php';
+require_once 'lib/driver.php';
 
 if (!isset($_GET['action']))
     html_error('args');
@@ -115,7 +117,40 @@ function login() {
 
 function play() {
     test_auth();
-    html_redirect('player.php');
+
+    if (!isset($_GET['idplaylist']))
+        html_error('args');
+
+    $playlist = db_get_playlist($_GET['idplaylist']);
+
+    if (!$playlist)
+        html_error('args');
+
+    if (isset($_GET['idscore'])) {
+        $found = false;
+
+        foreach ($playlist['scores'] as $score) {
+            if ($score['id'] == $_GET['idscore']) {
+                $found = true;
+                break;
+            }
+        }
+
+        if (!$found)
+            html_error('args');
+        else
+            $idscore = $_GET['idscore'];
+    } else {
+        if (count($playlist['scores']) < 1)
+            html_error('args');
+        else
+            $idscore = $playlist['scores'][0]['idscore'];
+    }
+
+    if (driver_play($playlist['id'], $idscore))
+        html_redirect('player.php');
+    else
+        html_error('driver');
 }
 
 function new_playlist() {

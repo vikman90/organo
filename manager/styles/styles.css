@@ -356,7 +356,6 @@ footer p {
 
 #bt-pause {
     background-image: url(../images/pause.png);
-    display: none;
 }
 
 #bt-stop {
@@ -365,6 +364,10 @@ footer p {
 
 #bt-next {
     background-image: url(../images/next.png);
+}
+
+.hidden {
+    display: none;
 }
 
 /************************************** Playlists *********************************************************************/
