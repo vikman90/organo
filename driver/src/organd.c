@@ -87,6 +87,8 @@ static int setup() {
 		perror("bind()");
 		return -1;
 	}
+	
+	chmod(SOCKET_PATH, 0666);
 
 	if (listen(sock, BACKLOG)) {
 		perror("listen()");
