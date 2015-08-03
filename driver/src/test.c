@@ -1,6 +1,7 @@
 // Score testing on virtual monitor
 // Victor Manuel Fernandez Castro
 // 31 July 2015
+// 3 August 2015
 
 #include <stdlib.h>
 #include <string.h>
@@ -23,7 +24,8 @@ int main(int argc, char **argv) {
 	}
 	
 	scores->idscore = 0;
-	scores->path = argv[1];
+	scores->path = (char *)malloc(strlen(argv[1]) + 1);
+	strcpy(scores->path, argv[1]);
 	
 	if (player_start(scores, 1, -1, -1, 0)) {
 		perror("No se pudo ejecutar el reproductor");
