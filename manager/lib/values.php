@@ -17,4 +17,4 @@ const DB_USER = 'organo';
 const DB_PASS = 'ugr2015';
 
 const FILE_MAXSIZE = 1048576;
-const SCORE_DIR = '/home/pi/player/data';
+const SCORE_DIR = '/home/pi/midis';
