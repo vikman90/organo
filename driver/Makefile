@@ -28,15 +28,15 @@ CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
 INCPATH		= -I$(INC) -I/usr/include/mysql
-LIBS		= -L/usr/lib/arm-linux-gnueabihf -lmysqlclient
+LIBS		= -L/usr/lib/arm-linux-gnueabihf
 LDFLAGS		= -O1 -s -pthread
 
 CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test
-INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ
+TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login
+INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ $(INSTALL_BIN)/organ-login
 
 .PHONY: all install uninstall clean objclean
 
@@ -55,7 +55,10 @@ $(INSTALL_SBIN)/organd: $(BIN)/organd
 	
 $(INSTALL_INIT)/organ: $(SCRIPTS)/organ
 	$(CP_FILE) $< $@
-	
+
+$(INSTALL_BIN)/organ-login: $(BIN)/login
+	$(CP_FILE) $< $@
+
 uninstall:
 	service organ stop 2> /dev/null; true
 	update-rc.d organ remove
@@ -67,11 +70,14 @@ clean: objclean
 objclean:
 	$(RM_FILE) $(OBJ)/*.o
 
+$(BIN)/login: $(OBJ)/login.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lcrypt
+
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lmysqlclient
 
 $(BIN)/test: $(OBJ)/database.o $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)

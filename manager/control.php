@@ -104,7 +104,7 @@ function login() {
     $user = LINUX_USERNAME;
     $pass = $_POST['password'];
 
-    exec("/usr/bin/sudo /usr/bin/python3 /home/pi/player/login.py $user $pass", $output, $retval);
+    exec("/usr/bin/sudo /usr/bin/organ-login $user $pass", $output, $retval);
 
     if (!$retval) {
         set_auth();
