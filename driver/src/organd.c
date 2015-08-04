@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/un.h>
+#include <syslog.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +24,7 @@
 
 static const char PID_PATH[] = "/run/organd.pid";		// Path for pid file
 static const char SOCKET_PATH[] = "/run/organd.sock";	// Path for socket file
+static const char LOG_IDENT[] = "organd";				// Logging identity
 
 static char buffer[BUFFER_LENGTH];
 
@@ -34,12 +36,20 @@ static void cleanup() {
 	database_destroy();
 	player_stop();
 	output_destroy();
+	closelog();
 }
 
 // Action on SIGTERM
 
 static void onsigterm() {
-	exit(0);
+	exit(EXIT_SUCCESS);
+}
+
+// Action on SIGSEGV
+
+static void onsigsegv() {
+	syslog(LOG_ERR, "Segment violation\n");
+	exit(EXIT_FAILURE);
 }
 
 // Setup function. Returns socket id, or -1 on error.
@@ -49,22 +59,27 @@ static int setup() {
 	int sock;
 	struct sockaddr_un addr;
 	
+	// Logging
+	
+	openlog(LOG_IDENT, 0, LOG_DAEMON);
+	
 	// Daemon
 
 	if (daemon(0, 0) < 0) {
-		perror("daemon()");
+		syslog(LOG_ERR, "daemon(): %m\n");
 		return -1;
 	}
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
+	signal(7, onsigsegv);
 	
 	// PID file
 
 	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
 	if (fd < 0) {
-		perror("open()");
+		syslog(LOG_ERR, "open(): %m\n");
 		return -1;
 	}
 
@@ -76,7 +91,7 @@ static int setup() {
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sock < 0) {
-		perror("socket()");
+		syslog(LOG_ERR, "socket(): %m\n");
 		return -1;
 	}
 
@@ -84,21 +99,28 @@ static int setup() {
 	strcpy(addr.sun_path, SOCKET_PATH);
 
 	if (bind(sock, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		perror("bind()");
+		syslog(LOG_ERR, "bind(): %m\n");
 		return -1;
 	}
 	
 	chmod(SOCKET_PATH, 0666);
 
 	if (listen(sock, BACKLOG)) {
-		perror("listen()");
+		syslog(LOG_ERR, "listen(): %m\n");
 		return -1;
 	}
 	
 	// Database and output
 	
-	if (database_init() < 0 || output_init() < 0)
+	if (database_init() < 0) {
+		syslog(LOG_ERR, "Error at database_init()\n");
 		return -1;
+	}
+	
+	if (output_init() < 0) {
+		syslog(LOG_ERR, "Error at output_init()\n");
+		return -1;
+	}
 	
 	return sock;
 }
@@ -108,13 +130,15 @@ static int setup() {
 int playlist(const char *buffer) {
 	int idplaylist, idscore, n;
 	score_t *scores;
-	
+
 	sscanf(buffer, "%d %d", &idplaylist, &idscore);
 	n = database_query(&scores, idplaylist);
-	
-	if (n < 0)
+
+	if (n < 0) {
+		syslog(LOG_ERR, "playlist(): Playlist empty.\n");
 		return -1;
-	
+	}
+
 	return player_start(scores, n, idplaylist, idscore, 1);
 }
 
@@ -124,38 +148,43 @@ int main() {
 
 	if (sock < 0)
 		return EXIT_FAILURE;
-
+	
 	while (1) {
 		peer = accept(sock, NULL, 0);
 
 		if (peer < 0) {
-			perror("accept()");
+			syslog(LOG_ERR, "accept(): %m\n");
 			return EXIT_FAILURE;
 		}
 
-		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1)
+		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1) {
+			syslog(LOG_ERR, "recv() ****: %m\n");
 			send(peer, "ERROR", 5, 0);
-		else if (!strncmp(buffer, "PLAY", 4)) {
-			if (playlist(buffer + 5) < 0)
+		} else if (!strncmp(buffer, "PLAY", 4)) {			
+			if (playlist(buffer + 5) < 0) {
+				syslog(LOG_ERR, "Error at playlist()\n");
 				send(peer, "ERROR", 5, 0);
-			else
+			} else 
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "STOP", 4)) {
-			if (player_stop() < 0)
+		} else if (!strncmp(buffer, "STOP", 4)) {	
+			if (player_stop() < 0) {
+				syslog(LOG_ERR, "Error at player_stop()\n");
 				send(peer, "ERROR", 5, 0);
-			else
+			} else
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "PAUSE", 5)) {
-			if (player_pause() < 0)
+		} else if (!strncmp(buffer, "PAUSE", 5)) {			
+			if (player_pause() < 0) {
+				syslog(LOG_ERR, "Error at player_pause()\n");
 				send(peer, "ERROR", 5, 0);
-			else
+			} else
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "RESUME", 6)) {
-			if (player_resume() < 0)
+		} else if (!strncmp(buffer, "RESUME", 6)) {			
+			if (player_resume() < 0) {
+				syslog(LOG_ERR, "Error at player_resume()\n");
 				send(peer, "ERROR", 5, 0);
-			else
+			} else
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "STATUS", 6)) {
+		} else if (!strncmp(buffer, "STATUS", 6)) {			
 			int idplaylist, idscore;
 			enum player_state_t state = player_state(&idplaylist, &idscore);
 			
@@ -167,10 +196,19 @@ int main() {
 				send(peer, buffer, strlen(buffer), 0);
 			} else if (state == STOPPED)
 				send(peer, "STOPPED", 7, 0);
-			else
+			else {
+				syslog(LOG_ERR, "Error: unknown state.\n");
 				send(peer, "ERROR", 5, 0);
-		} else
+			}
+		} else {
+			syslog(LOG_ERR, "Error: unrecognised remote command.\n");
 			send(peer, "ERROR", 5, 0);
+		}
+		
+		if (close(peer) < 0) {
+			syslog(LOG_ERR, "close(): %m\n");
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;
