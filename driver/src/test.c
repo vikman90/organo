@@ -11,8 +11,8 @@
 #include "database.h"
 
 int main(int argc, char **argv) {
-	score_t *scores = (score_t *)malloc(sizeof(score_t));;
-	
+	score_t *score = (score_t *)malloc(sizeof(score_t));;
+
 	if (argc < 2) {
 		fprintf(stderr, "Sintaxis: %s <archivo>\n", *argv);
 		return EXIT_FAILURE;
@@ -22,17 +22,25 @@ int main(int argc, char **argv) {
 		perror("No se pudo inicializar la salida");
 		return EXIT_FAILURE;
 	}
-	
-	scores->idscore = 0;
-	scores->path = (char *)malloc(strlen(argv[1]) + 1);
-	strcpy(scores->path, argv[1]);
-	
-	if (player_start(scores, 1, -1, -1, 0)) {
+
+	score->idscore = 0;
+	score->path = (char *)malloc(strlen(argv[1]) + 1);
+	strcpy(score->path, argv[1]);
+	score->file = malloc(sizeof(midifile_t));
+
+	if (midifile_init(score->file, argv[1]) < 0) {
+		perror("No se pudo leer el archivo");
+		return EXIT_FAILURE;
+	}
+
+	if (player_start(score, 1, -1, -1, 0)) {
 		perror("No se pudo ejecutar el reproductor");
 		return EXIT_FAILURE;
 	}
 	
-	player_wait();
+	if (player_wait() < 0)
+		perror("player_wait()");
+
 	output_destroy();
 	return EXIT_SUCCESS;
 }

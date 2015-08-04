@@ -15,11 +15,11 @@ static const struct timespec PAUSE_SLEEP = { 0, 100000000 };
 
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;
-static score_t *scores;
-static int nscores;
-static int loop;
-static int cur_idplaylist = 0;
-static int cur_idscore = 0;
+static volatile score_t *scores;
+static volatile int nscores;
+static volatile int loop;
+static volatile int cur_idplaylist = 0;
+static volatile int cur_idscore = 0;
 
 // Play a file
 
@@ -30,13 +30,13 @@ static int playscore(midifile_t *file) {
 	int active, min_delta, tempo = DEFAULT_TEMPO;
 	unsigned short i;
 	char finished[file->ntracks];
-	
+
 	for (i = 0; i < file->ntracks; i++)
 		tracks[i] = file->tracks[i];
 
 	bzero(finished, file->ntracks);
 	output_panic();
-
+	
 	while (1) {
 		active = 0;
 		min_delta = INT_MAX;
@@ -116,16 +116,15 @@ static int playscore(midifile_t *file) {
 
 static void* player_run(void *arg) {
 	int i, nerrors = 0;
-	midifile_t file;
 	char error[nscores];
-	
+
 	arg = arg;
-	
+
 	if (loop) {
 		bzero(error, nscores);
 
 		// Find first score, if indicated
-		
+
 		if (cur_idscore < 0)
 			i = 0;
 		else {
@@ -137,36 +136,34 @@ static void* player_run(void *arg) {
 			i = (i < nscores) ? nscores : 0;
 		}
 
-		while (1) {			
-			if (midifile_init(&file, scores[i].path) < 0) {
-				midifile_destroy(&file);
-				
+		// Play
+
+		while (1) {
+			if (scores[i].file) {
+				cur_idscore = scores[i].idscore;
+				int retval = playscore(scores[i].file);
+
+				if (retval)
+					break;
+			} else {
 				if (!error[i]) {
 					error[i] = 1;
-					
+
 					if (++nerrors >= nscores)
 						break;
 				}
-			} else {
-				cur_idscore = scores[i].idscore;
-				int retval = playscore(&file);
-				midifile_destroy(&file);
-				
-				if (retval)
-					break;
 			}
 
 			i = (i + 1) % nscores;
 		}
 	} else {
-		for (i = 0; i < nscores; i++) {	
-			if (midifile_init(&file, scores[i].path) < 0) {
-				midifile_destroy(&file);
-			} else {
+		// No loop
+	
+		for (i = 0; i < nscores; i++) {
+			if (scores[i].file) {
 				cur_idscore = scores[i].idscore;
-				int retval = playscore(&file);
-				midifile_destroy(&file);
-				
+				int retval = playscore(scores[i].file);
+
 				if (retval)
 					break;
 			}
@@ -174,7 +171,7 @@ static void* player_run(void *arg) {
 	}
 
 	state = STOPPED;
-	score_destroy(scores, nscores);
+	score_destroy((score_t *)scores, nscores);
 	
 	return NULL;
 }
@@ -205,7 +202,7 @@ int player_wait() {
 int player_pause() {
 	if (state == STOPPED)
 		return -1;
-	
+
 	state = PAUSED;
 	return 0;
 }
@@ -215,7 +212,7 @@ int player_pause() {
 int player_resume() {
 	if (state == STOPPED)
 		return -1;
-	
+
 	state = PLAYING;
 	return 0;
 }
@@ -225,9 +222,9 @@ int player_resume() {
 int player_stop() {
 	if (state == STOPPED)
 		return 0;
-	
+
 	state = STOPPED;
-	pthread_join(thread, NULL);	
+	pthread_join(thread, NULL);
 	return 0;
 }
 

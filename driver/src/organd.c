@@ -45,13 +45,6 @@ static void onsigterm() {
 	exit(EXIT_SUCCESS);
 }
 
-// Action on SIGSEGV
-
-static void onsigsegv() {
-	syslog(LOG_ERR, "Segment violation\n");
-	exit(EXIT_FAILURE);
-}
-
 // Setup function. Returns socket id, or -1 on error.
 
 static int setup() {
@@ -72,7 +65,6 @@ static int setup() {
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
-	signal(7, onsigsegv);
 	
 	// PID file
 
@@ -111,12 +103,12 @@ static int setup() {
 	}
 	
 	// Database and output
-	
+
 	if (database_init() < 0) {
 		syslog(LOG_ERR, "Error at database_init()\n");
 		return -1;
 	}
-	
+
 	if (output_init() < 0) {
 		syslog(LOG_ERR, "Error at output_init()\n");
 		return -1;
@@ -130,13 +122,20 @@ static int setup() {
 int playlist(const char *buffer) {
 	int idplaylist, idscore, n;
 	score_t *scores;
-
+	
 	sscanf(buffer, "%d %d", &idplaylist, &idscore);
 	n = database_query(&scores, idplaylist);
 
 	if (n < 0) {
 		syslog(LOG_ERR, "playlist(): Playlist empty.\n");
 		return -1;
+	}
+	
+	if (player_state(NULL, NULL) != STOPPED) {
+		if (player_stop() < 0) {
+			syslog(LOG_ERR, "playlist(): Couldn't stop before playing.\n");
+			return -1;
+		}
 	}
 
 	return player_start(scores, n, idplaylist, idscore, 1);
@@ -148,7 +147,7 @@ int main() {
 
 	if (sock < 0)
 		return EXIT_FAILURE;
-	
+
 	while (1) {
 		peer = accept(sock, NULL, 0);
 
@@ -158,9 +157,9 @@ int main() {
 		}
 
 		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1) {
-			syslog(LOG_ERR, "recv() ****: %m\n");
+			syslog(LOG_ERR, "recv(): %m\n");
 			send(peer, "ERROR", 5, 0);
-		} else if (!strncmp(buffer, "PLAY", 4)) {			
+		} else if (!strncmp(buffer, "PLAY", 4)) {		
 			if (playlist(buffer + 5) < 0) {
 				syslog(LOG_ERR, "Error at playlist()\n");
 				send(peer, "ERROR", 5, 0);

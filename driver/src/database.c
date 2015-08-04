@@ -22,13 +22,13 @@ static MYSQL *conn;
 
 int database_init() {
 	conn = mysql_init(NULL);
-	
+
 	if (conn == NULL)
 		return -1;
-	
+
 	if (!mysql_real_connect(conn, DB_HOST, DB_USER, DB_PASS, DB_NAME, 0, NULL, 0))
 		return -1;
-	
+
 	return 0;
 }
 
@@ -49,27 +49,35 @@ int database_query(score_t **scores, int idplaylist) {
 
 	if (mysql_query(conn, query))
 		return -1;
-	
+
 	result = mysql_store_result(conn);
 
 	if (result == NULL)
 		return -1;
-	
+
 	nrows = mysql_num_rows(result);
 	*scores = (score_t *)malloc(nrows * sizeof(score_t));
 	
 	if (*scores == NULL)
 		return -1;
-	
+
 	for (i = 0; i < nrows; i++) {
 		score_t *score = (*scores) + i;
 		MYSQL_ROW row = mysql_fetch_row(result);
+		
 		score->idscore = atoi(row[0]);
-		score->path = (char *)malloc(strlen(row[1]) + 15);
+		score->path = (char *)malloc(strlen(row[1]) + strlen(SCORE_HOME) + 1);
 		strcpy(score->path, SCORE_HOME);
 		strcat(score->path, row[1]);
+		score->file = (midifile_t *)malloc(sizeof(midifile_t));
+
+		if (midifile_init(score->file, score->path) < 0) {
+			midifile_destroy(score->file);
+			free(score->file);
+			score->file = NULL;
+		}
 	}
-	
+
 	return nrows;
 }
 
@@ -77,9 +85,11 @@ int database_query(score_t **scores, int idplaylist) {
 
 void score_destroy(score_t *scores, int n) {
 	int i;
-	
-	for (i = 0; i < n; i++)
+
+	for (i = 0; i < n; i++) {
 		free(scores[i].path);
-	
+		free(scores[i].file);
+	}
+
 	free(scores);
 }
