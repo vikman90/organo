@@ -8,6 +8,7 @@
 # all:      	Compiles the project. [default]
 # install:		Installs the project on linux binaries folders.
 # uninstall:	Uninstalls the project.
+# preinstall:	Prepares the system for installing the project.
 # clean:    	Deletes binaries and objects.
 # objclean: 	Deletes objects.
 ################################################################################
@@ -38,7 +39,7 @@ RM_DIR		= rm -rf
 TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login $(BIN)/organ
 INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ $(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ
 
-.PHONY: all install uninstall clean objclean
+.PHONY: all install uninstall preinstall clean objclean
 
 $(OBJ)/%.o: $(SRC)/%.c
 	$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<
@@ -66,6 +67,9 @@ uninstall:
 	service organ stop 2> /dev/null; true
 	update-rc.d organ remove
 	$(RM_FILE) $(INSTALLS)
+
+preinstall:
+	$(SCRIPTS)/preinstall.sh
 
 clean: objclean
 	$(RM_FILE) $(TARGET)
