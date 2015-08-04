@@ -1,4 +1,17 @@
 #!/bin/sh
+# Daemon script
+# Victor Manuel Fernandez Castro
+# 2 August 2015
+
+### BEGIN INIT INFO
+# Provides:          organ
+# Required-Start:    $remote_fs $syslog mysql
+# Required-Stop:     $remote_fs $syslog mysql
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start organ daemon at boot time
+# Description:       Provides a socket for playing MIDI on GPIO.
+### END INIT INFO
 
 PIDFILE="/run/organd.pid"
 DAEMON="/usr/sbin/organd"

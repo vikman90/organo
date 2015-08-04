@@ -47,7 +47,7 @@ $(OBJ)/%.o: $(SRC)/%.c
 all: $(TARGET)
 
 install: $(INSTALLS)
-	update-rc.d organ defaults
+	insserv organ
 	service organ start
 
 $(INSTALL_SBIN)/organd: $(BIN)/organd
@@ -65,7 +65,7 @@ $(INSTALL_BIN)/organ: $(BIN)/organ
 
 uninstall:
 	service organ stop 2> /dev/null; true
-	update-rc.d organ remove
+	insserv -r organ
 	$(RM_FILE) $(INSTALLS)
 
 preinstall:
