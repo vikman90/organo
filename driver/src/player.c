@@ -192,7 +192,7 @@ static void* player_run(void *arg) {
 	return NULL;
 }
 
-// Play a playlist (idscore = -1 for playing the first score)
+// Play a playlist
 
 int player_start(score_t *_scores, int n, int idplaylist, int idscore, int _loop) {
 	if (state != STOPPED)
