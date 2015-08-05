@@ -342,11 +342,17 @@ footer p {
     outline: none;
 }
 
+.player-button:disabled {
+    cursor: default;
+    background-color: #cebca5; /* Marrón apagado pálido */
+    box-shadow: none;
+}
+
 .player-button:active {
     box-shadow: none;
 }
 
-#bt-previuos {
+#bt-previous {
     background-image: url(../images/previuos.png);
 }
 

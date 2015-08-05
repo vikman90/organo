@@ -52,4 +52,5 @@
     <string name="error_socket">No se pudo conectar al socket del controlador.</string>
     <string name="error_driver">Error en el controlador.</string>
     <string name="unknown">Desconocido</string>
+    <string name="stopped">Detenido</string>
 </translation>

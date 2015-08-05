@@ -21,26 +21,40 @@ html_navigation('player');
 
 $state = driver_status();
 
-if (($state[0] == 'PLAYING' or $state[0] == 'PAUSED') and $state[1] >= 0 and $state[2] >= 0) {
-    $playlist = db_get_playlist($state[1]);
-    $score = db_get_score($state[2]);
-} else
-    $playlist = $score = null;
+switch ($state[0]) {
+    case 'PLAYING':
+    case 'PAUSED':
+        if ($state[1] >= 0) {
+            $playlist = db_get_playlist($state[1]);
+            $score = db_get_score($state[2]);
+            $name = $score ? $score['name'] : $tr['unknown'];
+        } elseif ($state[3]) {
+            $name = pathinfo($state[3], PATHINFO_FILENAME);
+            echo $state[3];
+            $playlist = null;
+        }
 
+        break;
 
-$name = $score ? $score['name'] : $tr['unknown'];
-$play = $state[0] == 'PLAYING' ? 'hidden' : '';
-$pause = $state[0] == 'PLAYING' ? '' : 'hidden';
+    case 'STOPPED':
+        $playlist = null;
+        $name = $tr['stopped'];
+}
+
+$play_hidden = $state[0] == 'PLAYING' ? 'hidden' : '';
+$pause_hidden = $state[0] == 'PLAYING' ? '' : 'hidden';
+$skip_disabled = $playlist ? '' : 'disabled';
+$play_disabled = $state[0] == 'STOPPED' ? 'disabled' : '';
 
 echo <<< EOT
 <section>
     <div id="player-control">
         <h3 id="score-name">$name</h3>
-        <input type="button" class="player-button" id="bt-previuos" title="{$tr['previuos']}" onclick="previuos()">
-        <input type="button" class="player-button $play" id="bt-play" title="{$tr['play']}" onclick="play()">
-        <input type="button" class="player-button $pause" id="bt-pause" title="{$tr['pause']}" onclick="pause()">
-        <input type="button" class="player-button" id="bt-stop" title="{$tr['stop']}" onclick="stop()">
-        <input type="button" class="player-button" id="bt-next" title="{$tr['next']}" onclick="next()">
+        <input type="button" class="player-button" id="bt-previous" title="{$tr['previuos']}" onclick="previous()" $skip_disabled>
+        <input type="button" class="player-button $play_hidden" id="bt-play" title="{$tr['play']}" onclick="resume()" $play_disabled>
+        <input type="button" class="player-button $pause_hidden" id="bt-pause" title="{$tr['pause']}" onclick="pause()"$play_disabled>
+        <input type="button" class="player-button" id="bt-stop" title="{$tr['stop']}" onclick="stop()" $play_disabled>
+        <input type="button" class="player-button" id="bt-next" title="{$tr['next']}" onclick="next()" $skip_disabled>
     </div>
 
 EOT;

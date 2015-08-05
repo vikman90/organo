@@ -52,4 +52,5 @@
     <string name="error_socket">Non è stato possibile collegare al socket.</string>
     <string name="error_driver">Error nel driver.</string>
     <string name="unknown">Sconosciuto</string>
+    <string name="stopped">Arrestato</string>
 </translation>

@@ -144,7 +144,7 @@ function play() {
         if (count($playlist['scores']) < 1)
             html_error('args');
         else
-            $idscore = $playlist['scores'][0]['idscore'];
+            $idscore = $playlist['scores'][0]['id'];
     }
 
     if (driver_play($playlist['id'], $idscore))
