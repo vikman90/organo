@@ -9,17 +9,20 @@
 #include "player.h"
 #include "output.h"
 
-#define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
+#include <syslog.h>
 
-static const struct timespec PAUSE_SLEEP = { 0, 100000000 };
+#define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
 
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;
-static volatile score_t *scores;
+static volatile int active = 0;
+static volatile score_t *scores = NULL;
 static volatile int nscores;
 static volatile int loop;
 static volatile int cur_idplaylist = 0;
-static volatile int cur_idscore = 0;
+static volatile int first_idscore = 0;
+static volatile score_t *cur_score;
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Play a file
 
@@ -41,18 +44,22 @@ static int playscore(midifile_t *file) {
 		active = 0;
 		min_delta = INT_MAX;
 
-		if (state != PAUSED)
-			nanosleep(&PAUSE_SLEEP, NULL);
-		else if (state == STOPPED) {
-			output_panic();
-			return 1;
+		if (state != PLAYING) {
+			if (state == PAUSED) {
+				pthread_mutex_lock(&mutex);
+				pthread_mutex_unlock(&mutex);
+			} else {
+				// STOPPED
+				output_panic();
+				return 1;
+			}
 		}
 
 		for (i = 0; i < file->ntracks; i++) {
 			if (!finished[i]) {
 				event = tracks[i];
 
-				// 1 Los que no deban esperar, ejecutar
+				// 1 Execute events with delta = 0
 
 				while (event->delta == 0) {
 					if (event->type == NOTE_OFF)
@@ -74,14 +81,13 @@ static int playscore(midifile_t *file) {
 
 				}
 
-				// 2 Buscar minimo delta y condicion de final
+				// 2 Find minimum delta and ending contition
 
 				if (!finished[i]) {
 					active = 1;
 
-					if (event->delta < min_delta) {
+					if (event->delta < min_delta)
 						min_delta = event->delta;
-					}
 				}
 
 				tracks[i] = event;
@@ -93,14 +99,14 @@ static int playscore(midifile_t *file) {
 		if (!active)
 			break;
 
-		// 3 Restar delta minimo a todos
+		// 3 Substract minimum delta to every pending event
 
 		for (i = 0; i < file->ntracks; i++) {
 			if (!finished[i])
 				tracks[i]->delta -= min_delta;
 		}
 
-		// 4 Esperar
+		// 4 Wait
 
 		min_delta = min_delta * tempo / file->timediv;
 		timereq.tv_sec = min_delta / 1000000;
@@ -112,7 +118,7 @@ static int playscore(midifile_t *file) {
 	return 0;
 }
 
-// Thread main
+// Thread's main function
 
 static void* player_run(void *arg) {
 	int i, nerrors = 0;
@@ -125,27 +131,31 @@ static void* player_run(void *arg) {
 
 		// Find first score, if indicated
 
-		if (cur_idscore < 0)
+		if (first_idscore < 0)
 			i = 0;
 		else {
 
 			for (i = 0; i < nscores; i++)
-				if (scores[i].idscore == cur_idscore)
+				if (scores[i].idscore == first_idscore)
 					break;
 
-			i = (i < nscores) ? nscores : 0;
+			i = (i < nscores) ? i : 0;
 		}
 
 		// Play
 
 		while (1) {
 			if (scores[i].file) {
-				cur_idscore = scores[i].idscore;
+				cur_score = &scores[i];
+				syslog(LOG_INFO, "Starting execution of %s", scores[i].path);
 				int retval = playscore(scores[i].file);
-
+				syslog(LOG_INFO, "Execution finished with code %d", retval);
+				
 				if (retval)
 					break;
 			} else {
+				syslog(LOG_WARNING, "Score %s not loaded", scores[i].path);
+				
 				if (!error[i]) {
 					error[i] = 1;
 
@@ -161,18 +171,19 @@ static void* player_run(void *arg) {
 	
 		for (i = 0; i < nscores; i++) {
 			if (scores[i].file) {
-				cur_idscore = scores[i].idscore;
+				cur_score = &scores[i];
+				syslog(LOG_INFO, "Starting execution of %s", scores[i].path);
 				int retval = playscore(scores[i].file);
+				syslog(LOG_INFO, "Execution finished with code %d", retval);
 
 				if (retval)
 					break;
-			}
+			} else
+				syslog(LOG_WARNING, "Score %s not loaded", scores[i].path);
 		}
 	}
 
-	state = STOPPED;
-	score_destroy((score_t *)scores, nscores);
-	
+	active = 0;
 	return NULL;
 }
 
@@ -181,14 +192,26 @@ static void* player_run(void *arg) {
 int player_start(score_t *_scores, int n, int idplaylist, int idscore, int _loop) {
 	if (state != STOPPED)
 		player_stop();
+	
+	// Delete scores at this point to avoid race conditions
+	
+	if (scores)
+		score_destroy((score_t *)scores, nscores);
 
+	active = 1;
 	scores = _scores;
 	nscores = n;
 	loop = _loop;
 	cur_idplaylist = idplaylist;
-	cur_idscore = idscore;
-
-	return pthread_create(&thread, NULL, player_run, NULL);
+	first_idscore = idscore;
+	
+	if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
+		active = 0;
+		return -1;
+	}
+	
+	state = PLAYING;
+	return 0;
 }
 
 // Wait thread to end (only if loop = 0)
@@ -200,9 +223,10 @@ int player_wait() {
 // Pause player, if running
 
 int player_pause() {
-	if (state == STOPPED)
+	if (state != PAUSED)
 		return -1;
 
+	pthread_mutex_lock(&mutex);
 	state = PAUSED;
 	return 0;
 }
@@ -210,30 +234,37 @@ int player_pause() {
 // Resume player, if paused
 
 int player_resume() {
-	if (state == STOPPED)
+	switch (state) {
+	case PAUSED:
+		state = PLAYING;
+		pthread_mutex_unlock(&mutex);
+	case PLAYING:
+		return 0;
+	default:
 		return -1;
-
-	state = PLAYING;
-	return 0;
+	}
 }
 
 // Stop player
 
 int player_stop() {
-	if (state == STOPPED)
+	switch (state) {
+	case PAUSED:
+		pthread_mutex_unlock(&mutex);
+	case PLAYING:
+		pthread_join(thread, NULL);
+		state = STOPPED;
+	default:
 		return 0;
-
-	state = STOPPED;
-	pthread_join(thread, NULL);
-	return 0;
+	}
 }
 
 // Get state and current idplaylist and idscore
 
-enum player_state_t player_state(int *idplaylist, int *idscore) {
-	if ((state == PLAYING || state == PAUSED) && idplaylist && idscore) {
+enum player_state_t player_state(int *idplaylist, score_t **score) {
+	if ((state == PLAYING || state == PAUSED) && idplaylist && score) {
 		*idplaylist = cur_idplaylist;
-		*idscore = cur_idscore;
+		*score = (score_t *)cur_score;
 		return PLAYING;
 	}
 

@@ -18,6 +18,7 @@
 #include "database.h"
 #include "player.h"
 #include "output.h"
+#include "midi.h"
 
 #define BUFFER_LENGTH 256	// Length of receiving buffer
 #define BACKLOG 5			// Listening queue length
@@ -42,6 +43,7 @@ static void cleanup() {
 // Action on SIGTERM
 
 static void onsigterm() {
+	player_stop();
 	exit(EXIT_SUCCESS);
 }
 
@@ -138,11 +140,32 @@ int playlist(const char *buffer) {
 		}
 	}
 
-	return player_start(scores, n, idplaylist, idscore, 1);
+	return player_start(scores, n, idplaylist, idscore, 1) ? -1 : 0;
+}
+
+// Plays a file
+
+int playfile(const char *path) {
+	score_t * score;
+	midifile_t *file = (midifile_t *)malloc(sizeof(midifile_t));
+	
+	if (midifile_init(file, path) < 0) {
+		syslog(LOG_ERR, "Couldn't read file %s", path);
+		midifile_destroy(file);
+		free(file);
+	}
+	
+	score = (score_t *)malloc(sizeof(score_t));
+	score->idscore = -1;
+	score->path = malloc(strlen(path) + 1);
+	strcpy(score->path, path);
+	score->file = file;
+	
+	return player_start(score, 1, -1, -1, 0) ? -1 : 0;
 }
 
 int main() {
-	int peer;
+	int peer, bytes;
 	int sock = setup();
 
 	if (sock < 0)
@@ -155,13 +178,25 @@ int main() {
 			syslog(LOG_ERR, "accept(): %m\n");
 			return EXIT_FAILURE;
 		}
+		
+		bytes = recv(peer, buffer, BUFFER_LENGTH, 0);
 
-		if (recv(peer, buffer, BUFFER_LENGTH, 0) < 1) {
+		if (bytes < 1) {
 			syslog(LOG_ERR, "recv(): %m\n");
 			send(peer, "ERROR", 5, 0);
-		} else if (!strncmp(buffer, "PLAY", 4)) {		
-			if (playlist(buffer + 5) < 0) {
+		} else if (!strncmp(buffer, "PLAYLIST", 8)) {
+			buffer[bytes] = '\0';
+			
+			if (playlist(buffer + 9) < 0) {
 				syslog(LOG_ERR, "Error at playlist()\n");
+				send(peer, "ERROR", 5, 0);
+			} else 
+				send(peer, "OK", 2, 0);
+		} else if (!strncmp(buffer, "PLAYFILE", 8)) {
+			buffer[bytes] = '\0';
+			
+			if (playfile(buffer + 9) < 0) {
+				syslog(LOG_ERR, "Error at playfile()\n");
 				send(peer, "ERROR", 5, 0);
 			} else 
 				send(peer, "OK", 2, 0);
@@ -184,18 +219,33 @@ int main() {
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STATUS", 6)) {			
-			int idplaylist, idscore;
-			enum player_state_t state = player_state(&idplaylist, &idscore);
+			int idplaylist;
+			score_t *score;
+			enum player_state_t state = player_state(&idplaylist, &score);
 			
-			if (state == PLAYING) {
-				sprintf(buffer, "PLAYING %d %d", idplaylist, idscore);
+			switch (state) {
+			case PAUSED:
+				if (idplaylist < 0)
+					sprintf(buffer, "PAUSED -1 -1 %s", score->path);
+				else
+					sprintf(buffer, "PAUSED %d %d", idplaylist, score->idscore);
+				
 				send(peer, buffer, strlen(buffer), 0);
-			} else if (state == PAUSED) {
-				sprintf(buffer, "PAUSED %d %d", idplaylist, idscore);
+				break;
+				
+			case PLAYING:
+				if (idplaylist < 0)
+					sprintf(buffer, "PLAYING -1 -1 %s", score->path);
+				else
+					sprintf(buffer, "PLAYING %d %d", idplaylist, score->idscore);
+				
 				send(peer, buffer, strlen(buffer), 0);
-			} else if (state == STOPPED)
+				break;
+				
+			case STOPPED:
 				send(peer, "STOPPED", 7, 0);
-			else {
+				break;
+			default:
 				syslog(LOG_ERR, "Error: unknown state.\n");
 				send(peer, "ERROR", 5, 0);
 			}

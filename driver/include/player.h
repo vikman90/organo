@@ -6,7 +6,7 @@
 #include "database.h"
 #include "midi.h"
 
-enum player_state_t { PLAYING, STOPPED, PAUSED };
+enum player_state_t { PAUSED, PLAYING, STOPPED };
 
 // Play a playlist
 int player_start(score_t *scores, int n, int idplaylist, int idscore, int loop);
@@ -24,6 +24,6 @@ int player_resume();
 int player_stop();
 
 // Get state and current idplaylist and idscore
-enum player_state_t player_state(int *idplaylist, int *idscore);
+enum player_state_t player_state(int *idplaylist, score_t **score);
 
 #endif // PLAYER_H

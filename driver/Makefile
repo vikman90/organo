@@ -95,6 +95,6 @@ $(BIN)/test: $(OBJ)/database.o $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OB
 $(OBJ)/database.o: $(INC)/database.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/organd.o: $(INC)/database.h $(INC)/midi.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/test.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h

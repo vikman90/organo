@@ -73,6 +73,8 @@ int main(int argc, char **argv) {
 			printf("Estado: detenido.\n");
 		else
 			printf("Estado: %s\n", buffer);
+	} else {
+		fprintf(stderr, SYNTAX_FMT, *argv);
 	}
 	
 	close(sock);

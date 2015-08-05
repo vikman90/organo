@@ -16,7 +16,7 @@ if (!$sock or !socket_connect($sock, SOCKET_PATH))
 
 function driver_play($idplaylist, $idscore) {
     global $sock;
-    $buffer = "PLAY $idplaylist $idscore";
+    $buffer = "PLAYLIST $idplaylist $idscore";
 
     socket_send($sock, $buffer, strlen($buffer), 0);
     socket_recv($sock, $buffer, BUFFER_MAX, 0);
