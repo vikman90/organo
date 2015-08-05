@@ -226,6 +226,9 @@ int player_wait() {
 // Pause player, if running
 
 int player_pause() {
+	if (!active)
+		state = STOPPED;
+	
 	if (state != PLAYING)
 		return -1;
 
@@ -237,6 +240,9 @@ int player_pause() {
 // Resume player, if paused
 
 int player_resume() {
+	if (!active)
+		state = STOPPED;
+	
 	switch (state) {
 	case PAUSED:
 		state = PLAYING;
@@ -251,6 +257,9 @@ int player_resume() {
 // Stop player
 
 int player_stop() {
+	if (!active)
+		state = STOPPED;
+	
 	switch (state) {
 	case PAUSED:
 		pthread_mutex_unlock(&mutex);
@@ -265,7 +274,9 @@ int player_stop() {
 // Get state and current idplaylist and idscore
 
 enum player_state_t player_state(int *idplaylist, score_t **score) {
-	if ((state == PLAYING || state == PAUSED) && idplaylist && score) {
+	if (!active)
+		state = STOPPED;
+	else if ((state == PLAYING || state == PAUSED) && idplaylist && score) {
 		*idplaylist = cur_idplaylist;
 		*score = (score_t *)cur_score;
 		return PLAYING;
