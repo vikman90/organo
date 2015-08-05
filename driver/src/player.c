@@ -4,12 +4,10 @@
 #include <strings.h>
 #include <string.h>
 #include <limits.h>
-#include <time.h>
+#include <syslog.h>
 #include "midi.h"
 #include "player.h"
 #include "output.h"
-
-#include <syslog.h>
 
 #define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
 
@@ -228,7 +226,7 @@ int player_wait() {
 // Pause player, if running
 
 int player_pause() {
-	if (state != PAUSED)
+	if (state != PLAYING)
 		return -1;
 
 	pthread_mutex_lock(&mutex);
@@ -257,8 +255,8 @@ int player_stop() {
 	case PAUSED:
 		pthread_mutex_unlock(&mutex);
 	case PLAYING:
-		pthread_join(thread, NULL);
 		state = STOPPED;
+		pthread_join(thread, NULL);
 	default:
 		return 0;
 	}

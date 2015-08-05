@@ -32,18 +32,17 @@ static char buffer[BUFFER_LENGTH];
 // Cleanup function, called automatically on exiting.
 
 static void cleanup() {
+	player_stop();
+	database_destroy();
+	output_destroy();
 	unlink(PID_PATH);
 	unlink(SOCKET_PATH);
-	database_destroy();
-	player_stop();
-	output_destroy();
 	closelog();
 }
 
 // Action on SIGTERM
 
 static void onsigterm() {
-	player_stop();
 	exit(EXIT_SUCCESS);
 }
 
@@ -67,6 +66,11 @@ static int setup() {
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
+	
+	// Clean files
+	
+	unlink(PID_PATH);
+	unlink(SOCKET_PATH);
 	
 	// PID file
 
@@ -153,6 +157,7 @@ int playfile(const char *path) {
 		syslog(LOG_ERR, "Couldn't read file %s", path);
 		midifile_destroy(file);
 		free(file);
+		file = NULL;
 	}
 	
 	score = (score_t *)malloc(sizeof(score_t));
@@ -160,7 +165,6 @@ int playfile(const char *path) {
 	score->path = malloc(strlen(path) + 1);
 	strcpy(score->path, path);
 	score->file = file;
-	
 	return player_start(score, 1, -1, -1, 0) ? -1 : 0;
 }
 
@@ -206,7 +210,7 @@ int main() {
 				send(peer, "ERROR", 5, 0);
 			} else
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "PAUSE", 5)) {			
+		} else if (!strncmp(buffer, "PAUSE", 5)) {	
 			if (player_pause() < 0) {
 				syslog(LOG_ERR, "Error at player_pause()\n");
 				send(peer, "ERROR", 5, 0);
@@ -256,7 +260,6 @@ int main() {
 		
 		if (close(peer) < 0) {
 			syslog(LOG_ERR, "close(): %m\n");
-			return EXIT_FAILURE;
 		}
 	}
 

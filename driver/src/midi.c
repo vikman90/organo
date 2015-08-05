@@ -34,13 +34,17 @@ int midifile_init(midifile_t *score, const char *path) {
 	unsigned short ntracks, i;
 	char buffer[4];
 	
+	// Avoid segmentation fault on destroying a bad-created file
+	
+	score->tracks = NULL;
+
 	if (fd < 0)
 		return -1;
-	
+
 	// Mthd
 
 	read(fd, buffer, 4);
-	
+
 	if (memcmp(buffer, "MThd", 4)) {
 		close(fd);
 		return -1;
@@ -93,22 +97,24 @@ void midifile_destroy(midifile_t *file) {
 	midievent_t *current, *next;
 	unsigned short i;
 	
-	for (i = 0; i < file->ntracks; i++) {
-		current = file->tracks[i];
-		
-		while (current) {
-			if (current->type == METAEVENT) {
-				free(current->metaevent->data);
-				free(current->metaevent);
+	if (file->tracks) {
+		for (i = 0; i < file->ntracks; i++) {
+			current = file->tracks[i];
+
+			while (current) {
+				if (current->type == METAEVENT) {
+					free(current->metaevent->data);
+					free(current->metaevent);
+				}
+				
+				next = current->next;
+				free(current);
+				current = next;
 			}
-			
-			next = current->next;
-			free(current);
-			current = next;
 		}
+
+		free(file->tracks);
 	}
-	
-	free(file->tracks);
 }
 
 // Parse events for a track, until reaching END_OF_TRACK
@@ -122,8 +128,10 @@ static int parse(midievent_t **first, int fd) {
 	
 	read(fd, buffer, 4);
 	
-	if (memcmp(buffer, "MTrk", 4))
+	if (memcmp(buffer, "MTrk", 4)) {
+		*first = NULL;
 		return -1;
+	}
 	
 	// Length of chunk (ignore)
 	
@@ -169,9 +177,7 @@ static int parse(midievent_t **first, int fd) {
 				current->next = NULL;
 				break;
 			}
-		}
-		
-		else if (value == 0xF0) {
+		} else if (value == 0xF0) {
 			 // System exclusive event, discard
 			 
 			 char byte;
@@ -179,8 +185,10 @@ static int parse(midievent_t **first, int fd) {
 			 do {
 				 read(fd, &byte, 1);
 			 } while (byte != 0xF7);
-		} else
+		} else {
+			current->next = NULL;
 			return -1;
+		}
 		
 		current->next = (midievent_t *)malloc(sizeof(midievent_t));
 		current = current->next;

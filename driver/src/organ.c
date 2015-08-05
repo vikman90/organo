@@ -3,7 +3,8 @@
  * Victor Manuel Fernandez Castro
  * 3 August 2015
  */
- 
+
+#include <sys/stat.h> 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -11,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #define BUFFER_LENGTH 256
 
@@ -42,13 +44,47 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	
-	if (!strcmp(argv[1], "pause")) {
+	if (!strcmp(argv[1], "play")) {
+		int fd;
+		char path[BUFFER_LENGTH];
+		
+		if (argc < 3) {
+			fprintf(stderr, SYNTAX_FMT, *argv);
+			return EXIT_FAILURE;
+		}
+		
+		// Get absolute path
+		
+		if (argv[2][1] == '/')
+			strcpy(path, argv[2]);
+		else {
+			getcwd(path, BUFFER_LENGTH);
+			strcat(path, "/");
+			strcat(path, argv[2]);
+		}
+		
+		fd = open(path, O_RDONLY);
+		
+		if (fd < 0) {
+			fprintf(stderr, "No se pudo encontrar %s\n", path);
+			return EXIT_FAILURE;
+		} else
+			close(fd);
+		
+		sprintf(buffer, "PLAYFILE %s", path);
+		send(sock, buffer, strlen(buffer), 0);
+		recv(sock, buffer, BUFFER_LENGTH, 0);
+		
+		if (strncmp(buffer, "OK", 2)) {
+			fprintf(stderr, "Error en el controlador.\n");
+			printf("Devuelve: %s\n", buffer);
+		}
+	} else if (!strcmp(argv[1], "pause")) {
 		send(sock, "PAUSE", 5, 0);
 		recv(sock, buffer, BUFFER_LENGTH, 0);
 		
 		if (strncmp(buffer, "OK", 2))
-			fprintf(stderr, "Error en el controlador.\n");
-		
+			fprintf(stderr, "Error en el controlador.\n");	
 	} else if (!strcmp(argv[1], "resume")) {
 		send(sock, "RESUME", 6, 0);
 		recv(sock, buffer, BUFFER_LENGTH, 0);
