@@ -7,9 +7,9 @@
 
 namespace manager;
 
-require_once 'lib/session.php';
-require_once 'lib/translator.php';
-require_once 'lib/values.php';
+require_once __DIR__ . '/session.php';
+require_once __DIR__ . '/translator.php';
+require_once __DIR__ . '/values.php';
 
 global $translators;
 
@@ -164,11 +164,11 @@ function html_footer() {
 
 EOT;*/
 
-    $time = round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']), 3);
+    $time = round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 0);
 
     echo <<< EOT
 <footer>
-    <p>Página generada en $time s.</p>
+    <p>Página generada en $time ms.</p>
 </footer>
 
 EOT;

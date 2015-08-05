@@ -7,7 +7,7 @@
  */
 
 namespace manager;
-require_once 'templates.php';
+require_once __DIR__ . '/values.php';
 
 $sock = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
@@ -60,5 +60,5 @@ function driver_status() {
 
     socket_send($sock, $buffer, strlen($buffer), 0);
     socket_recv($sock, $buffer, BUFFER_MAX, 0);
-    return sscanf($buffer, "%s %d %d");
+    return sscanf($buffer, "%s %d %d %s");
 }

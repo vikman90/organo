@@ -19,6 +19,10 @@ function set_auth() {
     $_SESSION['auth'] = 1;
 }
 
+function get_auth() {
+    return $_SESSION['auth'];
+}
+
 function unset_auth() {
     unset($_SESSION['auth']);
 }

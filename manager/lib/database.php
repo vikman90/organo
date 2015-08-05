@@ -8,7 +8,7 @@
 
 namespace manager;
 
-require_once 'templates.php';
+require_once __DIR__ . '/templates.php';
 
 $db = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
