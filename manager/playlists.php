@@ -31,16 +31,21 @@ echo <<< EOT
 EOT;
 
 foreach (db_get_playlists() as $playlist) {
-    if ($playlist['scores'] == 0)
+    if ($playlist['scores'] == 0) {
         $scores = $tr['playlist_empty'];
-    elseif ($playlist['scores'] == 1)
-        $scores = '1 ' . $tr['score'];
-    else
-        $scores = $playlist['scores'] . ' ' . $tr['scores'];
+        $link = '';
+    } else {
+        $link = "<a class=\"bt-play\" href=\"control.php?action=play&idplaylist={$playlist['id']}\" title=\"{$tr['play']}\"></a>";
+
+        if ($playlist['scores'] == 1)
+            $scores = '1 ' . $tr['score'];
+        else
+            $scores = $playlist['scores'] . ' ' . $tr['scores'];
+    }
 
     echo <<< EOT
             <tr data-idplaylist="{$playlist['id']}" onclick="list(this)">
-                <td class="icon"><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}" title="{$tr['play']}"></a></td>
+                <td class="icon">$link</td>
                 <td><strong>{$playlist['name']}</strong></td>
                 <td>$scores</td>
             </tr>

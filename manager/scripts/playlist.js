@@ -34,8 +34,9 @@ function drop(event) {
     dragstop();
 }
 
-function show(tr) {
-
+function play(score) {
+    var playlist = document.getElementById('playlist');
+    window.location = 'control.php?action=play&idplaylist=' + playlist.getAttribute('data-idplaylist') + '&idscore=' + score.getAttribute('data-idscore');
 }
 
 function renamePlaylist() {

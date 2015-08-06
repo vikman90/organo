@@ -51,7 +51,7 @@ foreach ($playlist['scores'] as $score) {
     $name = $score['name'] === null ? $score['source'] : $score['name'];
 
     echo <<< EOT
-            <tr data-idscore="{$score['id']}" onclick="show(this)">
+            <tr data-idscore="{$score['id']}" onclick="play(this)">
                 <td class="icon"><a class="bt-play" href="control.php?action=play&idplaylist={$playlist['id']}&idscore={$score['id']}" title="{$tr['play']}"></a></td>
                 <td>$name</td>
                 <td class="icon"><a class="bt-rename" onclick="renameScore({$score['id']}, '$name')" title="{$tr['rename']}"></a></td>

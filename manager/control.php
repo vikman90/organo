@@ -126,6 +126,9 @@ function play() {
     if (!$playlist)
         html_error('args');
 
+    if (count($playlist['scores']) < 1)
+        html_error('playlist_empty');
+
     if (isset($_GET['idscore'])) {
         $found = false;
 
@@ -141,10 +144,7 @@ function play() {
         else
             $idscore = $_GET['idscore'];
     } else {
-        if (count($playlist['scores']) < 1)
-            html_error('args');
-        else
-            $idscore = $playlist['scores'][0]['id'];
+        $idscore = -1;
     }
 
     if (driver_play($playlist['id'], $idscore))
@@ -217,7 +217,7 @@ function new_score() {
     if ($file['size'] > FILE_MAXSIZE)
         html_error('file_size');
 
-    $score = db_insert_score($_POST['idplaylist'], $file['name']);
+    $score = db_insert_score($_POST['idplaylist'], pathinfo($file['name'], PATHINFO_FILENAME));
     move_uploaded_file($file['tmp_name'], SCORE_DIR . '/' . $score['source']);
     html_redirect("playlist.php?idplaylist={$_POST['idplaylist']}");
 }

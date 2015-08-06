@@ -53,4 +53,5 @@
     <string name="error_driver">Error en el controlador.</string>
     <string name="unknown">Desconocido</string>
     <string name="stopped">Detenido</string>
+    <string name="error_playlist_empty">Lista vacía.</string>
 </translation>

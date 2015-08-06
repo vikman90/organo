@@ -39,23 +39,43 @@ function pause() {
 }
 
 function stop() {
+    var title = document.getElementById('score-name');
+    var titleStopped = document.getElementById('title-stopped');
     var btPlay = document.getElementById('bt-play');
     var btPause = document.getElementById('bt-pause');
     var btStop = document.getElementById('bt-stop');
     var btPrevious = document.getElementById('bt-previous');
     var btNext = document.getElementById('bt-next');
+    var playlist = document.getElementById('current-playlist');
     var request = new XMLHttpRequest();
 
     request.onreadystatechange = function() {
         if (request.readyState == 4 && request.status == 200) {
             if (request.responseText == 'OK') {
+                // Change title
+                title.style.display = 'none';
+                titleStopped.style.display = 'block';
+
+                // Show play button
                 btPlay.style.display = 'inline';
                 btPause.style.display = 'none';
+
+                // Disable every button
                 btPlay.setAttribute('disabled', '');
                 btPause.setAttribute('disabled', '');
                 btStop.setAttribute('disabled', '');
                 btPrevious.setAttribute('disabled', '');
                 btNext.setAttribute('disabled', '');
+
+                // Unselect scores
+                if (playlist) {
+                    for (var i = 0; i < playlist.children.length; i++) {
+                        if (playlist.children[i].className == 'selected') {
+                            playlist.children[i].className = '';
+                            break;
+                        }
+                    }
+                }
             }
         }
     };
@@ -82,8 +102,7 @@ function previous() {
     if (selected === null)
         selected = playlist.firstElementChild;
 
-    selected.className = 'selected';
-    title.innerHTML = selected.innerHTML;
+    window.location = 'control.php?action=play&idplaylist=' + playlist.getAttribute('data-idplaylist') + '&idscore=' + selected.getAttribute('data-idscore');
 }
 
 function next() {
@@ -104,27 +123,10 @@ function next() {
     if (selected === null)
         selected = playlist.firstElementChild;
 
-    selected.className = 'selected';
-    title.innerHTML = selected.innerHTML;
-    btPlay.style.display = 'none';
-    btPause.style.display = 'inline';
+    window.location = 'control.php?action=play&idplaylist=' + playlist.getAttribute('data-idplaylist') + '&idscore=' + selected.getAttribute('data-idscore');
 }
 
-function select(selected) {
+function play(score) {
     var playlist = document.getElementById('current-playlist');
-    var title = document.getElementById('score-name');
-    var btPlay = document.getElementById('bt-play');
-    var btPause = document.getElementById('bt-pause');
-
-    for (var i = 0; i < playlist.children.length; i++) {
-        if (playlist.children[i].className == 'selected') {
-            playlist.children[i].className = '';
-            break;
-        }
-    }
-
-    selected.className = 'selected';
-    title.innerHTML = selected.innerHTML;
-    btPlay.style.display = 'none';
-    btPause.style.display = 'inline';
+    window.location = 'control.php?action=play&idplaylist=' + playlist.getAttribute('data-idplaylist') + '&idscore=' + score.getAttribute('data-idscore');
 }

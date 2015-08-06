@@ -26,9 +26,9 @@ switch ($state[0]) {
     case 'PAUSED':
         if ($state[1] >= 0) {
             $playlist = db_get_playlist($state[1]);
-            $score = db_get_score($state[2]);
-            $name = $score ? $score['name'] : $tr['unknown'];
-        } elseif ($state[3]) {
+            $cur_score = db_get_score($state[2]);
+            $name = $cur_score ? $cur_score['name'] : $tr['unknown'];
+        } else {
             $name = pathinfo($state[3], PATHINFO_FILENAME);
             echo $state[3];
             $playlist = null;
@@ -36,7 +36,7 @@ switch ($state[0]) {
 
         break;
 
-    case 'STOPPED':
+    default:
         $playlist = null;
         $name = $tr['stopped'];
 }
@@ -50,6 +50,7 @@ echo <<< EOT
 <section>
     <div id="player-control">
         <h3 id="score-name">$name</h3>
+        <h3 class="hidden" id="title-stopped">{$tr['stopped']}</h3>
         <input type="button" class="player-button" id="bt-previous" title="{$tr['previuos']}" onclick="previous()" $skip_disabled>
         <input type="button" class="player-button $play_hidden" id="bt-play" title="{$tr['play']}" onclick="resume()" $play_disabled>
         <input type="button" class="player-button $pause_hidden" id="bt-pause" title="{$tr['pause']}" onclick="pause()"$play_disabled>
@@ -63,15 +64,17 @@ if ($playlist) {
     echo <<< EOT
     <div id="player-playlist">
         <h2>{$tr['current_playlist']}</h2>
-        <ul id="current-playlist">
+        <ul id="current-playlist" data-idplaylist="{$playlist['id']}">
 
 EOT;
 
-    foreach ($playlist['scores'] as $score)
+    foreach ($playlist['scores'] as $score) {
+        $class = ($score['id'] == $cur_score['id']) ? 'class="selected"' : '';
         echo <<< EOT
-            <li data-idscore="{$score['id']}" onclick="select(this)">{$score['name']}</li>
+            <li $class data-idscore="{$score['id']}" onclick="play(this)">{$score['name']}</li>
 
 EOT;
+    }
 
     echo <<< EOT
         </ul>
