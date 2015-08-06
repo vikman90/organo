@@ -11,7 +11,8 @@ require_once 'lib/templates.php';
 global $tr;
 
 if (isset($_GET['view']) and ($_GET['view'] == 'shutdown' or $_GET['view'] == 'reboot')) {
-    html_open('shutdown');
+    $refresh = $_GET['view'] == 'reboot' ? REBOOT_TIME . "; index.php" : null;
+    html_open('shutdown', $refresh);
     html_header(false);
 
     echo <<< EOT
@@ -57,4 +58,3 @@ EOT;
     html_footer();
     html_close();
 }
-

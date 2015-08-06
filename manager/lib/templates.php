@@ -16,8 +16,9 @@ global $translators;
 $lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE;
 $tr = $translators[$lang]->strings;
 
-function html_open($id) {
+function html_open($id, $refresh = null) {
     global $tr, $lang;
+    $meta = $refresh ? "<meta http-equiv=\"refresh\" content=\"$refresh\">" : '';
 
     echo <<< EOT
 <!DOCTYPE html>
@@ -26,6 +27,7 @@ function html_open($id) {
 <title>{$tr['title']}</title>
 <link rel="shortcut icon" href="images/icon.png" type="image/png" />
 <link rel="stylesheet" type="text/css" href="styles/styles.css" />
+$meta
 <body>
 
 EOT;
