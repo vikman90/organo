@@ -228,7 +228,7 @@ int player_wait() {
 int player_pause() {
 	if (!active)
 		state = STOPPED;
-	
+
 	if (state != PLAYING)
 		return -1;
 
@@ -242,7 +242,7 @@ int player_pause() {
 int player_resume() {
 	if (!active)
 		state = STOPPED;
-	
+
 	switch (state) {
 	case PAUSED:
 		state = PLAYING;
@@ -279,7 +279,7 @@ enum player_state_t player_state(int *idplaylist, score_t **score) {
 	else if ((state == PLAYING || state == PAUSED) && idplaylist && score) {
 		*idplaylist = cur_idplaylist;
 		*score = (score_t *)cur_score;
-		return PLAYING;
+		return state;
 	}
 
 	return state;
