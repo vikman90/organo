@@ -56,14 +56,14 @@ void output_destroy() {
 void output_noteon(int track, int note) {
 	note -= OFFSET[track];
 	
-	if (note >= 0 && note < LENGTH[track])
+	if (track < NTRACKS && note >= 0 && note < LENGTH[track])
 		channel[track][note] = 1;
 }
 
 void output_noteoff(int track, int note) {
 	note -= OFFSET[track];
 	
-	if (note >= 0 && note < LENGTH[track])
+	if (track < NTRACKS && note >= 0 && note < LENGTH[track])
 		channel[track][note] = 0;
 }
 

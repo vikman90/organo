@@ -77,14 +77,14 @@ void output_destroy() {
 void output_noteon(int track, int note) {
 	note -= OFFSET;
 	
-	if (note >= 0 && note < LENGTH)
+	if (track < NTRACKS && note >= 0 && note < LENGTH)
 		state[note][track] = 1;
 }
 
 void output_noteoff(int track, int note) {
 	note -= OFFSET;
 	
-	if (note >= 0 && note < LENGTH)
+	if (track < NTRACKS && note >= 0 && note < LENGTH)
 		state[note][track] = 0;
 }
 
