@@ -536,6 +536,10 @@ h2 .action {
     background-image: url(../images/play.png);
 }
 
+.bt-download {
+    background-image: url(../images/download.png);
+}
+
 input[type="file"] {
     display: none;
 }

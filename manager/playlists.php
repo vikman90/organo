@@ -35,7 +35,7 @@ foreach (db_get_playlists() as $playlist) {
         $scores = $tr['playlist_empty'];
         $link = '';
     } else {
-        $link = "<a class=\"bt-play\" href=\"control.php?action=play&idplaylist={$playlist['id']}\" title=\"{$tr['play']}\"></a>";
+        $link = "<a class=\"bt-play\" href=\"control.php?action=play&idplaylist={$playlist['id']}\" title=\"{$tr['play']}\" onclick=\"event.stopPropagation()\"></a>";
 
         if ($playlist['scores'] == 1)
             $scores = '1 ' . $tr['score'];

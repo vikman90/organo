@@ -18,6 +18,7 @@ const DB_PASS = 'ugr2015';
 
 const FILE_MAXSIZE = 1048576;
 const SCORE_DIR = '/home/pi/midis';
+const DOWNLOADS_DIR = 'pool';
 
 const BUFFER_MAX = 256;
 const SOCKET_PATH = "/run/organd.sock";
