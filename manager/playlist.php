@@ -56,8 +56,8 @@ foreach ($playlist['scores'] as $score) {
             <tr data-idscore="{$score['id']}" onclick="play(this)">
                 <td class="icon"><a onclick="event.stopPropagation()" class="bt-download" href="$link" download="$download" title="{$tr['play']}"></a></td>
                 <td>$name</td>
-                <td class="icon"><a class="bt-rename" onclick="renameScore({$score['id']}, '$name')" title="{$tr['rename']}"></a></td>
-                <td class="icon"><a class="bt-delete" onclick="deleteScore({$score['id']})" title="{$tr['delete']}"></td></td>
+                <td class="icon"><a class="bt-rename" onclick="renameScore(this)" title="{$tr['rename']}"></a></td>
+                <td class="icon"><a class="bt-delete" onclick="deleteScore(this)" title="{$tr['delete']}"></td></td>
             </tr>
 
 EOT;

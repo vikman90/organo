@@ -8,8 +8,11 @@ document.addEventListener('keydown', function(event) {
 });
 
 function add() {
-    document.getElementById('dialog').style.display = 'block';
-    document.getElementById('dialog-name').value = '';
+    var dialog = document.getElementById('dialog');
+    var name = document.getElementById('dialog-name');
+    dialog.style.display = 'block';
+    name.value = '';
+    name.focus();
 }
 
 function list(tr) {
@@ -17,6 +20,5 @@ function list(tr) {
 }
 
 function closeDialog() {
-    console.log('enro');
     document.getElementById('dialog').style.display = 'none';
 }
