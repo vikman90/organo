@@ -49,6 +49,7 @@ EOT;
 
 foreach ($playlist['scores'] as $score) {
     $name = $score['name'] === null ? $score['source'] : $score['name'];
+    $duration = date('i:s', mktime(0, 0, $score['duration']));
     $link = DOWNLOADS_DIR . '/' . $score['source'];
     $download = $name . '.mid';
 
@@ -56,6 +57,7 @@ foreach ($playlist['scores'] as $score) {
             <tr data-idscore="{$score['id']}" onclick="play(this)">
                 <td class="icon"><a onclick="event.stopPropagation()" class="bt-download" href="$link" download="$download" title="{$tr['play']}"></a></td>
                 <td>$name</td>
+                <td>$duration</td>
                 <td class="icon"><a class="bt-rename" onclick="renameScore(this)" title="{$tr['rename']}"></a></td>
                 <td class="icon"><a class="bt-delete" onclick="deleteScore(this)" title="{$tr['delete']}"></td></td>
             </tr>

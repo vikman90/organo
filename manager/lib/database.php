@@ -53,7 +53,7 @@ function db_get_playlist($idplaylist) {
         return null;
 
     $name = $row[0];
-    $sql = "SELECT idscore, source, name FROM score WHERE playlist = ? ORDER BY sorting";
+    $sql = "SELECT idscore, source, name, duration FROM score WHERE playlist = ? ORDER BY sorting";
     $stmt = $db->prepare($sql);
     $stmt->bind_param('i', $idplaylist);
     $stmt->execute();
@@ -61,7 +61,7 @@ function db_get_playlist($idplaylist) {
     $scores = [];
 
     while ($row = $result->fetch_row())
-        $scores[] = ['id' => $row[0], 'source' => $row[1], 'name' => $row[2]];
+        $scores[] = ['id' => $row[0], 'source' => $row[1], 'name' => $row[2], 'duration' => $row[3]];
 
     return ['id' => $idplaylist, 'name' => $name, 'scores' => $scores];
 }
@@ -110,6 +110,15 @@ function db_get_score($idscore) {
     $stmt->execute();
     $row = $stmt->get_result()->fetch_row();
     return $row ? ['id' => $idscore, 'source' => $row[0], 'name' => $row[1]] : null;
+}
+
+function db_set_score_duration($idscore, $duration) {
+    global $db;
+
+    $sql = "UPDATE score SET duration = ? WHERE idscore = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('ii', $duration, $idscore);
+    $stmt->execute();
 }
 
 function db_find_score($source) {
