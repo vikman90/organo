@@ -24,14 +24,20 @@ $state = driver_status();
 switch ($state[0]) {
     case 'PLAYING':
     case 'PAUSED':
-        if ($state[1] >= 0) {
-            $playlist = db_get_playlist($state[1]);
-            $cur_score = db_get_score($state[2]);
-            $name = $cur_score ? $cur_score['name'] : $tr['unknown'];
+
+        if (pathinfo($state[1], PATHINFO_DIRNAME) == SCORE_DIR) {
+            $cur_score = db_find_score(pathinfo($state[1], PATHINFO_BASENAME));
+
+            if ($cur_score == null) {
+                $playlist = null;
+                $name = pathinfo($state[1], PATHINFO_FILENAME);
+            } else {
+                $playlist = db_get_playlist($cur_score['playlist']);
+                $name = $cur_score['name'];
+            }
         } else {
-            $name = pathinfo($state[3], PATHINFO_FILENAME);
-            echo $state[3];
             $playlist = null;
+            $name = pathinfo($state[1], PATHINFO_FILENAME);
         }
 
         break;

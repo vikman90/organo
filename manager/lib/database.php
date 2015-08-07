@@ -112,6 +112,17 @@ function db_get_score($idscore) {
     return $row ? ['id' => $idscore, 'source' => $row[0], 'name' => $row[1]] : null;
 }
 
+function db_find_score($source) {
+    global $db;
+
+    $sql = "SELECT idscore, playlist, name FROM score WHERE source = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('s', $source);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_row();
+    return $row ? ['id' => $row[0], 'playlist' => $row[1], 'name' => $row[2], 'source' => $source] : null;
+}
+
 function db_rename_score($idscore, $name) {
     global $db;
 

@@ -7,16 +7,21 @@
  */
 
 namespace manager;
-require_once __DIR__ . '/values.php';
+require_once __DIR__ . '/database.php';
 
 $sock = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
 if (!$sock or !socket_connect($sock, SOCKET_PATH))
     html_error('socket');
 
-function driver_play($idplaylist, $idscore) {
+function driver_play($playlist, $ifirst) {
     global $sock;
-    $buffer = "PLAYLIST $idplaylist $idscore";
+    $n = count($playlist['scores']);
+    $buffer = "PLAYLOOP " . $n;
+
+    for ($i = 0; $i < $n; $i++) {
+        $buffer .= ' ' . SCORE_DIR . '/' . $playlist['scores'][($i + $ifirst) % $n]['source'];
+    }
 
     socket_send($sock, $buffer, strlen($buffer), 0);
     socket_recv($sock, $buffer, BUFFER_MAX, 0);
@@ -60,5 +65,5 @@ function driver_status() {
 
     socket_send($sock, $buffer, strlen($buffer), 0);
     socket_recv($sock, $buffer, BUFFER_MAX, 0);
-    return sscanf($buffer, "%s %d %d %s");
+    return sscanf($buffer, "%s %s");
 }

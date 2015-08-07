@@ -22,7 +22,7 @@ class Translator {
     }
 }
 
-foreach (glob('translations/*.xml') as $file) {
+foreach (glob(__DIR__ . '/../translations/*.xml') as $file) {
     $tr = new Translator(simplexml_load_file($file));
     $translators[$tr->code] = $tr;
 }

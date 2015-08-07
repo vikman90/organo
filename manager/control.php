@@ -32,6 +32,7 @@ switch ($_GET['action']) {
         break;
     case 'play':
         play();
+        break;
     case 'new_playlist':
         new_playlist();
         break;
@@ -130,24 +131,19 @@ function play() {
         html_error('playlist_empty');
 
     if (isset($_GET['idscore'])) {
-        $found = false;
-
-        foreach ($playlist['scores'] as $score) {
-            if ($score['id'] == $_GET['idscore']) {
-                $found = true;
+        for ($i = 0; $i < count($playlist['scores']); $i++) {
+            if ($playlist['scores'][$i]['id'] == $_GET['idscore']) {
                 break;
             }
         }
 
-        if (!$found)
+        if ($i == count($playlist['scores']))
             html_error('args');
-        else
-            $idscore = $_GET['idscore'];
     } else {
-        $idscore = -1;
+        $i = 0;
     }
 
-    if (driver_play($playlist['id'], $idscore))
+    if (driver_play($playlist, $i))
         html_redirect('player.php');
     else
         html_error('driver');
