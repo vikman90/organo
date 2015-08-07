@@ -25,25 +25,20 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static int playscore(midifile_t *file) {
 	midievent_t *event;
 	midievent_t *tracks[file->ntracks];
-	int deltas[file->ntracks];
-	int finished[file->ntracks];
-	int active, min_delta, tempo = DEFAULT_TEMPO;
 	struct timespec timereq;
+	int active, min_delta, tempo = DEFAULT_TEMPO;
 	unsigned short i;
+	char finished[file->ntracks];
 
-	for (i = 0; i < file->ntracks; i++) {
+	for (i = 0; i < file->ntracks; i++)
 		tracks[i] = file->tracks[i];
-		deltas[i] = tracks[i]->delta;
-	}
 
-	bzero(finished, file->ntracks * sizeof(int));
+	bzero(finished, file->ntracks);
 	output_panic();
 	
 	while (1) {
 		active = 0;
 		min_delta = INT_MAX;
-		
-		// Check whether another thread has changed the state
 
 		if (state != PLAYING) {
 			if (state == PAUSED) {
@@ -62,7 +57,7 @@ static int playscore(midifile_t *file) {
 
 				// 1 Execute events with delta = 0
 
-				while (deltas[i] == 0) {
+				while (event->delta == 0) {
 					if (event->type == NOTE_OFF)
 						output_noteoff(i, event->note);
 					else if (event->type == NOTE_ON) {
@@ -79,7 +74,7 @@ static int playscore(midifile_t *file) {
 					}
 
 					event = event->next;
-					deltas[i] = event->delta;
+
 				}
 
 				// 2 Find minimum delta and ending contition
@@ -87,8 +82,8 @@ static int playscore(midifile_t *file) {
 				if (!finished[i]) {
 					active = 1;
 
-					if (deltas[i] < min_delta)
-						min_delta = deltas[i];
+					if (event->delta < min_delta)
+						min_delta = event->delta;
 				}
 
 				tracks[i] = event;
@@ -104,7 +99,7 @@ static int playscore(midifile_t *file) {
 
 		for (i = 0; i < file->ntracks; i++) {
 			if (!finished[i])
-				deltas[i] -= min_delta;
+				tracks[i]->delta -= min_delta;
 		}
 
 		// 4 Wait
