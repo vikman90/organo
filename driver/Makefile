@@ -37,7 +37,7 @@ RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
 TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login $(BIN)/organ
-INSTALLS	= $(INSTALL_SBIN)/organd $(INSTALL_INIT)/organ $(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ
+INSTALLS	= $(INSTALL_INIT)/organ $(INSTALL_SBIN)/organd $(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ
 
 .PHONY: all install uninstall preinstall clean objclean
 

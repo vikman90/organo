@@ -22,7 +22,6 @@
 #define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define BACKLOG 5			// Listening queue length
 
-static const char PID_PATH[] = "/run/organd.pid";		// Path for pid file
 static const char SOCKET_PATH[] = "/run/organd.sock";	// Path for socket file
 static const char LOG_IDENT[] = "organd";				// Logging identity
 
@@ -33,8 +32,6 @@ static char buffer[BUFFER_LENGTH];
 static void cleanup() {
 	player_stop();
 	output_destroy();
-	unlink(PID_PATH);
-	unlink(SOCKET_PATH);
 	closelog();
 }
 
@@ -52,8 +49,7 @@ static void onsigpipe() {
 
 // Setup function. Returns socket id, or -1 on error.
 
-static int setup() {
-	int fd;
+static int setup(int uid, int gid) {
 	int sock;
 	struct sockaddr_un addr;
 	
@@ -72,23 +68,6 @@ static int setup() {
 	signal(SIGTERM, onsigterm);
 	signal(SIGPIPE, onsigpipe);
 	
-	// Clean files
-	
-	unlink(PID_PATH);
-	unlink(SOCKET_PATH);
-	
-	// PID file
-
-	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
-
-	if (fd < 0) {
-		syslog(LOG_ERR, "open(): %m");
-		return -1;
-	}
-
-	dprintf(fd, "%d", getpid());
-	close(fd);
-	
 	// Socket
 	
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -106,7 +85,10 @@ static int setup() {
 		return -1;
 	}
 	
-	chmod(SOCKET_PATH, 0666);
+	if (chmod(SOCKET_PATH, 0664) < 0) {
+		syslog(LOG_ERR, "chmod(): %m");
+		return -1;
+	}
 
 	if (listen(sock, BACKLOG)) {
 		syslog(LOG_ERR, "listen(): %m");
@@ -120,6 +102,23 @@ static int setup() {
 		return -1;
 	}
 	
+	// Change UID and GID
+	
+	if (chown(SOCKET_PATH, uid, gid) < 0) {
+		syslog(LOG_ERR, "chown(): %m");
+		return -1;
+	}
+	
+	if (setgid(gid) < 0) {
+		syslog(LOG_ERR, "setgid(): %m");
+		return -1;
+	}
+	
+	if (setuid(uid) < 0) {
+		syslog(LOG_ERR, "setuid(): %m");
+		return -1;
+	}
+
 	return sock;
 }
 
@@ -160,9 +159,16 @@ int play(char *arg, int loop) {
 	return player_start(playlist, n, loop);
 }
 
-int main() {
+int main(int argc, char **argv) {
 	int peer, bytes;
-	int sock = setup();
+	int sock;
+	
+	if (argc < 3) {
+		fprintf(stderr, "Syntax: %s <uid> <gid>", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	sock = setup(atoi(argv[1]), atoi(argv[2]));
 
 	if (sock < 0)
 		return EXIT_FAILURE;
