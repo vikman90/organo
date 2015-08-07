@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
+#include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -33,9 +35,9 @@ int midifile_init(midifile_t *score, const char *path) {
 	short format, division;
 	unsigned short ntracks, i;
 	char buffer[4];
-	
+
 	// Avoid segmentation fault on destroying a bad-created file
-	
+
 	score->tracks = NULL;
 
 	if (fd < 0)
@@ -49,11 +51,11 @@ int midifile_init(midifile_t *score, const char *path) {
 		close(fd);
 		return -1;
 	}
-	
+
 	// Length of header data
-	
+
 	read(fd, &length, 4);
-	
+
 	if (swap_int(length) != 6) {
 		close(fd);
 		return -1;
@@ -65,19 +67,19 @@ int midifile_init(midifile_t *score, const char *path) {
 	score->format = swap_short(format);
 
 	// Number of tracks
-	
+
 	read(fd, &ntracks, 2);
 	score->ntracks = swap_short(ntracks);
-	
+
 	// Division type
 
 	read(fd, &division, 2);
-	division = swap_short(division);	
+	division = swap_short(division);
 	score->division = (division & 0x8000) >> 15;
 	score->timediv = (division & 0x7FFF);
-	
+
 	// Read tracks
-	
+
 	score->tracks = (midievent_t **)malloc(sizeof(midievent_t *) * score->ntracks);
 
 	for (i = 0; i < score->ntracks; i++) {
@@ -88,7 +90,7 @@ int midifile_init(midifile_t *score, const char *path) {
 	}
 
 	close(fd);
-	return 0;	
+	return 0;
 }
 
 // Deletes a file structure
@@ -96,7 +98,7 @@ int midifile_init(midifile_t *score, const char *path) {
 void midifile_destroy(midifile_t *file) {
 	midievent_t *current, *next;
 	unsigned short i;
-	
+
 	if (file->tracks) {
 		for (i = 0; i < file->ntracks; i++) {
 			current = file->tracks[i];
@@ -106,7 +108,7 @@ void midifile_destroy(midifile_t *file) {
 					free(current->metaevent->data);
 					free(current->metaevent);
 				}
-				
+
 				next = current->next;
 				free(current);
 				current = next;
@@ -117,41 +119,104 @@ void midifile_destroy(midifile_t *file) {
 	}
 }
 
+// Get duration of a score in seconds
+
+int midifile_duration(const midifile_t *file) {
+	midievent_t *event;
+	midievent_t *tracks[file->ntracks];
+	int deltas[file->ntracks];
+	int finished[file->ntracks];
+	int active, min_delta, tempo = DEFAULT_TEMPO, waiting = 0;
+	unsigned short i;
+	
+	for (i = 0; i < file->ntracks; i++) {
+		tracks[i] = file->tracks[i];
+		deltas[i] = tracks[i]->delta;
+	}
+	
+	bzero(finished, file->ntracks * sizeof(int));
+	
+	while (1) {
+		active = 0;
+		min_delta = INT_MAX;
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i]) {
+				event = tracks[i];
+
+				while (deltas[i] == 0) {
+					if (event->type == METAEVENT) {
+						if (event->metaevent->type == END_OF_TRACK) {
+							finished[i] = 1;
+							break;
+						} else if (event->metaevent->type == SET_TEMPO)
+							tempo = metaevent_tempo(event->metaevent);
+					}
+
+					event = event->next;
+					deltas[i] = event->delta;
+				}
+
+				if (!finished[i]) {
+					active = 1;
+
+					if (deltas[i] < min_delta)
+						min_delta = deltas[i];
+				}
+
+				tracks[i] = event;
+			}
+		}
+
+		if (!active)
+			break;
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i])
+				deltas[i] -= min_delta;
+		}
+
+		waiting += min_delta * tempo / file->timediv;
+	}
+
+	return waiting / 1000000;
+}
+
 // Parse events for a track, until reaching END_OF_TRACK
 
 static int parse(midievent_t **first, int fd) {
 	char buffer[4];
 	midievent_t *current;
 	char value, status = 0;
-	
+
 	// Mtrk
-	
+
 	read(fd, buffer, 4);
-	
+
 	if (memcmp(buffer, "MTrk", 4)) {
 		*first = NULL;
 		return -1;
 	}
-	
+
 	// Length of chunk (ignore)
-	
+
 	lseek(fd, 4, SEEK_CUR);
-	
+
 	current = (midievent_t *)malloc(sizeof(midievent_t));
 	*first = current;
-	
+
 	while (1) {
 		current->delta = varlen(fd);
 		read(fd, &value, 1);
-		
+
 		if (value < 0xF0) {
-			
+
 			// Standard event
-			
+
 			if (value < 0x80) {
-				
+
 				// Keep running status
-				
+
 				current->type = status & 0xF0;
 				current->channel = status & 0x0F;
 				current->param1 = value;
@@ -161,27 +226,27 @@ static int parse(midievent_t **first, int fd) {
 				read(fd, &current->param1, 1);
 				status = value;
 			}
-			
+
 			if (!(current->type == PROGRAM_CHANGE || current->type == CHANNEL_AFTERTOUCH))
 				read(fd, &current->param2, 1);
-			
-		} else if (value == METAEVENT) {			
+
+		} else if (value == METAEVENT) {
 			current->type = value;
 			current->metaevent = (metaevent_t *)malloc(sizeof(metaevent_t));
 			read(fd, &current->metaevent->type, 1);
 			current->metaevent->length = varlen(fd);
 			current->metaevent->data = (char *)malloc(current->metaevent->length);
 			read(fd, current->metaevent->data, current->metaevent->length);
-			
+
 			if (current->metaevent->type == END_OF_TRACK) {
 				current->next = NULL;
 				break;
 			}
 		} else if (value == 0xF0) {
 			 // System exclusive event, discard
-			 
+
 			 char byte;
-				
+
 			 do {
 				 read(fd, &byte, 1);
 			 } while (byte != 0xF7);
@@ -189,11 +254,11 @@ static int parse(midievent_t **first, int fd) {
 			current->next = NULL;
 			return -1;
 		}
-		
+
 		current->next = (midievent_t *)malloc(sizeof(midievent_t));
 		current = current->next;
 	}
-	
+
 	return 0;
 }
 
@@ -202,15 +267,15 @@ static int parse(midievent_t **first, int fd) {
 static int varlen(int fd) {
 	char byte;
 	int value;
-	
+
 	read(fd, &byte, 1);
 	value = byte & 0x7F;
-	
+
 	while (byte & 0x80) {
 		read(fd, &byte, 1);
 		value = (value << 7) | (byte & 0x7F);
 	}
-	
+
 	return value;
 }
 
@@ -256,7 +321,7 @@ int metaevent_tempo(const metaevent_t *event) {
 
 void metaevent_offset(const metaevent_t *event, midioffset_t *offset) {
 	char t = event->data[0] >> 6;
-	
+
 	switch (t) {
 	case 0:
 		offset->fps = 24;
@@ -267,7 +332,7 @@ void metaevent_offset(const metaevent_t *event, midioffset_t *offset) {
 	default:
 		offset->fps = 30;
 	}
-	
+
 	offset->hour = event->data[0] & 0x3F;
 	offset->min = event->data[1];
 	offset->sec = event->data[2];
@@ -280,10 +345,10 @@ void metaevent_time(const metaevent_t *event, miditime_t *time) {
 	char exp = event->data[1];
 	time->numerator = event->data[0];
 	time->denominator = 1;
-	
+
 	while ((exp--) > 0)
 		time->denominator *= 2;
-	
+
 	time->metronome = event->data[2];
 	time->quantization = event->data[3];
 }

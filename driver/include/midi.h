@@ -7,6 +7,8 @@
 #ifndef MIDI_H
 #define MIDI_H
 
+#define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
+
 enum format_t { SINGLE_TRACK, MULTIPLE_SIMULTANEOUS, MULTIPLE_INDEPENDENT };
 enum division_t { TICKS_PER_BEAT, FRAMES_PER_SECOND };
 enum midimode_t { MAJOR, MINOR };
@@ -103,6 +105,9 @@ int midifile_init(midifile_t *score, const char *path);
 
 // Deletes a file structure
 void midifile_destroy(midifile_t *file);
+
+// Get duration of a score in seconds
+int midifile_duration(const midifile_t *file);
 
 // Aftertouch value, for NOTE_AFTERTOUCH and CHANNEL_AFTERTOUCH
 char midievent_aftertouch(const midievent_t *event);

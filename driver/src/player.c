@@ -9,8 +9,6 @@
 #include "player.h"
 #include "output.h"
 
-#define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
-
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;
 static volatile int active = 0;
