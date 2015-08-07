@@ -15,12 +15,11 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include "database.h"
 #include "player.h"
 #include "output.h"
 #include "midi.h"
 
-#define BUFFER_LENGTH 256	// Length of receiving buffer
+#define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define BACKLOG 5			// Listening queue length
 
 static const char PID_PATH[] = "/run/organd.pid";		// Path for pid file
@@ -33,7 +32,6 @@ static char buffer[BUFFER_LENGTH];
 
 static void cleanup() {
 	player_stop();
-	database_destroy();
 	output_destroy();
 	unlink(PID_PATH);
 	unlink(SOCKET_PATH);
@@ -44,6 +42,12 @@ static void cleanup() {
 
 static void onsigterm() {
 	exit(EXIT_SUCCESS);
+}
+
+// Action on SIGPIPE
+
+static void onsigpipe() {
+	syslog(LOG_WARNING, "SIGPIPE received");
 }
 
 // Setup function. Returns socket id, or -1 on error.
@@ -60,12 +64,13 @@ static int setup() {
 	// Daemon
 
 	if (daemon(0, 0) < 0) {
-		syslog(LOG_ERR, "daemon(): %m\n");
+		syslog(LOG_ERR, "daemon(): %m");
 		return -1;
 	}
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
+	signal(SIGPIPE, onsigpipe);
 	
 	// Clean files
 	
@@ -77,7 +82,7 @@ static int setup() {
 	fd = open(PID_PATH, O_WRONLY | O_CREAT, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);
 
 	if (fd < 0) {
-		syslog(LOG_ERR, "open(): %m\n");
+		syslog(LOG_ERR, "open(): %m");
 		return -1;
 	}
 
@@ -89,7 +94,7 @@ static int setup() {
 	sock = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	if (sock < 0) {
-		syslog(LOG_ERR, "socket(): %m\n");
+		syslog(LOG_ERR, "socket(): %m");
 		return -1;
 	}
 
@@ -97,75 +102,62 @@ static int setup() {
 	strcpy(addr.sun_path, SOCKET_PATH);
 
 	if (bind(sock, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		syslog(LOG_ERR, "bind(): %m\n");
+		syslog(LOG_ERR, "bind(): %m");
 		return -1;
 	}
 	
 	chmod(SOCKET_PATH, 0666);
 
 	if (listen(sock, BACKLOG)) {
-		syslog(LOG_ERR, "listen(): %m\n");
+		syslog(LOG_ERR, "listen(): %m");
 		return -1;
 	}
 	
-	// Database and output
-
-	if (database_init() < 0) {
-		syslog(LOG_ERR, "Error at database_init()\n");
-		return -1;
-	}
+	// Output
 
 	if (output_init() < 0) {
-		syslog(LOG_ERR, "Error at output_init()\n");
+		syslog(LOG_ERR, "Error at output_init()");
 		return -1;
 	}
 	
 	return sock;
 }
 
-// Plays a playlist starting at a score
+// Play a list of files
 
-int playlist(const char *buffer) {
-	int idplaylist, idscore, n;
-	score_t *scores;
+int play(char *arg, int loop) {
+	char **playlist;
+	int i, n = atoi(arg);
 	
-	sscanf(buffer, "%d %d", &idplaylist, &idscore);
-	n = database_query(&scores, idplaylist);
-
-	if (n < 0) {
-		syslog(LOG_ERR, "playlist(): Playlist empty.\n");
+	if (n < 1) {
+		syslog(LOG_ERR, "Playlist size < 1");
 		return -1;
 	}
 	
-	if (player_state(NULL, NULL) != STOPPED) {
-		if (player_stop() < 0) {
-			syslog(LOG_ERR, "playlist(): Couldn't stop before playing.\n");
-			return -1;
-		}
-	}
-
-	return player_start(scores, n, idplaylist, idscore, 1) ? -1 : 0;
-}
-
-// Plays a file
-
-int playfile(const char *path) {
-	score_t * score;
-	midifile_t *file = (midifile_t *)malloc(sizeof(midifile_t));
+	playlist = (char **)malloc(sizeof(char *) * n);
+	arg = strtok(arg, " ");
 	
-	if (midifile_init(file, path) < 0) {
-		syslog(LOG_ERR, "Couldn't read file %s", path);
-		midifile_destroy(file);
-		free(file);
-		file = NULL;
+	for (i = 0; i < n; i++) {
+		arg = strtok(NULL, " ");
+		
+		if (arg) {
+			playlist[i] = malloc(strlen(arg) + 1);
+			strcpy(playlist[i], arg);
+		} else
+			break;
 	}
 	
-	score = (score_t *)malloc(sizeof(score_t));
-	score->idscore = -1;
-	score->path = malloc(strlen(path) + 1);
-	strcpy(score->path, path);
-	score->file = file;
-	return player_start(score, 1, -1, -1, 0) ? -1 : 0;
+	if (i < n) {
+		syslog(LOG_ERR, "File list terminated prematurely.");
+		
+		while (i > 0)
+			free(playlist[--i]);
+		
+		free(playlist);
+		return -1;
+	}
+	
+	return player_start(playlist, n, loop);
 }
 
 int main() {
@@ -179,70 +171,61 @@ int main() {
 		peer = accept(sock, NULL, 0);
 
 		if (peer < 0) {
-			syslog(LOG_ERR, "accept(): %m\n");
+			syslog(LOG_ERR, "accept(): %m");
 			return EXIT_FAILURE;
 		}
 		
 		bytes = recv(peer, buffer, BUFFER_LENGTH, 0);
 
 		if (bytes < 1) {
-			syslog(LOG_ERR, "recv(): %m\n");
+			syslog(LOG_ERR, "recv(): %m");
 			send(peer, "ERROR", 5, 0);
-		} else if (!strncmp(buffer, "PLAYLIST", 8)) {
+		} else if (!strncmp(buffer, "PLAYLOOP", 8)) {
 			buffer[bytes] = '\0';
 			
-			if (playlist(buffer + 9) < 0) {
-				syslog(LOG_ERR, "Error at playlist()\n");
+			if (play(buffer + 9, 1) < 0) {
+				syslog(LOG_ERR, "Error at play()");
 				send(peer, "ERROR", 5, 0);
 			} else 
 				send(peer, "OK", 2, 0);
-		} else if (!strncmp(buffer, "PLAYFILE", 8)) {
+		} else if (!strncmp(buffer, "PLAY", 4)) {
 			buffer[bytes] = '\0';
 			
-			if (playfile(buffer + 9) < 0) {
-				syslog(LOG_ERR, "Error at playfile()\n");
+			if (play(buffer + 5, 0) < 0) {
+				syslog(LOG_ERR, "Error at play()");
 				send(peer, "ERROR", 5, 0);
 			} else 
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STOP", 4)) {	
 			if (player_stop() < 0) {
-				syslog(LOG_ERR, "Error at player_stop()\n");
+				syslog(LOG_ERR, "Error at player_stop()");
 				send(peer, "ERROR", 5, 0);
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "PAUSE", 5)) {	
 			if (player_pause() < 0) {
-				syslog(LOG_ERR, "Error at player_pause()\n");
+				syslog(LOG_ERR, "Error at player_pause()");
 				send(peer, "ERROR", 5, 0);
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "RESUME", 6)) {			
 			if (player_resume() < 0) {
-				syslog(LOG_ERR, "Error at player_resume()\n");
+				syslog(LOG_ERR, "Error at player_resume()");
 				send(peer, "ERROR", 5, 0);
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STATUS", 6)) {			
-			int idplaylist;
-			score_t *score;
-			enum player_state_t state = player_state(&idplaylist, &score);
+			const char *path;
+			enum player_state_t state = player_state(&path);
 			
 			switch (state) {
 			case PAUSED:
-				if (idplaylist < 0)
-					sprintf(buffer, "PAUSED -1 -1 %s", score->path);
-				else
-					sprintf(buffer, "PAUSED %d %d", idplaylist, score->idscore);
-				
+				sprintf(buffer, "PAUSED %s", path);				
 				send(peer, buffer, strlen(buffer), 0);
 				break;
 				
 			case PLAYING:
-				if (idplaylist < 0)
-					sprintf(buffer, "PLAYING -1 -1 %s", score->path);
-				else
-					sprintf(buffer, "PLAYING %d %d", idplaylist, score->idscore);
-				
+				sprintf(buffer, "PLAYING %s", path);
 				send(peer, buffer, strlen(buffer), 0);
 				break;
 				
@@ -250,16 +233,16 @@ int main() {
 				send(peer, "STOPPED", 7, 0);
 				break;
 			default:
-				syslog(LOG_ERR, "Error: unknown state.\n");
+				syslog(LOG_ERR, "Error: unknown state.");
 				send(peer, "ERROR", 5, 0);
 			}
 		} else {
-			syslog(LOG_ERR, "Error: unrecognised remote command.\n");
+			syslog(LOG_ERR, "Error: unrecognised remote command.");
 			send(peer, "ERROR", 5, 0);
 		}
 		
 		if (close(peer) < 0) {
-			syslog(LOG_ERR, "close(): %m\n");
+			syslog(LOG_ERR, "close(): %m");
 		}
 	}
 

@@ -28,8 +28,8 @@ INSTALL_INIT	= /etc/init.d
 CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
-INCPATH		= -I$(INC) -I/usr/include/mysql
-LIBS		= -L/usr/lib/arm-linux-gnueabihf
+INCPATH		= -I$(INC)
+LIBS		= 
 LDFLAGS		= -O1 -s -pthread
 
 CP_FILE		= cp
@@ -47,12 +47,12 @@ $(OBJ)/%.o: $(SRC)/%.c
 all: $(TARGET)
 
 install: $(INSTALLS)
-	insserv organ
-	service organ start
 
 $(INSTALL_SBIN)/organd: $(BIN)/organd
 	service organ stop 2> /dev/null; true
 	$(CP_FILE) $< $@
+	insserv organ
+	service organ start
 
 $(INSTALL_INIT)/organ: $(SCRIPTS)/organ
 	$(CP_FILE) $< $@
@@ -86,15 +86,14 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lmysqlclient
+$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/test: $(OBJ)/database.o $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lmysqlclient
+$(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(OBJ)/database.o: $(INC)/database.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o: $(INC)/database.h $(INC)/midi.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/organd.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
-$(OBJ)/test.o: $(INC)/database.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/test.o: $(INC)/output.h $(INC)/player.h

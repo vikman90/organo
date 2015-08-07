@@ -17,10 +17,10 @@
 #define BUFFER_LENGTH 256
 
 static const char SOCKET_PATH[] = "/run/organd.sock";
-static const char SYNTAX_FMT[] = "Sintaxis: %s play <archivo> | pause | resume | stop | status\n";
+static const char SYNTAX_FMT[] = "Sintaxis: %s play[loop] <archivo> | pause | resume | stop | status\n";
 
 int main(int argc, char **argv) {
-	int sock;
+	int sock, n;
 	struct sockaddr_un addr;
 	char buffer[BUFFER_LENGTH];
 	
@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 	
-	if (!strcmp(argv[1], "play")) {
+	if (!strncmp(argv[1], "play", 4)) {
 		int fd;
 		char path[BUFFER_LENGTH];
 		
@@ -71,11 +71,16 @@ int main(int argc, char **argv) {
 		} else
 			close(fd);
 		
-		sprintf(buffer, "PLAYFILE %s", path);
-		send(sock, buffer, strlen(buffer), 0);
-		recv(sock, buffer, BUFFER_LENGTH, 0);
+		if (!strcmp(argv[1], "playloop"))
+			sprintf(buffer, "PLAYLOOP 1 %s", path);
+		else
+			sprintf(buffer, "PLAY 1 %s", path);
 		
+		send(sock, buffer, strlen(buffer), 0);
+		n = recv(sock, buffer, BUFFER_LENGTH, 0);
+
 		if (strncmp(buffer, "OK", 2)) {
+			buffer[n] = '\0';
 			fprintf(stderr, "Error en el controlador.\n");
 			printf("Devuelve: %s\n", buffer);
 		}
@@ -99,12 +104,13 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "Error en el controlador.\n");
 	} else if (!strcmp(argv[1], "status")) {
 		send(sock, "STATUS", 6, 0);
-		recv(sock, buffer, BUFFER_LENGTH, 0);
+		n = recv(sock, buffer, BUFFER_LENGTH, 0);
+		buffer[n] = '\0';
 		
 		if (!strncmp(buffer, "PLAYING", 7))
-			printf("Estado: reproduciendo.\n");
+			printf("Estado: reproduciendo %s\n", buffer + 8);
 		else if (!strncmp(buffer, "PAUSED", 6))
-			printf("Estado: en pausa.\n");
+			printf("Estado: en pausa, archivo %s\n", buffer + 8);
 		else if (!strncmp(buffer, "STOPPED", 7))
 			printf("Estado: detenido.\n");
 		else

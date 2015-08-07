@@ -8,11 +8,9 @@
 #include <stdio.h>
 #include "player.h"
 #include "output.h"
-#include "database.h"
 
 int main(int argc, char **argv) {
-	score_t *score = (score_t *)malloc(sizeof(score_t));;
-
+	char *path;
 	if (argc < 2) {
 		fprintf(stderr, "Sintaxis: %s <archivo>\n", *argv);
 		return EXIT_FAILURE;
@@ -23,17 +21,10 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	}
 
-	score->idscore = 0;
-	score->path = (char *)malloc(strlen(argv[1]) + 1);
-	strcpy(score->path, argv[1]);
-	score->file = malloc(sizeof(midifile_t));
+	path = (char *)malloc(strlen(argv[1]) + 1);
+	strcpy(path, argv[1]);
 
-	if (midifile_init(score->file, argv[1]) < 0) {
-		perror("No se pudo leer el archivo");
-		return EXIT_FAILURE;
-	}
-
-	if (player_start(score, 1, -1, -1, 0)) {
+	if (player_start(&path, 1, 0)) {
 		perror("No se pudo ejecutar el reproductor");
 		return EXIT_FAILURE;
 	}

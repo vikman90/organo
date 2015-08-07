@@ -3,9 +3,9 @@
 #include <pthread.h>
 #include <strings.h>
 #include <string.h>
+#include <stdlib.h>
 #include <limits.h>
 #include <syslog.h>
-#include "midi.h"
 #include "player.h"
 #include "output.h"
 
@@ -14,12 +14,10 @@
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;
 static volatile int active = 0;
-static volatile score_t *scores = NULL;
-static volatile int nscores;
-static volatile int loop;
-static volatile int cur_idplaylist = 0;
-static volatile int first_idscore = 0;
-static volatile score_t *cur_score;
+static char **playlist = NULL;
+static int nfiles;
+static int loop;
+static volatile int cur_ifile = 0;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 // Play a file
@@ -125,64 +123,54 @@ static int playscore(midifile_t *file) {
 
 static void* player_run(void *arg) {
 	int i, nerrors = 0;
-	char error[nscores];
+	char error[nfiles];
+	midifile_t file;
 
 	arg = arg;
 
 	if (loop) {
-		bzero(error, nscores);
-
-		// Find first score, if indicated
-
-		if (first_idscore < 0)
-			i = 0;
-		else {
-
-			for (i = 0; i < nscores; i++)
-				if (scores[i].idscore == first_idscore)
-					break;
-
-			i = (i < nscores) ? i : 0;
-		}
+		bzero(error, nfiles);
 
 		// Play
 
-		while (1) {
-			if (scores[i].file) {
-				cur_score = &scores[i];
-				syslog(LOG_INFO, "Starting execution of %s", scores[i].path);
-				int retval = playscore(scores[i].file);
+		for (i = 0; 1; i = (i + 1) % nfiles) {
+			if (error[i])
+				continue;
+			
+			if (midifile_init(&file, playlist[i]) < 0) {
+				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
+				midifile_destroy(&file);
+				error[i] = 1;
+
+				if (++nerrors >= nfiles)
+					break;
+			} else {
+				cur_ifile = i;
+				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
+				int retval = playscore(&file);
 				syslog(LOG_INFO, "Execution finished with code %d", retval);
+				midifile_destroy(&file);
 				
 				if (retval)
 					break;
-			} else {
-				syslog(LOG_WARNING, "Score %s not loaded", scores[i].path);
-				
-				if (!error[i]) {
-					error[i] = 1;
-
-					if (++nerrors >= nscores)
-						break;
-				}
 			}
-
-			i = (i + 1) % nscores;
 		}
 	} else {
 		// No loop
 	
-		for (i = 0; i < nscores; i++) {
-			if (scores[i].file) {
-				cur_score = &scores[i];
-				syslog(LOG_INFO, "Starting execution of %s", scores[i].path);
-				int retval = playscore(scores[i].file);
+		for (i = 0; i < nfiles; i++) {
+			if (midifile_init(&file, playlist[i]) < 0) {
+				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
+				midifile_destroy(&file);
+			} else
+				cur_ifile = i;
+				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
+				int retval = playscore(&file);
 				syslog(LOG_INFO, "Execution finished with code %d", retval);
-
+				midifile_destroy(&file);
+				
 				if (retval)
 					break;
-			} else
-				syslog(LOG_WARNING, "Score %s not loaded", scores[i].path);
 		}
 	}
 
@@ -192,21 +180,26 @@ static void* player_run(void *arg) {
 
 // Play a playlist
 
-int player_start(score_t *_scores, int n, int idplaylist, int idscore, int _loop) {
+int player_start(char **_playlist, int n, int _loop) {
 	if (state != STOPPED)
 		player_stop();
 	
 	// Delete scores at this point to avoid race conditions
 	
-	if (scores)
-		score_destroy((score_t *)scores, nscores);
+	if (playlist) {
+		int i;
+		
+		for (i = 0; i < nfiles; i++)
+			free(playlist[i]);
+		
+		free(playlist);
+	}
 
 	active = 1;
-	scores = _scores;
-	nscores = n;
+	playlist = _playlist;
+	nfiles = n;
 	loop = _loop;
-	cur_idplaylist = idplaylist;
-	first_idscore = idscore;
+	cur_ifile = 0;
 	
 	if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
 		active = 0;
@@ -273,12 +266,11 @@ int player_stop() {
 
 // Get state and current idplaylist and idscore
 
-enum player_state_t player_state(int *idplaylist, score_t **score) {
+enum player_state_t player_state(const char **file) {
 	if (!active)
 		state = STOPPED;
-	else if ((state == PLAYING || state == PAUSED) && idplaylist && score) {
-		*idplaylist = cur_idplaylist;
-		*score = (score_t *)cur_score;
+	else if ((state == PLAYING || state == PAUSED) && file) {
+		*file = playlist[cur_ifile];
 		return state;
 	}
 
