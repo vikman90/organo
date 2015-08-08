@@ -26,7 +26,7 @@ case $1 in
 		log_daemon_msg "Iniciando servicio..."
 		pid=$(ps -e | grep $PROCESS | cut -d' ' -f2)
 
-		if [ "$pid" != '' ]; then
+		if [ ! -z "$pid" ]; then
 			log_progress_msg "Servicio ya iniciado"
 			log_end_msg 0
 		else
@@ -45,7 +45,7 @@ case $1 in
 		log_daemon_msg "Parando servicio..."
 		pid=$(ps -e | grep $PROCESS | cut -d' ' -f2)
 
-		if [ "$pid" == '' ]; then
+		if [ -z "$pid" ]; then
 			log_progress_msg "El servicio no estaba iniciado"
 			log_end_msg 0
 		else
