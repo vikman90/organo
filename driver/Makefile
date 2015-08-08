@@ -90,7 +90,7 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o
+$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
@@ -98,6 +98,7 @@ $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/organd.o:  $(INC)/output.h $(INC)/player.h $(INC)/socket.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
+$(OBJ)/socket.o: $(INC)/player.h
 $(OBJ)/test.o: $(INC)/output.h $(INC)/player.h
