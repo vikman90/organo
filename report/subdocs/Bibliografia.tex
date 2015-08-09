@@ -1,0 +1,54 @@
+\clearpage{\pagestyle{fancy}\cleardoublepage}%
+%{Bibliografía}}}%
+%\addcontentsline{toc}{chapter}{Bibliografía}
+\pagestyle{biblio}%
+
+% Tipos de Bibliografía: http://amath.colorado.edu/documentation/LaTeX/reference/faq/bibstyles.pdf
+\bibliographystyle{acm}
+%bibliographystyle{alpha}
+%\bibliographystyle{decsci}
+
+%\bibliographystyle{jqt1999}
+
+%Begin ----  Para que funcione bien el TOC en PDF
+\cleardoublepage
+\phantomsection 
+\label{Bibliogra}
+%END  ---- Para que funcione bien el TOC en PDF
+\bibliography{referencias/referencias_BIB}
+
+%(3) STANDARD ENTRY TYPES:
+%
+%@article
+%    An article from a journal or magazine
+%@book
+%    A book with an explicit publisher
+%@booklet
+%    A work that is printed and bound, but without a named publisher or sponsoring institution
+%@conference
+%    The same as inproceedings
+%@inbook
+%    A part of a book, which may be a chapter (or section or whatever) and/or a range of pages
+%@incollection
+%    A part of a book having its own title
+%@inproceedings
+%    An article in a conference proceedings
+%@manual
+%    Technical documentation
+%@mastersthesis
+%    A Master's thesis
+%@misc
+%    Use this type when nothing else fits
+%@phdthesis
+%    A PhD thesis
+%@proceedings
+%    The proceedings of a conference
+%@techreport
+%    A report published by a school or other institution, usually numbered within a series
+%@unpublished
+%    A document having an author and title, but not formally published
+%@collection
+%    Not a standard entry type. Use proceedings instead.
+%@patent
+%    Not a standard entry type. 
+% El de Standard no se lo traga...

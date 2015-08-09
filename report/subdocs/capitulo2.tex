@@ -1,0 +1,64 @@
+\chapter{Requisitos técnicos del diseño}
+\label{cap:capitulo_2}
+
+En este capítulo nos centraremos en detallar los requisitos técnicos de nuestro diseño a nivel tanto
+\textit{hardware} como \textit{firmware}
+
+
+
+\section{Requisitos \textit{hardware}}
+A nivel \textit{hardware} se nos pide:
+\begin{itemize}
+\item[-] Diseñar una \acrshort{PCB} que sea capaz de realizar el control de temperatura de nuestro horno. 
+\item[-] Dotar a la \acrshort{PCB} de los dispositivos necesarios para la comunicación hombre-máquina.
+\item[-] El mecanismo de control de la temperatura ha de ser un controlador PID.
+\item[-] Los sensores de temperatura serán PT100 de cuatro hilos.
+\end{itemize}
+
+\section{Requisitos \textit{firmware}}
+A nivel \textit{firmware} debemos realizar un programa que contenga todas las rutinas que harán que nuestro horno funcione correctamente y la configuración de todos los dispositivos conectados a la \acrshort{PCB}. Además, deberemos realizar una interfaz gráfica en Matlab que sea capaz de comunicarse con nuestro microcontrolador, de manera que sea capaz de mandar y recibir datos.
+
+
+
+\section{Fases del proyecto}
+
+A continuación expondremos las fases constitutivas del transcurso del proyecto, describiendo su contenido de manera generalizada.
+
+Una vez expuestas las fases, se considerarán fechas iniciales y finales para cada tarea, a fin de contemplar que alcance temporal que implica el desarrollo del proyecto al completo. Las fechas marcarán el transcurso del trabajo.
+
+\smallskip	
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.8]{capitulo2/requerimientos_3}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:requerimientos_3} Principales fases de un proyecto \cite{WIKIPED}.}
+\end{figure}
+
+
+Las diferentes fases son:
+
+\begin{enumerate}
+ \item[-] \textbf{FASE I- Especificaciones del sistema:} realizaremos un estudio detallado de los requerimientos del sistema de caracterización. 
+
+ \item[-] \textbf{FASE II- Análisis y Diseño:} en esta fase se agrupan todos los requerimientos y especificaciones de la fase anterior y se trata de concebir la composición del sistema. Consideraremos todos aquellos elementos \textit{hardware}, \textit{software} y estructurales necesarios. Analizaremos las funcionalidades de cada equipo electrónico y/o mecánico utilizado, determinando su utilidad dentro del sistema. Diseñaremos y simularemos, mediante un \textit{software} específico.
+
+ \item[-] \textbf{FASE III- Desarrollo e Implementación:} se fabrica todo el componente hardware diseñado en la fase II y se le incorporan los distintos dispositivos y componentes. Una vez terminado se procede a la programación del algoritmo \glsname{PID} y, ayudándonos de algunas librerías, configuraremos los devices para su correcto funcionamiento. 
+
+ \item[-] \textbf{FASE IV- Testeo y Validación:} una vez se ha concluido el proceso de fabricación e implementación, solo queda validar el funcionamiento global del conjunto, resolviendo defectos y anomalías \textit{hardware} y también depurando fallos \textit{software} y aportando algunas mejoras puntuales. Tras esto, la obtención de datos y resultados.
+\end{enumerate}
+
+
+\smallskip	
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.5]{capitulo2/requerimientos_2}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:fases_proy_step} Analogía de fases.}
+\end{figure}
+
+
+\clearpage{\cleardoublepage}
+\clearpage{\pagestyle{empty}\cleardoublepage}
+

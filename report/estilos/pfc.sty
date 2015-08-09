@@ -1,0 +1,779 @@
+%cargar antes los paquetes de matemáticas para evitar los errores de renumenración de ecuaciones
+%http://www.tex.ac.uk/cgi-bin/texfaq2html?label=hyperdupdest
+
+\usepackage{amssymb,amsfonts,amsmath}
+\numberwithin{equation}{section}
+%Muchos ejemplos Matemáticas
+%http://es.wikipedia.org/wiki/Ayuda:Usando_TeX
+
+%Paquete para flechas grandes usadas en fórmulas químicas
+%http://www.ctan.org/tex-archive/macros/latex/contrib/chemarrow/
+\usepackage{chemarrow}
+
+%Para el espaciado entre secciones:
+%http://www.brl.ntt.co.jp/people/leroux/latex_tips-e.htm
+
+
+\pdfminorversion=6
+\pdfobjcompresslevel=3
+\pdfcompresslevel=9
+
+
+
+%Posibles errores: http://en.wikibooks.org/wiki/LaTeX/Hyperlinks
+%Para las tildes o ñ hay que usar los códigos: http://www.pjb.com.au/comp/diacritics.html
+\usepackage{hyperref}
+\hypersetup{
+    %bookmarks=true,% show bookmarks bar?
+    unicode=true, %allows to use characters of non-Latin based languages in Acrobat’s bookmarks
+    bookmarksnumbered=true,
+		pdfstartview={FitH},
+		      %– FitH : Fit whole width of page
+		      %– FitV : Fit whole height of page
+		      %– FitB : Fit whole ”Bounding Box” page
+		      %– FitBH: Fit whole width of ”Bounding Box” of page
+		      %– FitBV: Fit whole height of ”Bounding Box” of page
+		pdfpagemode=UseOutlines,
+    pdftitle={Control temperatura en horno con 
+microcontrolador},    % title
+    pdfauthor={Germán del Castillo Cuesta},     % author
+    pdfsubject={Documento Electronico Proyecto Fin de Carrera},   % subject of the document
+    pdfkeywords={Magnetorresistencia,Campo Magnetico,Bobinas Helmhotz,Matlab, GPIB, RS232}, % list of keywords
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=black,       % color of internal links (blue)
+    citecolor=black,        % color of links to bibliography (green)
+    filecolor=black,       % color of file links (black)
+    urlcolor=black         % color of external links (green)
+}
+% Es importante tener en cuenta que las páginas tienen una numeración y que no debe repetirse, por eso el principio del documento empieza por a,b,... después el índice lleva numeración romana y después empieza la árabe. Si no se hace así, el paquete hyperrref da un Warning molesto:
+%		! pdfTeX warning (ext4): destination with the same
+%		identifier (name{page.1}) has been already used,
+%		duplicate ignored
+%  http://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages
+\usepackage[UTF8]{inputenc}  %Formato de caracteres en fichero .
+\usepackage[spanish,english]{babel}
+\usepackage{eurosym}
+
+
+%%% Control the fonts and formatting used in the table of contents.
+%\usepackage[titles]{tocloft}
+%%% Aesthetic spacing redefines that look nicer to me than the defaults.
+%\setlength{\cftbeforechapskip}{2ex}
+%\setlength{\cftbeforesecskip}{0.5ex}
+%%% Use Helvetica-Narrow Bold for Chapter entries
+%\renewcommand{\cftchapfont}{%
+  %\fontsize{9}{11}\usefont{OT1}{phv}{bc}{n}\selectfont
+%}
+
+%\singlespacing, \onehalfspacing, and \doublespacing: 
+\usepackage[singlespacing]{setspace} % package para controlar el espacio entrelíneas
+%\usepackage[onehalfspacing]{setspace} % package para controlar el espacio entrelíneas
+
+
+\usepackage{sectsty} % Changing section headinds
+										 % tiene que ir antes de fancyhdr
+
+\usepackage{fancyhdr}
+\usepackage[Rejne]{fncychap}  %Para la numeración de capítulos
+%\usepackage[Glenn]{fncychap}  %Para la numeración de capítulos
+%\usepackage[Bjornstrup]{fncychap}  %Para la numeración de capítulos
+%\usepackage[Conny]{fncychap}  %Para la numeración de capítulos
+%\usepackage{fncychap}  %Para la numeración de capítulos
+
+%%% Thum-indexes -- {fancyhdr} -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[calc]{picture}
+\usepackage{calc} %Para poder hacer operaciones con el LATEX http://www.tug.org/texlive/Contents/live/texmf-dist/doc/latex/tools/calc.pdf
+
+\usepackage{moresize} %Para tenet tipos de letra como HUGE que no está definida
+%\usepackage[hoptionsi]{moresize}  10pt, 11pt y 12pt
+% 10pt This option provides the same settings as the default. \HUGE is defined to
+%    select a 29.86pt font size, and \ssmall is made to give 6pt. These defini-
+%    tions continuously extend the set of size commands given in the size10.clo
+%    standard class option file.
+% 11pt This option makes \HUGE and \ssmall select 29.86pt and 7pt, respectively,
+%    which is suitable for use with the settings given in the size11.clo standard
+%    class option file.
+% 12pt With this option, \HUGE and \ssmall are defined to select 35.83pt and 7pt,
+%    respectively.
+ %
+\setlength{\unitlength}{18mm}
+\newcommand{\blob}
+{
+   \rule[-.2\unitlength]{1\unitlength}{1\unitlength}
+		%\rule[raise-height]{width}{thickness}
+}
+\newcommand{\rblob}
+{
+   \thepage
+   \begin{picture}(0,0)
+     \put(8mm,-9mm-27mm*\value{chapter}){\blob}  
+     \put(11mm,-27mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+%     \put(1.9,-9mm-35mm*\value{chapter}){\blob}
+		 %\put(2.125\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+		 %\put(2.1\unitlength,-18mm*\value{chapter}){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(38.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}
+}
+
+\newcommand{\lblob}
+{%
+   \begin{picture}(0,0)
+    \put(-25mm,-9mm-27mm*\value{chapter}){\blob}
+    \put(-17mm,-27mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+     %\put(-3,-9mm-35mm*\value{chapter}){\blob}
+     %\put(-2.6\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+     %\put(-2.6\unitlength+4mm,-18mm*\value{chapter}-0.5mm){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(-45.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}%
+   \thepage
+}
+
+\newcommand{\lblobPublicaciones}
+{%
+   \begin{picture}(0,0)
+    \put(-25mm,-9mm-27mm*6){\blob}
+    \put(-19mm,-27mm*6-9mm+1mm){{\color{white} \textbf{\HUGE P}}}
+   \end{picture}%
+   \thepage
+}
+\newcommand{\rblobPublicaciones}
+{
+   \thepage
+   \begin{picture}(0,0)
+     \put(8mm,-9mm-27mm*6){\blob}  
+     \put(9mm,-27mm*6-9mm+1mm){{\color{white} \textbf{\HUGE P}}}
+   \end{picture}
+}
+
+
+
+
+\newcommand{\lblobApendice}
+{%
+   \begin{picture}(0,0)
+    \put(-25mm,-9mm-27mm*7){\blob}
+    \put(-19mm,-27mm*7-9mm+1mm){{\color{white} \textbf{\HUGE A}}}
+     %\put(-3,-9mm-35mm*\value{chapter}){\blob}
+     %\put(-2.6\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+     %\put(-2.6\unitlength+4mm,-18mm*\value{chapter}-0.5mm){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(-45.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}%
+   \thepage
+}
+\newcommand{\rblobApendice}
+{
+   \thepage
+   \begin{picture}(0,0)
+     \put(8mm,-9mm-27mm*7){\blob}  
+     \put(9mm,-27mm*7-9mm+1mm){{\color{white} \textbf{\HUGE A}}}
+%     \put(1.9,-9mm-35mm*\value{chapter}){\blob}
+		 %\put(2.125\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+		 %\put(2.1\unitlength,-18mm*\value{chapter}){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(38.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}
+}
+\newcommand{\lblobConclusiones}
+{%
+   \begin{picture}(0,0)
+    \put(-25mm,-9mm-27mm*7){\blob}
+    \put(-19mm,-27mm*7-9mm+1mm){{\color{white} \textbf{\HUGE C}}}
+     %\put(-3,-9mm-35mm*\value{chapter}){\blob}
+     %\put(-2.6\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+     %\put(-2.6\unitlength+4mm,-18mm*\value{chapter}-0.5mm){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(-45.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}%
+   \thepage
+}
+\newcommand{\rblobConclusiones}
+{
+   \thepage
+   \begin{picture}(0,0)
+     \put(8mm,-9mm-27mm*7){\blob}  
+     \put(9mm,-27mm*7-9mm+1mm){{\color{white} \textbf{\HUGE C}}}
+%     \put(1.9,-9mm-35mm*\value{chapter}){\blob}
+		 %\put(2.125\unitlength,-18mm*\value{chapter}+6mm){{\color{white} \textbf{\Large CH}}} %1\unitlength
+		 %\put(2.1\unitlength,-18mm*\value{chapter}){{\color{white} \textbf{\Large\arabic{chapter}}}}
+     %\put(38.5mm,-35mm*\value{chapter}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{chapter}}}}
+   \end{picture}
+}
+\pagestyle{fancy}
+
+%\cfoot{}
+
+\newcounter{line} %Variable Auxiliar utilizada para calcular la posición del las líneas equivalentes para hacer el índice de capítulos.
+
+
+\newcommand{\secname}[1]
+{  
+    \addtocounter{line}{1}%
+    %\put(1,-\value{line}){\blob}
+    %\put(-7.5,-\value{line}){\Large \arabic{line}} %Pone un número
+    %\put(-7,-\value{line}){\Large #1}  % Pone el texto que se le pasa
+    \put(35mm,-9mm-27mm*\value{line}){\blob}
+    \put(38mm,-27mm*\value{line}-9mm+1mm){{\color{white} \textbf{\HUGE \arabic{line}}}}
+    \put(-5.5,-9mm-27mm*\value{line}){\Large \arabic{line}.} %Pone un número
+    \put(-5,-27mm*\value{line}-9mm){\Large #1}  % Pone el texto que se le pasa		
+}
+\newcommand{\secnamePos}[2]
+{  
+    \addtocounter{line}{1}%
+    %\put(1,-\value{line}){\blob}
+    %\put(-7.5,-\value{line}){\Large \arabic{line}} %Pone un número
+    %\put(-7,-\value{line}){\Large #1}  % Pone el texto que se le pasa
+    \put(35mm,-9mm-27mm*\value{line}){\blob}
+    \put(37.5mm,-27mm*\value{line}-9mm+1mm){{\color{white} \textbf{\HUGE #2}}}
+    
+    \put(-5,-27mm*\value{line}-9mm){\Large #1.}  % Pone el texto que se le pasa		
+    \put(-5.5,-9mm-27mm*\value{line}){\Large #2} %Pone un número/Letra
+
+}
+
+\newcommand{\overview}
+{
+  \thepage
+  \begin{picture}(0,0)
+  \secname{Capítulo 1}
+  \secname{Capítulo 2}
+  \secname{Capítulo 3}
+  \secname{Capítulo 4}
+  \secname{Capítulo 5}
+  \secnamePos{Publicaciones}{P}
+  \secnamePos{Apéndices}{A}
+  \secnamePos{Conclusiones}{C}  
+  %\secname{\CapituloC}
+  %\secname{\CapituloD}
+  %\secname{\CapituloE}
+  \end{picture}
+}
+%%% Thum-indexes -- {fancyhdr} -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hoffset=-0.5cm
+\oddsidemargin=0.5cm
+\evensidemargin=0.cm
+\textwidth=6.5in
+\headsep=30pt
+\topmargin=-.5in
+\textheight=8.8in
+\footskip=50pt
+%\setcounter{tocdepth}{3}   %Para bajar el índice a 4 niveles.
+\setcounter{secnumdepth}{5}
+
+%\thepage 	number of the current page
+%\leftmark 	current chapter name printed like "CHAPTER 3. THIS IS THE CHAPTER TITLE"
+%\rightmark 	current section name printed like "1.6. THIS IS THE SECTION TITLE"
+%\chaptername 	the name chapter in the current language. If this is English, it will display "Chapter"
+%\thechapter 	current chapter number
+%\thesection 	current section number
+
+\fancypagestyle{plain}
+{
+   \fancyhf{}
+   \fancyfoot[C]{Simulación de circuitos con modelos avanzados en Verilog-A.}
+   \fancyfoot[LE,RO]{\thepage}
+  
+   \renewcommand{\headrulewidth}{0pt}
+   \renewcommand{\footrulewidth}{0.5pt}
+}
+
+\pagestyle{fancy}
+{\fancyhf{}
+
+\fancyhead[LE,RO]{\thepage}
+\fancyfoot[C]{Simulación de circuitos con modelos avanzados en Verilog-A.}
+\fancyfoot[LE,RO]{\thepage}
+
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+
+\fancypagestyle{biblio}
+{
+  \fancyhf{}
+  \fancyfoot[C]{Simulación de circuitos con modelos avanzados en Verilog-A.}
+  \fancyfoot[LE,RO]{\thepage}
+  \fancyhead[LE,RO]{\small{Bibliografía}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0.5pt}
+}
+
+
+
+
+
+
+
+
+%_______________________________________________________________________________________
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.gif}
+%\usepackage{subfigure}
+
+\usepackage{float}
+
+%% Nicer formatting of figure captions.
+%ftp://ctan.tug.org/tex-archive/macros/latex/contrib/caption/caption-eng.pdf
+\usepackage[skip=6pt,labelsep=endash,font=small,format=plain,labelfont={bf,up},textfont=it]{caption} 
+%Necesario cargar antes CAPTION que subfig por un problema de interacición que dan ambos paquetes
+% redefiniciones para cambiar "cuadro" por "tabla"
+\addto\captionsspanish{%
+\renewcommand\tablename{Tabla}
+\renewcommand\listtablename{\'Indice de Tablas}} 
+
+
+
+%Para poder utilizar \subfloat
+% Ejemplo completo http://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions
+\usepackage{subfig}
+
+\usepackage{acronym}%
+
+
+\usepackage{makeidx} %Para hacer el indice alfabético
+\newcommand{\ii}[1]{{\it #1}} %Para poder usar: \index{gnat%}
+
+\usepackage{tocbibind} 
+
+% TABLAS
+%Para las tablas con facilidad de centrado vertical
+\usepackage{tabulary}
+
+%Para poder hacer uso de \hline
+
+
+%Para poder centrar verticalmente se usa este paquete: [http://www.tug.org/pracjourn/2007-1/mori/mori.pdf] o http://www.inf.ethz.ch/personal/markusp/teaching/guides/guide-tables.pdf
+\usepackage{tabularx}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}  %defines columns aligned to the left,
+\newcolumntype{W}{>{\raggedleft\arraybackslash}X}   %defines columns aligned to the right,
+\newcolumntype{Z}{>{\centering\arraybackslash}X}    %defines centered columns.
+\newcolumntype{V}{>{\centering\arraybackslash}m{.4\linewidth}} %Para centrar verticalmetne imagenes
+\renewcommand {\tabularxcolumn}[1]{>{\arraybackslash}m{#1}}  %Para que las columnas de Tabularx estén centradas horizontalmente
+%\begin{tabularx}{18cm}{@{}ZZZZZ@{}} para evitar espacios laterales y ajsuta todoa ancho de página para tabla
+%\toprule[1pt]     %para definir grosores de líneas
+%\midrule[1pt]
+%\bottomrule[0.7pt]
+%\cmidrule[grosor](trim){a–b}  trim: r, r{wd}, l and l{wd},
+
+
+
+%Para definir los tipos de letra de salida:
+%\usepackage{times}          % Usar tipo Times-Roman
+\usepackage{lmodern}          % Usar tipo Latin Modern
+\usepackage[T1]{fontenc}    % Usar la codificación T1
+
+
+
+
+\usepackage{array}   % Para que funcione el m{2cm} dentro de una tabla y defina el ancho de una columna.
+\usepackage{booktabs}
+\usepackage{calc}
+%Para poder rotar las tablas grandes
+\usepackage{rotating}
+
+
+
+%Para la Generación de Circuitos
+%\usepackage[siunitx]{circuitikz}
+%\usepackage{showexpl}
+%\usepackage{framed}
+
+
+%Para rellenar las celdas de las tablas de color 
+\usepackage[tables]{xcolor}
+%pero se pone en la cabecera de DOCUMENT para que no de problemas de Clash o repetición
+%_____________________________________________________________________________
+% ---  Listado de colores disponibles
+%AliceBlue
+%AntiqueWhite
+%Aqua
+%Aquamarine
+%Azure
+%Beige
+%Bisque
+%Black
+%BlanchedAlmond
+%Blue
+%BlueViolet
+%Brown
+%BurlyWood
+%CadetBlue
+%Chartreuse
+%Chocolate
+%Coral
+%CornflowerBlue
+%Cornsilk
+%Crimson
+%Cyan
+%DarkBlue
+%DarkCyan
+%DarkGoldenrod
+%DarkGray
+%DarkGreen
+%DarkGrey
+%DarkKhaki
+%DarkMagenta
+%DarkOliveGreen
+%DarkOrange
+%DarkOrchid
+%DarkRed
+%DarkSalmon
+%DarkSeaGreen
+%DarkSlateBlue
+%DarkSlateGray
+%DarkSlateGrey
+%DarkTurquoise
+%DarkViolet
+%DeepPink
+%DeepSkyBlue
+%DimGray
+%DimGrey
+%DodgerBlue
+%FireBrick
+%FloralWhite
+%ForestGreen
+%Fuchsia
+%Gainsboro
+%GhostWhite
+%Gold
+%Goldenrod
+%Gray
+%Green
+%GreenYellow
+%Grey
+%Honeydew
+%HotPink
+%IndianRed
+%Indigo
+%Ivory
+%Khaki
+%Lavender
+%LavenderBlush
+%LawnGreen
+%LemonChiffon
+%LightBlue
+%LightCoral
+%LightCyan
+%LightGoldenrod
+%LightGoldenrodYellow
+%LightGray
+%LightGreen
+%LightGrey
+%LightPink
+%LightSalmon
+%LightSeaGreen
+%LightSkyBlue
+%LightSlateBlue
+%LightSlateGray
+%LightSlateGrey
+%LightSteelBlue
+%LightYellow
+%Lime
+%LimeGreen
+%Linen
+%Magenta
+%Maroon
+%MediumAquamarine
+%MediumBlue
+%MediumOrchid
+%MediumPurple
+%MediumSeaGreen
+%MediumSlateBlue
+%MediumSpringGreen
+%MediumTurquoise
+%MediumVioletRed
+%MidnightBlue
+%MintCream
+%MistyRose
+%Moccasin
+%NavajoWhite
+%Navy
+%NavyBlue
+%OldLace
+%Olive
+%OliveDrab
+%Orange
+%OrangeRed
+%Orchid
+%PaleGoldenrod
+%PaleGreen
+%PaleTurquoise
+%PaleVioletRed
+%PapayaWhip
+%PeachPuff
+%Peru
+%Pink
+%Plum
+%PowderBlue
+%Purple
+%Red
+%RosyBrown
+%RoyalBlue
+%SaddleBrown
+%Salmon
+%SandyBrown
+%SeaGreen
+%Seashell
+%Sienna
+%Silver
+%SkyBlue
+%SlateBlue
+%SlateGray
+%SlateGrey
+%Snow
+%SpringGreen
+%SteelBlue
+%Tan
+%Teal
+%Thistle
+%Tomato
+%Turquoise
+%Violet
+%VioletRed
+%Wheat
+%White
+%WhiteSmoke
+%Yellow
+%YellowGreen
+
+%__FIN   Colores  disponibles  ____________________________________________________
+%_____________________________________________________________________________
+
+
+
+% REferencias de Col
+%http://en.wikibooks.org/wiki/LaTeX/Colors
+%\usepackage[dvipsnames]{color}
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray92}{gray}{.92}
+\definecolor{gray90}{gray}{.90}
+\definecolor{gray80}{gray}{.80}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\definecolor{darkgray}{rgb}{0.95,0.95,0.95}
+
+\usepackage{listings}
+\lstset{ 
+		 frame=Ltb,
+     framerule=0pt,
+     aboveskip=1mm,  %define the space above and below displayed listings
+     belowskip=1mm,    %define the space above and below displayed listings
+		 %
+		 abovecaptionskip=0cm,
+     belowcaptionskip=0mm,
+		 xleftmargin=2cm,
+     %
+		 %framextopmargin=3pt,
+     %framexbottommargin=3pt,
+     %framexleftmargin=0.2cm,
+     %framesep=0pt,
+     rulesep=.4pt,
+     backgroundcolor=\color{gray92},
+     %backgroundcolor=\color{darkgray},
+     rulesepcolor=\color{black},
+     %
+     stringstyle=\ttfamily,
+     showstringspaces=false,
+     commentstyle=\color{gray45},
+     %
+     captionpos=b, %Posición Inferior
+     numberbychapter=true, %Numerado con capítulos
+     %
+     numbers=left,
+     numbersep=30pt,
+     numberstyle=\tiny,
+     numberfirstline = false,
+     breaklines=true,
+     %
+     showtabs=false,
+     extendedchars=true,
+     language=Verilog,
+     inputencoding=ansinew,
+     numbers=left,
+     numberstyle=\tiny,
+     stepnumber=1,
+     numbersep=5pt,
+     keywordstyle=\color{blue}\bfseries,%\emph,(Esto los subrraya)
+     morekeywords={let,option,control,destroy foreach, altermod, print, echo,plot,endc,end,$limit, parameter,"pnjlim","fetlim",real,limexp,ddt,white,noise,`ifdef,`else,`endif,ddx,<+,analog,electrical,`define,aliasparam,double,int},
+     tabsize=2,
+		 %Tamaño de Letra		
+     basicstyle=\tiny,%\scriptsize}%\footnotesize}%\small}%, stringstyle=\ttfamily}
+     breakindent=5pt,
+     %
+		%Caracteres para saltar a LATEX y poder introducir sintaxis de Latex dentro del Listing
+    %escapechar=\%, 
+		escapeinside={(*@}{@*)},
+		extendedchars=true,
+    inputencoding=utf8,
+		%Para que con texto codificado en UTF detecte bien estos caracteres LATIN1. En caso de fichero ASNI en latin1 no hay problemas
+		literate={ñ}{{\~{n}}}1 {Ñ}{{\~{N}}}1 {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1 {‘}{{`}}1  {“}{{``}}1  {”}{{"}}1 
+}		
+
+\newcommand{\finESPICEOutput}{\end{lstlisting}\selectlanguage{spanish}}
+		
+\newcommand{\beginESPICEOutput}{\selectlanguage{english} \begin{lstlisting}[numbers=none, xleftmargin=2cm,backgroundcolor=\color{gray90},belowcaptionskip=-0.9cm]}
+
+
+\renewcommand*{\lstlistingname}{Listado}  %Listado en vez de Listing
+% Mimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+   {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+\lstdefinestyle{consola}
+   {basicstyle=\scriptsize\bf\ttfamily,
+    backgroundcolor=\color{gray75},
+   }
+\lstdefinestyle{C}
+   {language=C,
+   }
+	
+	
+	%Para que la numeración de las ecuaciones vaya con el nº de subsección
+\numberwithin{equation}{section}
+%\numberwithin{lstlisting}{section}
+	
+%Con esto consigo que las tildes graves del Verilog-A salgan correctamente.
+\usepackage{upquote}
+%para que salga las comilla grave en línea con el texto 
+
+
+%Con la opción SANTIZE puedo meter texto matemático en los símbolos
+%[xindy]para poder meter tildes en el name={}
+%If you are also using the hyperref package, you must load the glossaries package after the hyperref package.
+\usepackage[sanitize={symbol=false},acronym,toc]{glossaries}
+%xindy
+
+%Definición de listado de Símbolos, para que se listen en este listado es necesario hacer:
+%\newglossaryentry{pi}{type=symbols,name={\ensuremath{\pi}},sort=pi,description={ratio of circumference of circle to its diameter}}
+\newglossary{symbols}{sym}{sbl}{Lista de Símbolos}
+
+\makeglossaries % Para hacer un glosario
+\usepackage{glosario_acronimos} 
+
+%Para poder hacer uso de los símbolos de LaseBeam....
+%http://www.ctan.org/tex-archive/info/symbols/comprehensive/symbols-a4. Página 74
+\usepackage{marvosym}
+\usepackage{bbding}  %Para \HandRight  \HandCuffRight   \PencilRightDown
+
+\hoffset=-0.5cm
+\oddsidemargin=0.5cm
+\evensidemargin=0.cm
+\textwidth=6.5in
+%\headheight=15pt
+\headheight=26pt
+\headsep=30pt
+\topmargin=-.5in
+\textheight=8.8in
+\footskip=50pt
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+
+\fancypagestyle{plain}{
+\fancyhf{}
+\fancyfoot[C]{Control temperatura en horno con microcontrolador.}
+\fancyfoot[LE,RO]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.5pt}}
+
+
+
+\fancypagestyle{biblio}{
+\fancyhf{}
+\fancyfoot[C]{Control de temperatura en un horno con un microcontrolador.}
+\fancyfoot[LE,RO]{\thepage}
+\fancyhead[LE,RO]{\small{Bibliografía}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.5pt}}
+
+\pagestyle{fancy}
+\fancyhf{}
+% En las paginas impares, parte izquierda del encabezado, aparecera el nombre de capítulo
+\fancyhead[LO]{\leftmark} 
+% En las paginas pares, parte derecha del encabezado, aparecera¡ el nombre de sección
+\fancyhead[RE]{\rightmark} 
+% Numeros de pagina en las esquinas de los encabezados
+\fancyhead[RO,LE]{\thepage} 
+\fancyfoot[RE]{Germán del Castillo Cuesta}
+\renewcommand{\footrulewidth}{0.5pt}
+\fancyfoot[LO]{Control de temperatura en un horno con un microcontrolador.}
+
+
+%%Especificamos Cabecera y pie de página para el documento normal
+\fancyhead{}
+\fancyhfoffset[RO,LE]{0cm}
+\fancyhead[RE]{\small{\nouppercase{\leftmark}}}%    current section name printed like "1.6. THIS IS THE SECTION TITLE"
+\fancyhead[RO]{\rblob}
+\fancyhead[LE]{\lblob}
+\fancyhead[LO]{\small{\nouppercase{\rightmark}}}  %   current chapter name printed like "CHAPTER 3. THIS IS THE CHAPTER TITLE"
+
+
+%Distancias entre párrafos.
+\setlength{\parindent}{15pt}
+\setlength{\parskip}{0.4cm}
+
+    %* \tiny
+    %* \scriptsize
+    %* \footnotesize
+    %* \small
+    %* \normalsize (default)
+    %* \large
+    %* \Large (capital "L")
+    %* \LARGE (all caps)
+    %* \huge
+    %* \Huge (capital "H")
+
+
+
+\makeatletter
+   \newenvironment{indentation}[3]%
+   {\par\setlength{\parindent}{#3}
+   \setlength{\leftmargin}{#1}       \setlength{\rightmargin}{#2}%
+   \advance\linewidth -\leftmargin       \advance\linewidth -\rightmargin%
+   \advance\@totalleftmargin\leftmargin  \@setpar{{\@@par}}%
+   \parshape 1\@totalleftmargin \linewidth\ignorespaces}{\par}%
+\makeatother 
+
+%Necesarios para la conversion WORD LATEX
+
+\usepackage{ulem}
+%...
+%\uline{something}  --> normal underlined text
+%\uuline{something} --> double-underlined text
+%\uwave{something}  --> wavy underline
+%\sout{something}   --> delete text with line
+%\xout{something}   --> delete text with //////.
+
+%Comandos para indentar líneas
+%\indent
+%units: cm, em, ex, in, pc, pt, mm
+	%cm	Centimetres
+	%em	The width of the letter M in the current font
+	%ex	The height of the letter x in the current font
+	%in	Inches
+	%pc	Picas (1pc = 12pt)
+	%pt	Points (1in = 72.27pt)
+	%mm	Millimetres
+
+\newcommand{\qindent}{\hspace{2em}}
+\newcommand{\aindent}{\hspace{4em}}
+
+
+
+% new LaTeX commands
+\newcommand{\styleCircuitos}[1]{#1}
+\newcommand{\styleCdigoFuenteSRC}[1]{{\tiny \texttt{#1}}}
+\newcommand{\styleEstiloEpgrafeSinNegritaCar}[1]{{\footnotesize #1}}
+\newcommand{\styleEstiloResultadosdeSPICESinCursiva}[1]{{\tiny \texttt{#1}}}
+\newcommand{\styleFigurayTabla}[1]{{\footnotesize #1}}
+\newcommand{\styleNormalIntermitente}[1]{#1}
+\newcommand{\styleNormalparaindices}[1]{#1}
+\newcommand{\styleReferences}[1]{#1}
+\newcommand{\styleResultadosdeSPICE}[1]{{\indent \tiny \textit{\texttt{#1}}}}
+\newcommand{\styleTextodocumentoCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCarCar}[1]{{\small #1}}
+
+
+%Para poder incluir páginas completas PDF en este caso el RunSheet
+\usepackage[final]{pdfpages}
+
+%Para poder incluir texto al lado de imágenes:  http://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions
+\usepackage{wrapfig}
+
+
+\usepackage{graphicx}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.gif}

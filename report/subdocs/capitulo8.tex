@@ -1,0 +1,1142 @@
+
+\chapter{Descripción y Utilización de la herramienta Software.}
+
+Llegados a este punto, en el que ya disponemos de un suficiente dominio del despliegue hardware y de la comunicación vía GPIB y RS-232, es momento de introducir el software implementado. 
+
+%Este capítulo pretende ser un manual tanto de las opciones que ofrece el software implementado como de su utilización. Las capturas incluidas serán secuenciales y se seguirá una estructura \textit{top-botton} del software, comentando desde su interfaz principal y de carácter más general, hasta aquellas de utilización específica para ciertos procedimientos de gestión de datos, configuración y medida o procesos de calibración.
+%
+%\section{Introducción al Software}
+%
+%El objetivo que queremos conseguir a través de la utilización de esta herramienta, es obtener un conjunto de datos de interés según qué dispositivo se analice.
+%
+%Este programa va a permitirnos analizar dos tipos de dispositivos:
+%
+%
+%\begin{itemize}
+	%\item Magnetorresistencias aisladas.
+	%\item Puentes de Wheatstone de hasta cuatro elementos magnetorresistivos.
+%\end{itemize}
+%
+%\subsection{Medición de Magnetorresistencias aisladas}\label{medicion_magn_ind_aislada}
+%
+%Al medir una magnetorresistencia aislada, realmente estamos midiendo su resistencia para determinados valores de campo magnético aplicado sobre ella. Como sabemos, la procedencia de dicho campo puede ser:
+%
+%\begin{itemize}
+	%\item Bobinas de Helmholtz.
+	%\item Pistas de corriente.
+%\end{itemize}
+%
+%Independientemente, estaremos induciendo un campo magnético al fin y al cabo.
+%
+%El tipo de representaciones que nos interesa conseguir en este tipo de medidas, es la de resistencia en función del campo magnético, Figura \ref{fig:ejem_R_vs_C}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/ejemplo_R_vs_Campo}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:ejem_R_vs_C} Curva de Resistencia vs. Campo Magnético.}
+%\end{figure}
+%
+%
+%Para obtener esta curva hemos de controlar dos aspectos:
+%
+%\begin{enumerate}
+%
+%\item \textbf{La alimentación de la magnetorresistencia:}  
+%
+%Para alimentar la magnetorresistencia, utilizamos una unidad SMU. La SMU ejerce como fuente de tensión, alimentando un de los extremos de la magnetorresistencia con un voltaje tal que genera una corriente de polarización $\mathrm{I_{polarización}}$ especificada por el usuario.
+%
+%La SMU, además de alimentar en tensión, es capaz de medir la $\mathrm{I_{polarización}}$ por la magnetorresistencia en cada momento. Con esto conseguimos captar la variación de $\mathrm{I_{polarización}}$ por la magnetorresistencia, a medida que el valor de su resistencia cambia al aplicarle un campo magnético. Finalmente, el valor resistivo se obtiene por la ley de Ohm dividiendo la tensión de alimentación entre la corriente $\mathrm{I_{polarización}}$ medida.
+%
+%Al trabajar con las SMUs del analizador de parámetros HP 4145B en modo tensión, incrementamos notablemente la sensibilidad del sistema. 
+%
+%\begin{itemize}
+	%\item \textbf{SMU en Modo V:} capaz de medir corriente con una resolución de 1 nA, mientras suministra tensión dentro de un rango de 0 a 100 V.
+	%\item \textbf{SMU en Modo I:} capaz de medir tensión con una resolución de 1 mV, mientras suministra corriente dentro de un rango de 0 a 100 mA.
+%\end{itemize}
+ %
+%
+%\item \textbf{La excitación magnética:}
+%
+%La inducción del campo magnético sobre el dispositivo analizado, se efectúa mediante las bobinas o mediante la pista de corriente.
+%
+%\begin{itemize}
+	%\item \textbf{Bobinas:} si empleamos este método, tendremos que controlar la fuente KEPCO BOP 50-8, sección \ref{etiqueta_afuente_kep} del capítulo 6, que suministra corriente a las dos bobinas de Helmholtz. La relación entre corriente y campo magnético vendrá dada por el polinomio de interpolación obtenido durante la calibración de las bobinas.
+	%\item \textbf{Pista de corriente:} en este caso, tendremos que utilizar la fuente KEPCO BOP 50-8 o el analizador de parámetros HP 4145B para suministrar corriente a la pista, induciendo un campo magnético según la ley de Ampére. La selección de una fuente u otra dependerá de la configuración que realice el usuario.
+%\end{itemize}
+%
+%
+%\end{enumerate}
+%
+%
+%El algoritmo de medida itera sobre el barrido de campo magnético en el que el usuario quiere analizar la magnetorresistencia, obteniendo en cada iteración el valor de la resistencia del dispositivo.
+%
+%Además de la representación de la curva de la Figura \ref{fig:ejem_R_vs_C} como tal, se pretende obtener una serie de parámetros de calidad del dispositivo. Para ello el software lleva a cabo un \textit{postprocesado} de la curva de datos obtenida, calculando los parámetros absolutos que detallamos a continuación:
+%
+%\begin{itemize}
+	%\item[-] \textbf{Hc}: o campo coercitivo. Indica la buena o mala simetría de la curva respecto del punto de campo magnético nulo.
+	%\item[-] \textbf{Hf}: este parámetro refleja el desplazamiento de la zona de histéresis de la curva respecto del punto de campo magnético nulo.
+	%\item[-] \textbf{Rango de subida}: rango de campo para el que se pasa del 20$\%$ al 80$\%$ del rango resistivo en la curva de ascenso.  
+	%\item[-] \textbf{Rango de bajada}: rango de campo para el que se pasa del 80$\%$ al 20$\%$ del rango resistivo en la curva de descenso.
+	%\item[-] \textbf{MR}: expresada como $\mathrm{(R_{max}-R_{min})/R_{min}}$. Indica la variación resistiva porcentual máxima del dispositivo.
+	%
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/Hc_fig}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:ejem_H_fig} Parámetros de interés $H_{c}$ y $H_{f}$.}
+%\end{figure}
+	%
+	%
+	%\item[-] \textbf{Derivadas de dos puntos}: algoritmo de estimación de la pendiente en cada punto de la curva, considerando dos puntos consecutivos de la misma. 
+	%
+		%\begin{equation}
+			%\frac{dY_{i}}{dX_{i}}=\frac{Y_{i}-Y_{i-1}}{X_{i}-X_{i-1}}
+		%\end{equation}
+	%
+	%\item[-] \textbf{Derivadas de tres puntos}: algoritmo de estimación de la pendiente en cada punto de la curva, considerando tres puntos consecutivos e la misma.
+%
+%
+%%Y_{i-1} \cdot \frac{\left(X_{i}-X_{i+1} \right) / \left(X_{i-1}-X_{i} \right)}{\left(X_{i-1}-X_{i+1} \right)}
+%
+%%Y_{i-1} \cdot \frac{\frac{\left(X_{i}-X_{i+1} \right)}{\left(X_{i-1}-X_{i} \right)}}{\left(X_{i-1}-X_{i+1} \right)}
+%
+%
+%%Y_{i} \cdot \frac{\left(2X_{i}-X_{i-1}-X_{i+1} \right) / \left(X_{i}-X_{i-1} \right)}{\left(X_{i}-X_{i+1} \right)}
+%
+%%Y_{i} \cdot \frac{\frac{\left(2X_{i}-X_{i-1}-X_{i+1} \right)}{\left(X_{i}-X_{i-1} \right)}}{\left(X_{i}-X_{i+1} \right)}
+%
+%
+%%Y_{i+1} \cdot \frac{\left(X_{i}-X_{i-1} \right) / \left(X_{i+1}-X_{i} \right)}{\left(X_{i+1}-X_{i-1} \right)}
+%
+%%Y_{i+1} \cdot \frac{\frac{\left(X_{i}-X_{i-1} \right)}{\left(X_{i+1}-X_{i} \right)}}{\left(X_{i+1}-X_{i-1} \right)}
+%
+%
+		%\begin{equation}
+			%\frac{dY_{i}}{dX_{i}}= Y_{i-1} \cdot \frac{\frac{\left(X_{i}-X_{i+1} \right)}{\left(X_{i-1}-X_{i} \right)}}{\left(X_{i-1}-X_{i+1} \right)} + Y_{i} \cdot \frac{\frac{\left(2X_{i}-X_{i-1}-X_{i+1} \right)}{\left(X_{i}-X_{i-1} \right)}}{\left(X_{i}-X_{i+1} \right)} + Y_{i+1} \cdot \frac{\frac{\left(X_{i}-X_{i-1} \right)}{\left(X_{i+1}-X_{i} \right)}}{\left(X_{i+1}-X_{i-1} \right)}
+		%\end{equation}
+%
+%
+%\end{itemize}
+%
+%Calculando estos parámetros y curvas adicionales, conseguimos caracterizar de forma completa el comportamiento del dispositivo. 
+%
+%En este sentido, el software puede servir como una herramienta de estudio y análisis del funcionamiento de los dispositivos, resumiendo sus parámetros de calidad. Al mismo tiempo es útil para detectar fallos de fabricación.
+%
+%
+%\newpage
+%\subsection{Medición de puentes de Wheatstone de hasta cuatro elementos magnetorresistivos}
+%
+%De forma adicional al análisis descrito en la sub-sección anterior, este software permite caracterizar puentes de magnetorresistencias como los comentados en la sub-sección \ref{sec:configuracion_full_4} del capítulo 5. Hay dos representaciones de interés respecto a este tipo de sensores:
+%
+%\begin{itemize}
+	%\item Tensión de salida diferencial $\mathrm{V_{out}}$ en función del campo magnético.
+	%\item Variación de la resistencia de sus cuatro elementos activos en función del campo magnético.
+%\end{itemize}
+  %
+%
+%\subsubsection{Tensión de salida diferencial $\mathrm{V_{out}}$ en función del campo magnético}
+	%
+%Para obtener esta curva característica, utilizamos el multímetro HP 3478A, sección \ref{mult_3478} del capítulo 6. El voltímetro que incorpora tiene una resolución de centésimas de mV para medir la $\mathrm{V_{out}}$. La conexión de los terminales del multímetro serán indicados, por la interfaz del programa, antes de realizar la medida (Figura \ref{fig:ejem_esquema_vout_conect}). 	
+%
+%Por otro lado, la alimentación del puente se realizará siempre con una SMU del HP 4145B trabajando en modo I. En este caso no necesitamos que la SMU opere en modo tensión (V), pues la resolución necesaria en la medida nos las dá el HP 3478A. En la Figura \ref{fig:ejem_esquema_vout_conect} vemos la indicación de conexiones para medir un puente. 
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.6]{capitulo8/conexion_paramedida_puente}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:ejem_esquema_vout_conect} Esquema explicativo sobre el conexionado de medida de $\mathrm{V_{out}}$.}
+%\end{figure}
+%
+%La excitación magnética, vendrá dada por cualquiera de los dos métodos descritos en el punto 2 de la sub-sección \ref{medicion_magn_ind_aislada}. 
+%
+%En este caso el algoritmo iterará sobre cada valor del barrido de campo magnético indicado por el usuario. Para cada iteración, se obtendrá la salida diferencial en tensión $\mathrm{V_{out}}$ del puente.
+%
+%A su vez, se puede configurar una caracterización para varias $\mathrm{I_{polarización}}$ del puente. 
+%
+%\newpage
+%\subsubsection{Variación de la resistencia de sus cuatro elementos activos en función del campo magnético}\label{varia_seccion_MR_exp}
+%
+%Esto es lo que llamamos un \textit{Individual MR Analysis} del puente. Consiste en caracterizar simultáneamente la resistencia de las cuatro magnetorresistencias para cada valor de campo magnético.
+%
+%Las cuatro magnetorresistencias siempre se montan en configuración de puente de Wheatstone. Sin embargo, su disposición dentro del encapsulado y con respecto al \textit{easy axis} hará que cada pareja de magnetorresistencias varíe siguiendo un patrón determinado. La intensidad del campo aplicado y el ángulo de incidencia de éste con respecto al \textit{easy axis} serán factores influyentes.
+%
+%El conexionado del dispositivo para este tipo de caracterización se indica en la interfaz del programa, como muestra la Figura \ref{fig:ejem_esquema_MR_conex}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.6]{capitulo8/ANAL_MR_picture}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:ejem_esquema_MR_conex} Esquema del conexionado del Individual MR Analysis del puente.}
+%\end{figure}
+%
+%Una vez hecho esto, para obtener el valor de cada magnetorresistencia se utiliza un algoritmo de 4 pasos, en los que se descompone la estructura del puente según la Figura \ref{fig:pasos_Anali_MR_b}.
+%
+%\begin{itemize}
+	%\item [] \textbf{Paso 1:} 
+	%
+		%\begin{itemize}
+			%\item [-] La SMU2 y SMU3 actúan en modo V, aplicando un potencial de 0 V en $\mathrm{{V_0}^{-}}$ y $\mathrm{{V_0}^{+}}$ respectivamente.
+			%\item [-] La SMU1 actúa en modo V, aplicando un voltaje tal que la corriente que circule por R2 y R1 sea igual a la que recorre cada magnetorresistencia del puente completo para la $\mathrm{I_{polarización}}$ especificada por el usuario.
+		%\end{itemize}
+	%
+	%\item [] \textbf{Paso 2:} 
+%
+		%\begin{itemize}
+			%\item [-] La SMU1 actúa en modo V aplicando potencial 0 V en el nodo $\mathrm{V_{b}}$.
+			%\item [-] La SMU2 actúa en modo V aplicando la misma tensión que la SMU1 en el Paso 1.
+		%\end{itemize}
+%
+	%\item [] \textbf{Paso 3:} 
+%
+		%\begin{itemize}
+			%\item [-] La SMU1 actúa en modo V aplicando potencial 0 V en el nodo $\mathrm{V_{b}}$.
+			%\item [-] La SMU3 actúa en modo V,aplicando la misma tensión que la SMU1 en el Paso 1.
+		%\end{itemize}
+%
+%\end{itemize}
+%
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.9]{capitulo8/paso_1_2_3MR}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:pasos_Anali_MR_b} Esquema explicativo sobre el conexionado.}
+%\end{figure}
+%
+%Dado que las SMU que actúan como puntos de masa, tienen un amperímetro en serie (Figura \ref{fig:esquema_smu}, capítulo 6), podemos obtener fácilmente la corriente exacta que circula por R1, R2, R3 y R4 como sigue:
+%
+%\begin{itemize}
+	%\item [] \textbf{Paso 1:} 
+	%
+		%\begin{itemize}
+			%\item [] $\mathrm{  R1 = V_{SMU1}/I_{Medida_{SMU3}}  }$.
+			%\item [] $\mathrm{  R2 = V_{SMU1}/I_{Medida_{SMU2}}  }$.
+		%\end{itemize}
+	%
+	%\item [] \textbf{Paso 2:} 
+%
+		%\begin{itemize}
+			%\item [] $\mathrm{  R3 = V_{SMU2}/(I_{SMU2} - I_{Medida_{SMU1}})}$.
+		%\end{itemize}
+%
+	%\item [] \textbf{Paso 3:} 
+%
+		%\begin{itemize}
+			%\item [] $\mathrm{  R3 = V_{SMU3}/(I_{SMU3} - I_{Medida_{SMU1}})}$.
+		%\end{itemize}
+%
+%\end{itemize}
+ %
+%Con este procedimiento, el algoritmo del software obtiene las resistencias de los cuatro elementos activos para cada iteración del barrido de campo magnético aplicado al dispositivo. Así obtenemos cuatro curvas de caracterización individuales en una sola medida.
+%
+%Tras esto cada curva de caracterización de resistencia en función del campo magnético es \textit{postprocesada}, obteniéndose para cada una los parámetros absolutos citados en la sub-sección \ref{medicion_magn_ind_aislada}.
+%
+%\newpage
+%\subsection{Entorno de programación}\label{programacion_entorno}
+%
+%Como se comentó en el capítulo 2 sobre requisitos y especificaciones del sistema, el software ha sido implementado en Matlab. El fácil lenguaje de programación que ofrece Matlab junto con sus funcionalidades de conectividad y simulación, hacen de él una potente herramienta en el ámbito de ingeniería y más concretamente el campo de la instrumentación electrónica.
+%
+%Como tal, el software debe ejecutarse desde Matlab, una vez situados en el directorio de trabajo. 
+%
+%El tipo de archivos que encontraremos en el directorio de trabajo pueden ser de extensión diferente:
+%
+%\begin{itemize}
+%
+	%\item \textbf{.m}: todas las funciones implementadas así como los scripts de ejecución secuencial y los \textit{callbacks} scripts de los paneles de interfaces se encuentran en archivos con este tipo de extensión. 
+	%\item \textbf{.fig}: es la extensión utilizada por los archivos de diseño gráfico de GUIs (\textit{Graphical User Interface}). Para crear este tipo de interfaces, Matlab incluye GUIDE (\textit{graphical User Interface Development Environment}) donde se añaden los elementos y controles típicos para interaccionar con el software.
+	%\item \textbf{.mat}: son ficheros de variables de Matlab, donde el usuario puede guardar los valores de dichas variables y cargarlos posteriormente.
+	%
+%\end{itemize}
+%
+%
+%%-------------
+%
+%\section{Diagramas de flujo.}
+%
+%Los diagramas de flujo ofrecen al usuario iniciado una gran cantidad de información referente a la funcionalidad del software y el sentido de la navegación por la interfaz del mismo. Es una forma rápida y visual de elaborar un resumen explicativo de las opciones que brinda el software y de su comportamiento durante la ejecución secuencial del código.
+%
+%La siguiente Figura \ref{fig:DF_SW_1}, muestra el diagrama de flujo del software en torno a la interfaz principal, una vez inicializado el programa en Matlab. 
+%
+%\newpage
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.6]{capitulo8/diagrama_flujo_principal}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:DF_SW_1} Diagrama de flujo en torno a la Interfaz Principal.}
+%\end{figure}
+%
+%A continuación también se incluye el diagrama de flujo para el uso de las dos interfaces de asistencia al posicionamiento, Figura \ref{fig:DF_SW_0}. Ambas interfaces son explicadas con detalle en la sub-sección \ref{asist_pos_interf_ind} de este mismo capítulo.  
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.6]{capitulo8/diagrama_flujo_posicion}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:DF_SW_0} Diagrama de flujo en torno a las interfaces de posicionamiento.}
+%\end{figure}
+%
+%En la siguiente página, incluimos el diagrama de flujo referente a la funcionalidad de medida, donde habrá dos posibles interfaces de \textit{setup}, en las cuales se podrán configurar las direcciones lógicas de dispositivos así como calibrar los instrumentos empleados (Figura \ref{fig:DF_SW_2}).
+%
+%%\newpage
+%
+%\begin{sidewaysfigure}%
+%\centering
+%\includegraphics[width= 18cm, height=18cm, keepaspectratio=true]{capitulo8/diagrama_flujo_medida}%
+%\caption{Diagrama de flujo en torno a las Interfaces de Medida.}%
+%\label{fig:DF_SW_2}%
+%\end{sidewaysfigure}%
+%
+%%\smallskip
+%%\begin{figure}[H]%here
+%%\noindent \begin{centering}
+%%\includegraphics[scale=0.5]{capitulo8/Diagramas_Flujo_2}
+%%\par\end{centering}
+%%\smallskip
+%%\caption{\label{fig:DF_SW_2} Diagrama de flujo en torno a las Interfaces de Medida.}
+%%\end{figure}
+%
+%\newpage
+%%-------------
+
+%\section{Inicialización del SW.}
+%
+%Una vez nos localizamos en el directorio donde se encuentran todos los ficheros .m y .fig del programa, iremos a la ventana de comando (\textit{Command Window}) y ejecutaremos el fichero correspondiente al interfaz principal del software tecleando \underline{MagnetoMeasure} y pulsando la tecla \textit{intro}.
+%
+%Lo que realmente estamos haciendo es lanzar la interfaz principal mediante la ejecución del fichero MagnetoMeasure.fig en el que se como hemos comentado antes se encuentra el esqueleto estructural de la interfaz y las funciones de llamada o \textit{callback} asociadas a la pulsación o modificación de los controles, botones, listas, casillas y menús de herramientas e interactivos de la interfaz.
+%
+%Desde esta interfaz principal, cualquier funcionalidad del software es accesible, como se ha visto en los diagramas de flujo.
+%
+%Lo que haremos en las siguientes secciones es tratar de dar una visión más detallada de las características de la interfaz, mostrando al usuario una especie de guía o manual de uso para poder efectuar sus propias medidas o analizar curvas ya existentes.
+%
+%
+%\subsection{Interfaz principal: \textit{Magetoresistance Characterization Software}}
+%
+%Al hacer doble \textit{click} sobre el fichero anterior, la interfaz principal emergerá a una posición central en la pantalla y ahora será sensible a que el usuario interaccione con ella.
+%Esta interfaz principal tiene el título de \textit{Magnetoresistance Characterization Software} y su apariencia se muestra en la captura de la Figura \ref{fig:SWpic1}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.35]{capitulo8/SW_pic1}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic1} Panel principal de la interfaz SW.}
+%\end{figure}
+%
+%
+%Como elementos diferenciables en el panel de la interfaz encontramos:
+ %
+%\begin{itemize}
+%
+	%\item \textbf{Menú de Herramientas:} es el típico menú de herramientas y de direccionamiento de paneles para la navegación por la interfaz y sus diferentes pantallas y funcionalidades (Figura \ref{fig:SWpic2}).
+				%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=1]{capitulo8/SW_pic2}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic2} Menu de herramientas.}
+%\end{figure}
+			%
+	%\item \textbf{Menu de iconos:} ofrece una serie de herramientas de uso frecuente destinadas a la gestión de archivos y a la edición del área gráfica de representación de curvas que incorpora la interfaz principal, Figura \ref{fig:SWpic3}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=1]{capitulo8/SW_pic3}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic3} Menu de iconos.}
+%\end{figure}
+	%
+	%\item \textbf{Área gráfica interactiva:}
+		%\begin{itemize}
+		%\item [-] Gráficas de representación de curvas de caracterización.
+		%\item [-] Desplegables de selección de ejes de representación.
+		%\item [-] Paneles de exposición de parámetros característicos de la medida y la curva representada.
+		%\end{itemize}
+%\end{itemize}
+%
+%Este interfaz principal es donde representamos las curvas que importamos de ficheros guardados o que medimos mediante este software. Unificar la zona de representación da un orden estructural al interfaz software y evita que el usuario se pierda entre numerosas ventanas emergentes y gráficas independientes.
+%
+%
+%\subsubsection{Importar curvas de datos}
+%
+%En esta interfaz principal podemos cargar curvas de datos guardadas como dos tipos de archivos diferentes según su procedencia. 
+%
+%Por la colaboración que se mantiene con el INESC-MN de Lisboa, se ha considerado la compatibilidad con sus archivos de datos, de manera que podamos importarlos en nuestra interfaz y poder analizarlos, lo cual es sin duda una ventaja a la hora de compartir información entre este instituto y las investigaciones paralelas que desarrolla la UGR.
+%
+%Para cargar un archivo de datos pulsamos sobre el menú de herramientas \textit{File}, y luego sobre \textit{Open}, o bien podemos utilizar directamente el icono correspondiente en la barra de iconos.
+%
+%Una vez hecho esto se nos abrirá una ventana emergente en la que podremos filtrar la búsqueda del archivo y movernos en diferentes directorios, Figura \ref{fig:SWpic4}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo8/SW_pic4}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic4} Ventana de selección de ficheros.}
+%\end{figure}
+%
+%El filtro de extensiones de archivo está predeterminado para ficheros .mat, pues es el formato en el que se guardan las medidas realizadas por este software, como se verá en las siguientes secciones, sin embargo puede modificarse para acceder a ficheros con extensión .mcd, cuyos datos corresponden a aquellos obtenidos por los investigadores del INESC-MN mediante su software análogo particular. Para cambiar el filtro de extensión de fichero seleccionamos entre las dos opciones del desplegable (Figura \ref{fig:SWpic5}).
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo8/SW_pic5}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic5} Selector de extensión de fichero.}
+%\end{figure}
+%
+%Una vez determinado el filtro deseado, la navegación por carpetas y subdirectorios es sencilla e intuitiva. Una vez encontrado el archivo que queremos cargar, hacemos doble \textit{click} sobre el para situarlo en la bandeja de datos derecha y una vez hecho esto pulsamos en \textit{Done} para cargar la gráfica, obteniendo el siguiente resultado, Figura \ref{fig:SWpic6}.
+%
+%Puesto que hay una amplia variedad de opciones dentro de la interfaz de representación, detallaremos sus principales funciones y el comportamiento que ejecuta el software en cada caso.
+%
+%\newpage
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.35]{capitulo8/SW_pic6}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic6} Interfaz principal con curvas cargadas.}
+%\end{figure}
+%
+%
+%\begin{itemize}
+%
+	%\item [\textbf{1.}] \textbf{Áreas de representación gráfica}: Cada una es independiente y representará los datos que se le especifiquen mediante los menús desplegables que cada una tiene asociados. La idea de introducir dos gráficas es la de comparar resultados de forma limpia y ordenada, sin saturar en exceso de curvas el área de representación.
+	%
+	%\item [\textbf{2.}] \textbf{Menús de selección de $\mathrm{I_{BIAS}}$}: nuestro software se caracteriza por desempeñar dos barridos de dos parámetros independientes a la hora de realizar una caracterización. Uno es la corriente con la que se polariza el dispositivo y otro el campo magnético externo al que se somete el dispositivo. En este sentido siempre se obtienen tantas curvas como corrientes de polarización diferentes hayamos introducido en el barrido, y para cada una de ellas, tantos puntos como valores de campo magnético tenga el barrido secundario. Este selector permite obtener la curva de caracterización individual correspondiente a cada corriente de polarización del dispositivo. En la sección de medida se desarrollará mejor este aspecto.
+	%
+	%\item [\textbf{3.}] \textbf{Menús de representación de ejes X e Y}: para cada punto medido de la curva se calculan otros parámetros de interés como las derivadas de dos y tres puntos, índices magnetorresistivos, etc, posibilitando varias representaciones para una misma curva de datos. Mediante estos menús \textit{popup} desplegables escogemos la que queramos representar en cada momento.
+	%
+	%\item [\textbf{4.}] \textbf{\textit{Path} y nombre del fichero importado}: es útil mantener visible en todo momento el nombre del fichero que está siendo representado, así como su \textit{path} completo en caso de querer renombrarlo o guardarlo en otro directorio diferente.
+	%
+	%\item [\textbf{5.}] \textbf{Panel de parámetros generales de medida}: cada caracterización es susceptible de ser realizada de forma diferente en cuanto a disposición de la muestra, excitación o conexionado de dispositivos y puertos, por lo que en este panel se indica como se ha realizado la medida que está siendo representada en las gráficas.
+	%
+	%\item [\textbf{6.}] \textbf{Panel de parámetros característicos de la curva}: una vez se toman todos los puntos de una determinada curva, se procesan los datos para sacar parámetros absolutos de tipo eléctrico y magnético. En este panel se muestran los parámetros absolutos de la curva que esté siendo representada en el gráfico derecho, para no sobrecargar con una excesiva cantidad de datos la capacidad de captación visual del usuario. 
+	%
+	%\item [\textbf{7.}] \textbf{Botón STOP}: aunque aún no hemos llegado a la parte de medida con el software, introducimos el botón de STOP o parada de emergencia d una medida. Este pulsador permanecerá deshabilitado mientras no se esté llevando a cabo una medida, por tanto en este punto aún no debe preocuparnos en exceso.
+	%
+%\end{itemize}
+%
+%
+%\subsubsection{Funciones de copiado rápido en portapapeles}
+%
+%El software, a parte de la necesaria opción de guardado que comentaremos más adelante, ofrece la posibilidad de copiado rápido de gráficas y datos en el portapapeles.
+%
+%En casos en los que solo nos interese exportar una representación gráfica o de texto para realizar un informe o reporte de algún tipo de medida, podemos hacerlo de forma rápida y sencilla. Pulsando el menú de herramientas \textit{Edit}, nos da la opción de copiar cualquiera de las dos gráficas con su título y rótulo de ejes \ref{fig:SWpic7}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.9]{capitulo8/SW_pic7}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic7} Opciones desplegables en el menu Edit.}
+%\end{figure}
+%
+%Incluso es posible realizar un ampliado de la gráfica con los iconos de la barra de iconos y luego copiar el área deseada, Figura \ref{fig:SWpic8}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/SW_pic8}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic8} Gráfica copiada.}
+%\end{figure}
+%
+%
+%De manera similar, se puede copiar el texto de los dos paneles de datos simplemente pinchando y arrastrando hasta seleccionar los datos de interés, Figura \ref{fig:SWpic9}, y luego pulsando Ctrl+c para copiarlos al portapapeles. Cualquier editor de texto puede cargarlos pulsando Ctrl+v.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/SW_pic9}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic9} Selección de texto.}
+%\end{figure}
+%
+%\subsubsection{Función de guardado de datos}
+%
+%Una vez tengamos representada una curva de datos, bien haya sido medida con nuestro software o importada de un fichero guardado previamente, podemos guardar los datos pulsando \textit{File} y el submenú \textit{Save} o bien pulsando directamente el icono de la barra de herramientas.
+%
+%Los ficheros pueden guardarse en cualquier directorio, no tiene por qué ser el directorio de trabajo donde se encuentran los ejecutables del software en Matlab, ya que el algoritmo se encarga de direccionarlos por su \textit{path} y guardarlos o abrirlos desde sea cual sea el directorio en el que se encuentren.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/SW_pic10}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic10} Ventana de guardado.}
+%\end{figure}
+%
+%
+%El formato de los ficheros de salida será exclusivamente .mat, Figura \ref{fig:SWpic10}. Esto permitirá tanto abrir la curva con nuestro propio software como enviarla en formato .mat a otro equipo que no necesariamente tenga el software desarrollado, pudiendo ver los datos de la medida aunque de forma menos eficiente.
+%
+%\newpage
+%
+%Por último en el menú de herramientas tenemos la pestaña de medida \textit{Measure}. El desplegable del menú \textit{Measure} muestra 4 submenús diferenciados en dos grupos, Figura.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.9]{capitulo8/SW_pic11}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic11} Submenús Measure.}
+%\end{figure}
+%
+%Un grupo (verde) es para asistir el posicionamiento de puntas sobre muestras, ya que dicho posicionamiento es un proceso sumamente delicado que requiere bastante manejo y precisión del instrumental utilizado. En muchas ocasiones es complicado conseguir un posicionado que provea a las puntas y los pads de la muestra del contacto necesario para poder caracterizar el dispositivo correctamente. 
+%
+%El otro grupo (rojo) es para configurar los parámetros de medida del dispositivo, según sea una magnetorresistencia individual o un sensor magnetorresistivo en configuración de puente de Wheatstone.
+%
+%
+%\subsection{Interfaces para la asistencia del posicionamiento}\label{asist_pos_interf_ind}
+%
+%Como venimos explicando desde el inicio de este proyecto, hay dos tipos de dispositivos que buscamos analizar, unos encapsulados y otros sin encapsular.
+%
+%El proceso de posicionamiento de puntas a través de las cabezas micrométricas o microposicionadores es el proceso por el cual conseguimos establecer un contacto físico entre los terminales de una fuente de excitación, generalmente fuentes de tensión/corriente o generadores de señal, y los terminales de contacto de una muestra sobre silicio a través de unas agujas de wolframio lo suficientemente finas como para poder ser situadas dentro de contactos que en ocasiones son inferiores a 100 $\mathrm{\mu m^2}$.
+%
+%Ante tal reto de precisión, el contacto no resulta un procedimiento trivial, sino que exige un manejo y destreza elevados con el uso del instrumental necesario.
+%
+%Por esta razón, se pensó en introducir en el sistema una herramienta de asistencia en tiempo real de este procedimiento, que indicase por pantalla y de manera constante los valores medidos de resistencia o tensión medida entre los extremos de dos microposicionadores apoyados sobre una muestra, a fin de proveer al usuario de una comprobación del correcto posicionamiento.
+%
+%Se llevan a cabo dos interfaces de asistencia, una para analizar el posicionamiento sobre una magnetorresistencia individual y otra sobre un sensor en configuración de puente Wheatstone.
+%
+%\subsubsection{Individual MR Positioning Window}
+%
+%Consta de una interfaz totalmente interactiva en tiempo real con el usuario, con imágenes que cambian según la selección del método de comprobación del posicionamiento que hagamos.
+%
+%Como tal, podemos asistir el posicionamiento sobre los dos extremos de la muestra magnetorresistiva realizando una comprobación en tiempo real de la resistencia medida entre las dos puntas de los microposicionadores o bien realizando una comprobación del voltaje entre ambas puntas cuando por una de ellas se introduce una determinada corriente y por la otra punta se fija un voltaje nulo de 0 voltios.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.9]{capitulo8/ilustra_la_idea}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:ejemplo_ilustra_2} Representación gráfica del procedimiento.}
+%\end{figure}
+%
+%A continuación explicamos la interfaz en cuestión, con sus diferentes tipos de comprobaciones.
+%
+%
+%\underline{\textbf{Comprobación de Resistencia.}}
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.35]{capitulo8/SW_pic12}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic12} Interfaz en modo comprobación de Resistencia.}
+%\end{figure}
+%
+%En la Figura \ref{fig:SWpic12} se ve la ventana de esta interfaz, donde encontramos:
+%
+%\begin{itemize}
+	%\item [\textbf{1.}] \textbf{Imagen explicativa:} del conexionado de terminales del multímetro a las puntas.
+	%\item [\textbf{2.}] \textbf{Selección del instrumental:} Puede ser el multímetro HP 3478A, en caso de que comprobemos la resistencia entre terminales, o el HP 4145B en caso de que comprobemos el voltaje entre los terminales.
+	%\item [\textbf{3.}] \textbf{Display:} donde se muestra el valor resistivo medido entre los terminales con un ciclo de refresco del valor de 0.25 segundos.
+	%\item [\textbf{4.}] \textbf{Controles:} para iniciar o pausar la medida.
+%\end{itemize}
+%
+%
+%\underline{\textbf{Comprobación de Voltaje.}}
+%
+%En este caso se desea realizar una comprobación del voltaje entre terminales. Esta modalidad nos brinda un función adicional.
+%
+%Puesto que al caracterizar una magnetorresistencia es posible excitarla magnéticamente mediante una pista de corriente, también se asiste el posicionamiento sobre la pista de corriente, con lo que será necesario controlar 4 puntas y cuatro microposicionadores. Dos extremos actuaran introduciendo una corriente baja, usualmente 1 mA, y midiendo la tensión en ese punto (utilización de SMU) y las otras dos como un punto de masa, aplicando una tensión de 0 voltios.
+%
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.35]{capitulo8/SW_pic13}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic13} Interfaz en modo comprobación de Voltaje.}
+%\end{figure}
+%
+%A continuación describimos los elementos de la Figura \ref{fig:SWpic13}:
+%
+%\begin{enumerate}
+	%\item [\textbf{1.}] \textbf{Imagen explicativa:} del conexionado de terminales del HP 4145B a las puntas de la magnetorresistencia o de la pista. Deberá indicarse mediante los desplegables que SMU se utiliza en cada nodo.
+	%\item [\textbf{2.}] \textbf{Selección del instrumental:} Puede ser el multímetro HP 3478A, en caso de que comprobemos la resistencia entre terminales, o el HP 4145B en caso de que comprobemos el voltaje entre los terminales.
+	%\item [\textbf{3.}] \textbf{Configuración de medidas:}
+		%\begin{itemize}
+			%\item \textit{Tiempo de integración:} de la muestra de voltaje obtenida.
+			%\item \textit{Número de medias:} número de medidas de voltaje tomadas para calcular una media geométrica.
+			%\item \textit{Tiempo de estabilización:} o tiempo esperado desde que se introduce la corriente hasta que se toma el valor de tensión.
+		%\end{itemize}
+	%\item [\textbf{4.}] \textbf{Corrientes:} introducidas por los terminales activos de la magnetorresistencia o de la pista según cada caso.
+	%\item [\textbf{5.}] \textbf{Controles:} para iniciar o pausar las medidas de asistencia.
+	%\item [\textbf{6.}] \textbf{Terminales operativos:} dependiendo de qué selector esté activado, se llevará a cabo la medida solo por el dispositivo magnetoresistente, por la pista de corriente, o por ambos.
+	%\item [\textbf{7.}] \textbf{Display:} para mostrar los valores de corriente y tensión por cada conductor con una frecuencia de refresco de 0.25 segundos.
+%\end{enumerate}
+%
+%Al cerrar esta última ventana pulsando sobre el botón \textit{Close} guardaremos la configuración realizada por última vez, de modo que en la siguiente ocasión que abramos la interfaz encontraremos dicho \textit{setup} aplicado.
+%
+%Esta interfaz supone una gran ayuda durante este proceso, por la información en tiempo real y visualmente cómoda que provee al usuario.
+%
+%Por último se muestran unas capturas de su funcionamiento en la Figura \ref{fig:SWpic15}. 
+%
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\subfloat[Asistiendo en R.]{\includegraphics[scale=0.3]{capitulo8/SW_pic14}}
+%\hspace{0.1cm}
+%\subfloat[Asistiendo en V.]{\includegraphics[scale=0.3]{capitulo8/SW_pic15}}
+%\vspace{0.5cm}
+%\smallskip
+%\caption{\label{fig:SWpic15} Interfaz Bridge MR Positioning Window.}
+%\par\end{centering}
+%\end{figure}
+%
+%
+%\newpage
+%
+%\subsubsection{Bridge MR Positioning Window}
+%
+%Es la interfaz análoga a \textit{Individual MR Positioning Window} pero para asistir el posicionamiento sobre puentes magnetorresistivos.
+%
+%Cuando utilicemos la modalidad de asistencia en valor resistivo, estaremos midiendo la resistencia equivalente del puente completo, que deberá ser, a campo magnético nulo, igual a la de cada una de las cuatro magnetorresistencias que lo componen, por lo que es fácil deducir si estamos correctamente posicionados teniendo una estimación orientativa del fabricante sobre el valor de resistencia de cada uno de sus componentes.
+%
+%Si optamos por realizar el posicionamiento comprobando el valor de tensión entre terminales, podemos hacerlo especificando las SMUs conectadas en el nodo 1 (nodo de alimentación) del puente y el nodo 4 (punto de masa). La pista también puede medirse en caso de tomar parte en el proceso de caracterizado. 
+ %
+%El funcionamiento del software en este caso es análogo al explicado para una única magnetorresistencia, y el único cambio significativo en la interfaz son las figuras del esquema de conexionado, Figura \ref{fig:SWpic17}.
+%
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\subfloat[Asistiendo en R.]{\includegraphics[scale=0.35]{capitulo8/SW_pic16}}
+%\hspace{0.1cm}
+%\subfloat[Asistiendo en V.]{\includegraphics[scale=0.35]{capitulo8/SW_pic17}}
+%\vspace{0.5cm}
+%\smallskip
+%\caption{\label{fig:SWpic17} Interfaz Bridge MR Positioning Window.}
+%\par\end{centering}
+%\end{figure}
+%
+%
+%\newpage
+%
+%\subsection{Interfaces de calibración y puesta a punto}
+%
+%El sistema de caracterización de magnetorresistencias utiliza dos elementos que requieren un calibrado cada cierto tiempo de uso.
+%
+%Las bobinas de Helmholtz se utilizan como inductores de campo magnético homogéneo controlado por corriente. La corriente en este caso es suministrada por la fuente KEPCO BOP 50-8 de 400 W, que actúa conjuntamente con las bobinas proveyendo de tanta corriente como sea necesaria para alcanzar el valor de campo magnético de consigna en cada caso.
+%
+%Para intentar que el campo en el punto de prueba sea lo más exacto posible al valor de consigna, es conveniente realizar un calibrado de las bobinas con frecuencia para garantizar que el polinomio de interpolación lineal de campo magnético/corriente por la bobina se aproxima, con un factor $\mathrm{R^2}$ próximo a 1, a los valores de consigna establecidos por el usuario a la hora de efectuar la caracterización de un dispositivo.
+%
+%Igualmente, el gaussímetro necesita ser calibrado para eliminar el campo magnético de offset que registra tras un largo periodo sin usarse.
+%
+%Para ello se programó una rutina de puesta a punto del hardware susceptible de verse descalibrado, que a continuación se explica en detalle.
+%
+%
+%\begin{enumerate}
+	%
+	%\item [\textbf{i.)}] Una vez situados en la ventana de medida, sea la de una magnetorresistencia individual o la de un sensor en configuración de puente, pulsamos el Menú \textit{Configuration} y luego en \textit{Calibration}, Figura \ref{fig:SWpic18}.
+	%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.6]{capitulo8/SW_pic18}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic18} Submenús Configuration.}
+%\end{figure}
+	%
+	%\item [\textbf{ii.)}] Tras seleccionar dicha opción, emergerá una ventana modal para la configuración de dos dispositivos diferenciados: el gaussímetro y/o las bobinas. El acceso a los paneles de calibración de cada se realiza mediante pestañas, visibles en la esquina superior izquierda de la ventana, Figura \ref{fig:SWpic19} indicador (1).
+	%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo8/SW_pic19}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic19} Panel de calibración del gaussímetro.}
+%\end{figure}
+	%
+	%\item [\textbf{iii.)}] La calibración del gaussímetro consiste básicamente en dos opciones: un \textit{Fast Autozero} o un \textit{Full Autozero}. La diferencia entre ambas opciones radica en el tiempo de ejecución y en la descarga completa del voltaje Hall de la sonda que realiza el \textit{Full Autozero}. Se aconseja realizar el segundo procedimiento, durante el cual se indicará al usuario el avance mediante  una barra de progreso emergente, Figura \ref{fig:SWpic21}.
+	%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.4]{capitulo8/SW_pic21}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic21} Barra de progreso de calibración del gaussímetro.}
+%\end{figure}
+	%
+	%\item [\textbf{iv.)}] El siguiente panel de calibración se accede mediante la pestaña denominada \textit{Coil's Current Source}. Aqué es donde se calibra el funcionamiento conjunto de la bobina y la fuente KEPCO BOP 50-8, Figura \ref{fig:SWpic20}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.55]{capitulo8/SW_pic20}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic20} Panel de calibración Coils's Current Source.}
+%\end{figure}
+	%
+%\newpage
+%
+	%\item [\textbf{v.)}] Este proceso de calibración tiene dos fases:
+	%
+	%\begin{enumerate}
+		%
+		%\item [\textit{\textbf{a.)}}] \textbf{Cálculo de los niveles de saturación DC de las bobinas:} 
+		%
+		%Debido a las limitaciones de potencia de la fuente KEPCO BOP 50-8 a un máximo de 400 W (50 V y 8 A) tenemos que controlar la derivada de la curva V/I al alimentar las bobinas con corriente. 
+		%
+		%Cuando la relación V/I deja de ser lineal (tolerancia del 5$\%$), obtenemos el valor máximo de corriente con el que podemos alimentar las bobinas. Indirectamente, también obtenemos la $\mathrm{Resistencia_{DC}}$ de cada bobina. 
+		%
+		%Esto constituye el \textit{First Step} de la calibración, indicado en la Figura \ref{fig:SWpic20} indicador (1).
+		%%Cuando esta curva registra una pendiente calculamos la derivada de la curva V/I para que cuando difiera en un porcentaje de tolerancia mayor del 5$\%$ con respecto al valor de la pendiente en su región lineal, establezca en dicho valor de corriente el máximo valor suministrable por la fuente, para evitar caer en regiones no lineales de tensión/corriente. De forma implícita, estamos calculando también la resistencia real en DC de cada bobina (son simétricas e idénticas).
+		%
+		%\item [\textit{\textbf{b.)}}] \textbf{Interpolación de la curva de Campo Magnético vs. Corriente:} 
+		%
+		%Conociendo el valor máximo de corriente de alimentación de las bobinas, realizamos un barrido entre $\pm$ $\mathrm{I_{max}}$, con un incremento de 0.5 A que puede editarse. Mientras se produce el barrido, medimos con el gaussímetro GM08 en la región central de las bobinas obteniendo el campo generado.
+		%
+		%Es importante estabilizar la sonda para que los valores no oscilen. El algoritmo del software registra los valores e campo vía conexión RS-232 formando una curva de Campo Magnético en función de la $\mathrm{I_{Bobina}}$. Esta curva debe procesarse, para calcular su derivada y obtener la región de trabajo lineal de las bobinas con una tolerancia del 15$\%$.
+		%
+		%Tras esto último, se obtienen los valores máximos/mínimos de campo magnético en Oersted generados por las bobinas cuando trabajan en su rango lineal. Dichos valores se muestran junto con el polinomio de interpolación lineal calculado a la recta, Figura \ref{fig:SWpic23}.
+		%
+		%Esto constituye el \textit{Second Step} de la calibración, indicado en la Figura \ref{fig:SWpic20} indicador (2).
+		%%conociendo los límites en corriente suministrables a las bobinas, se realiza un barrido desde $\mathrm{-I_{LIMITE}}$ hasta $\mathrm{+I_{LIMITE}}$ con un \textit{step} o incremento de corriente configurable, midiendo con el gausímetro recién calibrado en la región central entre las bobinas dónde se colocará el dispositivo. En este paso es importante estabilizar la sonda para no registrar oscilaciones. El algoritmo leerá los valores de corriente suministrados vía GPIB y los valores de campo magnético obtenidos vía RS-232, conformando dos vectores de puntos. A esta curva se le calcula igualmente la derivada, para ver en que regiones se sitúan los puntos de saturación de campo magnético dada una cierta tolerancia. Con estos puntos se acota la curva, quedándonos con la región lineal de la representación Campo magnético (Oe) vs. Corriente (A), que se muestra junto a los límites de campo magnético y junto con la recta de interpolación lineal, una vez concluido el proceso, como puede apreciarse en la Figura \ref{fig:SWpic23}. 
+		%
+	%\end{enumerate}
+	%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.4]{capitulo8/SW_pic23}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic23} Conclusión del proceso de calibración de las bobinas.}
+%\end{figure}
+%
+	%
+%\end{enumerate}
+%
+%
+%\newpage
+%
+%\subsection{Interfaz de asignación de direcciones}
+ %
+%Como siempre se ha mantenido una visión abierta a posibles incorporaciones de nuevos equipos de instrumentación, se ha dotado al software de la capacidad de asignar dinámicamente las direcciones  \textit{GPIB} y \textit{serial port} de los dispositivos actuales. 
+%
+%De esta manera, si fuese necesario, se puede cambiar su dirección manteniendo operativo el conjunto de equipos.
+%
+%Para ver y/o modificar las direcciones actuales de los dispositivos, una vez nos encontremos en la interfaz de medida, independientemente de las dos existentes, hacemos \textit{click} en el Menú \textit{Configuration} y despues en \textit{Device Address}.
+%
+%La siguiente ventana aparecerá en el \textit{front-end}, con las direcciones actuales de los dispositivos en uso, como muestra la Figura \ref{fig:SWpic24}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.67]{capitulo8/SW_pic24}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic24} Ventana de configuración direccional de equipos.}
+%\end{figure}
+%
+%En caso de querer modificarlas, haremos uso de los desplegables de selección de dirección \textit{GPIB} o \textit{serial port} así como las casillas editables para introducir la dirección lógica (siempre en formato numérico y sin signos) de la tarjeta \textit{GPIB} utilizada. Como vemos, nosotros utilizamos la tarjeta con dirección lógica 7 para dos equipos, utilizando un cable \textit{GPIB} convencional 10833A de Agilent, y la tarjeta con numeración lógica 8 para otro equipo, conectado mediante el cable conector \textit{GPIB/USB} 82357A.
+%
+%
+%
+%\newpage
+%\subsection{Interfaces de \textit{Setup} de medida}
+%
+%Para realizar la caracterización de un sensor, es necesario especificar una configuración general y específica del procedimiento de medida.
+%
+%La parte general consiste en detallar el conexionado, la utilización del tipo de excitación magnética y el posicionado del sensor sobre un determinado soporte físico para el análisis.
+%
+%La parte específica contempla parámetros de configuración referidos a los valores de excitación eléctrica, magnética, así como los tiempos de estabilización y toma de medidas, el numero de iteraciones, etc.
+%
+%Para ello se implementaron dos interfaces interactivas para que el usuario lleve a cabo esta configuración de forma sencilla y cómoda, con una interfaz agradable que además es sensible a las modificaciones que va realizando el usuario, cambiando la apariencia de la misma.
+%
+%Existe una interfaz orientada al análisis de magnetorresistencias individuales y otra orientada al análisis de sensores de puentes magnetorresistivos en configuración de Wheatstone.
+%
+%
+%\subsubsection{\textit{Individual Magnetoresistance Measurement Setup}} \label{InterfazMedidaIndi1}
+ %
+%El procedimiento de medida consiste en:
+%
+%\begin{itemize}
+	%\item [\textbf{i.)}] Alimentar la magnetorresistencia con una determinada corriente de polarización.
+	%\item [\textbf{ii.)}] Seleccionar un método de excitación magnética, véase las bobinas de Helmholtz o las pistas de corriente.
+	%\item [\textbf{iii.)}] Definir el barrido de valores de campo magnético aplicados por las bobinas o de corriente por las pistas de corriente.
+	%\item [\textbf{iv.)}] Establecer un único valor de corriente de polarización, o un vector de corrientes de polarización, de manera que se obtenga una curva de análisis Resistencia vs Campo magnético (o corriente por las pistas) para cada uno de las corrientes de polarización.
+	%\item [\textbf{vi.)}] Finalmente obtenemos una curva de la resistencia del dispositivo en función de la excitación magnética a la que se le somete, para cada una de las corrientes de polarización especificadas. Tras post-procesar todos los puntos obtenidos, se ofrece una lista de parámetros absolutos referentes a dicha representación.
+%\end{itemize}
+%
+%\newpage
+%
+%En la siguiente Figura  \ref{fig:SWpic25} se muestra el aspecto de la interfaz de esta ventana de medida:
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.4]{capitulo8/SW_pic25}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic25} Interfaz de la ventana Individual Magnetoresistance Measurement Setup.}
+%\end{figure}
+%
+ %En la siguiente lista se enumeran los paneles y campos editables de interés durante el proceso de \textit{setup} de la medida:
+%
+%
+%\begin{enumerate}
+	%
+	%\item [\textbf{1.}] Panel de selección de las SMUs utilizadas en cada nodo de la magnetorresistencia y la pista de corriente en caso de ser esta utilizada durante el proceso de medida. Utilización de menús desplegables.
+	%
+	%\item [\textbf{2.}] Selección del método de inducción magnética, que podrá ser:
+		%
+		%\begin{itemize}
+			%\item Bobinas de Helmholtz.
+			%\item Pista de Corriente.
+		%\end{itemize}
+		%
+	%\item [\textbf{3.}] Localización de la muestra durante el análisis:
+%
+		%\begin{itemize}
+			%\item En la mesa de puntas: nos conectaremos a la muestra por medio de los microposicionadores.
+			%\item En el Fixture Test 16058A: utilizaremos los latiguillos y conectores del fixture para conectar la muestra.
+		%\end{itemize}
+%
+	%\item [\textbf{4.}] Panel de configuración de la toma de medidas:
+%
+		%\begin{itemize}
+			%\item Tiempo de integración del HP 4145B.
+			%\item Numero de medias.
+			%\item Tiempo de estabilización de la excitación magnética.
+		%\end{itemize}
+%
+	%\item [\textbf{5.}] Panel de definición del barrido en campo magnético de las bobinas o del barrido en corriente por la pista de corriente.
+	%
+	%\item [\textbf{6.}] Panel de definición de las limitaciones de alimentación del dispositivo, que pueden darse de dos maneras distintas:
+		%\begin{itemize}
+			%\item Valor de la $\mathrm{R_{nominal}}$ y de la máxima tensión $\mathrm{V_{alimentación}}$.
+			%\item Valor de la máxima tensión $\mathrm{V_{alimentación}}$ y de la máxima corriente $\mathrm{I_{polarización}}$.
+		%\end{itemize}	
+%
+	%\item [\textbf{7.}] Panel de introducción de la corriente de polarización de la magnetorresistencia, que puede ser:
+		%\begin{itemize}
+			%\item Una única corriente $\mathrm{I_{polarización}}$, obteniendo una única curva.
+			%\item Un vector de corrientes $\mathrm{I_{polarización}}$, obteniendo una curva de caracterización para cada una de ellas.
+		%\end{itemize}	
+%
+	%\item [\textbf{8.}] Botón de inicio de la medida.
+	%
+%\end{enumerate}
+%
+%Los datos se introducirán siempre en formato decimal, por ejemplo 0.0015, o en formato científico utilizando la expresión exponencial, 1.5e-3. No  es necesario introducir ningún signo negativo, pues todos los valores son magnitudes físicas de signo positivo. Las unidades están indicadas al lado de la casilla donde cada valor ha de ser introducido por el usuario.
+%
+%En cualquier caso, si se detectan problemas de sintaxis en los datos introducidos, así como casillas en blanco, texto no apropiado o seleccionables sin marcar, el software analiza cada elemento de forma individual lanzando un mensaje de aviso indicando que casillas deben ser revisadas, Figura \ref{fig:SWpic28}.
+%
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.65]{capitulo8/SW_pic28}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic28} Ventana emergente de aviso de fallos en la configuración.}
+%\end{figure}
+%
+%
+%\subsubsection{\textit{Bridge Magnetoresistances Measurement Setup}}
+%
+%Como indica el título, aquí caracterizamos sensores en configuración de puente de Wheatstone con 4 elementos variables. 
+%
+%La caracterización se centra en la obtención de dos posibles curvas:
+%
+%
+%\begin{itemize}
+%
+	%\item Una curva de la salida diferencial en tensión del puente $\mathrm{V_{out}}$ en función de los valores de excitación magnética a los que se somete a sus cuatro magnetorresistencias, para cada valor de corriente de polarización del puente que especifiquemos.
+	%\item Un análisis individual de cada uno de los cuatro dispositivos magnetorresistivos por separado, en el que poder contrastar sus curvas de resistencia en función de la excitación magnética a la que se le somete, para cada valor de corriente de polarización del puente.
+%
+%\end{itemize}
+%
+%Aunque la interfaz es común para el análisis de puentes, independientemente de la curva de interés que queramos obtener, gracias a la interfaz interactiva y cambiante, podemos configurar cada uno de los dos escenarios pertinentes desde la misma ventana, tal y como mostraremos a continuación:
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.55]{capitulo8/SW_pic26}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic26} Interfaz de la ventana Bridge Magnetoresistances Measurement Setup.}
+%\end{figure}
+%
+%En la siguiente lista se enumeran los paneles y campos editables de interés en el interfaz de la Figura \ref{fig:SWpic26}:
+%
+%\begin{enumerate}
+	%
+	%\item [\textbf{1.}] Panel de selección de las sondas de contacto utilizadas en cada nodo del puente, según vayamos a caracterizar la salida diferencial del puente o vayamos a hacer un análisis en resistencia de cada uno de los elementos variables del puente.
+	%
+	%\item [\textbf{2.}] Panel de selección del método de inducción magnética, mediante un menu desplegable y un panel activo con imágenes. Podremos escoger entre:
+	%\begin{itemize}
+		%\item Bobinas de Helmholtz.
+		%\item Pista de Corriente.
+	%\end{itemize}
+	%
+	%\item [\textbf{3.}] Panel de configuración de la toma de medidas:
+		%\begin{itemize}
+			%\item Tiempo de integración del HP 4145B, que en este caso alimentara el puente.
+			%\item Numero de medias.
+			%\item Tiempo de estabilización de la excitación magnética que hayamos seleccionado.
+		%\end{itemize}
+	%
+	%\item [\textbf{4.}] Panel selección de la localización del dispositivo a ser analizado:
+		%\begin{itemize}
+			%\item Mesa de puntas, en cuyo caso el dispositivo se conectará mediante las puntas y los microposicionadores.
+			%\item Fixture Test 16058A, contemplado para disponer aquellos dispositivos que estén encapsulados
+		%\end{itemize}
+%
+	%\item [\textbf{5.}] Panel selección de la fuente de corriente que alimentará la pista de corriente (en caso de utilizarla). Podremos escoger dos tipos de fuentes de corriente:
+		%\begin{itemize}
+			%\item HP 4145B: con un rango de corrientes de $\pm$99 mA. En este caso será necesario especificar además la SMU utilizada para tal caso.
+			%\item KEPCO BOP 50-8: con un rango de corrientes entre $\pm$8 A.
+		%\end{itemize}
+		%
+	%\item [\textbf{6.}] Panel de definición del barrido en campo magnético de las bobinas o del barrido en corriente por la pista de corriente. Se pueden realizar dos tipos de barridos:
+		%\begin{itemize}
+			%\item Barrido simple: barrido simétrico con respecto al valor 0, con un límite en valor absoluto y un incremento configurables por la interfaz.
+			%\item Barrido compuesto: el barrido principal tiene las mismas características que el barrido simple. El barrido secundario permite variar el incremento dentro de un determinado rango del barrido principal, a fin de obtener una mayor numero de puntos en una determinada region generalmente próxima a cero.
+		%\end{itemize}
+%
+	%\item [\textbf{7.}] Panel de introducción de la corriente de polarización del puente, que puede ser:
+		%\begin{itemize}
+			%\item Una única corriente $\mathrm{I_{polarización}}$, obteniendo una única curva.
+			%\item Un vector de corrientes $\mathrm{I_{polarización}}$, obteniendo una curva de caracterización para cada una de ellas.
+		%\end{itemize}	
+%
+	%\item [\textbf{8.}] Panel de definición de las limitaciones de alimentación del dispositivo, que pueden darse de dos maneras distintas:
+		%\begin{itemize}
+			%\item Valor de la $\mathrm{R_{nominal}}$ y de la máxima tensión $\mathrm{V_{alimentación}}$, pensado para dispositivos de caracter comercial.
+			%\item Valor de la máxima tensión $\mathrm{V_{alimentación}}$ y de la máxima corriente $\mathrm{I_{polarización}}$, pensado para dispositivos prototipo aún en fase de pruebas cuya $\mathrm{R_{nominal}}$ puede estar o no aún por determinar.
+		%\end{itemize}	
+%
+%
+	%\item [\textbf{9.}] Panel de selección de análisis resistivo MR de cada elemento del puente
+%
+		%Este panel incluye una casilla de marcado la cual hará que pasemos de una caracterización por defecto de la tensión diferencial de salida $\mathrm{V_{out}}$, a una caracterización resistiva MR de cada uno de los elementos del puente de forma individual (\textit{Individual MR Analysis}).
+%
+%Al seleccionar esta casilla, el conexionado del dispositivo cambia por completo con respecto al conexionado utilizado para medir la $\mathrm{V_{out}}$. El resto de elementos de la interfaz permanecen intactos, tal y como muestra la Figura \ref{fig:SWpic29}.
+%
+%La caracterización resistiva MR de los cuatro elementos variables del puente, puede realizarse escogiendo la corriente I que circulará por cada elemento. Esto es posible gracias al algoritmo implementado, tal y como se comentó en la sub-sección \ref{varia_seccion_MR_exp} Figura \ref{fig:pasos_Anali_MR_b}.
+%
+%Si se define la corriente por cada magnetorresisténcia durante el análisis MR, se deshabilitarán las configuraciones sobre la corriente de polarización $\mathrm{I_{polarización}}$, que ahora tomará el valor determinado para satisfacer la condición impuesta por la corriente a través de cada magnetorresistencia. 
+%
+%A continuación, Figura \ref{fig:SWpic29}, se presentan los cambios incurridos en la interfaz predeterminada para el análisis de $\mathrm{V_{out}}$ al seleccionar la casilla del \textit{Individual MR Analysis}.
+%
+%\newpage
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.55]{capitulo8/SW_pic29}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic29} Cambios sobre la interfaz para el análisis MR.}
+%\end{figure}
+%
+%
+%\item [\textbf{10.}] Botón de inicio de medida.
+%
+%\end{enumerate}
+%
+%Una vez más los datos deben ser introducidos en formato numérico, ya sea decimal o científico. No deben usarse signos ya que todas las magnitudes son de signo positivo o valor absoluto. En cuanto a la posibilidad de introducir algún dato incorrecto, al pulsar el botón de inicio de la medida, una ventana emergente nos avisará de cualquier error en la configuración.
+%
+%
+%\newpage
+%\subsection{Interfaz de medida en curso}
+%
+%Tras completar con éxito la configuración de una medida, el software recopila la información introducida por el usuario y comienza la comunicación con los diferentes instrumentos para realizar la medición del dispositivo y caracterizarlo.
+%
+%En este punto, la ventana de \textit{Individual Magnetoresistance Measurement Setup} o \textit{Bridge Magnetoresistances Measurement Setup} pasará a un segundo plano y la interfaz principal del software se reflotará al \textit{front-end}.
+%
+%En ese instante, se comenzarán a tomar puntos de la curva de caracterización, los cuales se irán mostrando uno a uno, en tiempo real, en la gráfica derecha de la interfaz principal.
+%
+%El botón de \textit{Stop} de la medida, aparecerá ahora habilitado para pulsarlo en caso de que queramos abortar el proceso de caracterización o hayamos hecho una configuración errónea.
+%
+%La Figura \ref{fig:SWpic30} muestra la interfaz principal mientras se está desarrollando la medida, mostrando el avance mediante una barra de progreso con las iteraciones completadas sobre el total de ellas. Así el usuario no tiene por que esperar a que se complete la medida, pudiendo dejar el programa en un segundo plano y seguir trabajando.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo8/SW_pic30}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:SWpic30} Interfaz principal durante una medición.}
+%\end{figure}  
+%
+%
+%\newpage
+%\subsection{Exportación de curvas de datos}
+%
+%Desde el comienzo de la implementación del software, se contempló la posibilidad de programar un algoritmo de exportación capaz de enviar las curvas de datos resultantes a un software específico de representación gráfica. En estas aplicaciones, las posibilidades de representación son bastante superiores a las de cualquier interfaz GUI que podamos desarrollar en Matlab.
+%
+%Por este motivo, se estudió el traspaso de datos a la aplicación Origin Pro Lab, Figura \ref{fig:OPL86_v}, que es una herramienta de procesado de datos y representaciones gráficas muy potente y con una gran variedad de opciones. Esta aplicación goza de un amplio reconocimiento y aceptación en sectores de carácter estrechamente relacionados con la investigación y divulgación científica.
+%
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.25]{capitulo8/Origin_lab_logo}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:OPL86_v} Origin Pro Lab 8.6v.}
+%\end{figure}  
+%
+%
+%Una vez decidida la aplicación de destino, desarrollamos una serie de funciones cuyos algoritmos recorren nuestras variables de datos generadas en Matlab y exportan uno a uno los resultados numéricos y etiquetas de texto de forma ordenada a una hoja de cálculo de Origin Pro Lab.
+%
+%Hacemos uso de una serie de comando implementados por los propios desarrolladores de Origin Pro Lab para la comunicación con Matlab, de manera que podamos ejecutar de forma automática desde Matlab el inicio de Origin Pro Lab, y que a partir de ahí se comience con el volcado de datos útiles de una plataforma a otra.
+%
+%Los pasos para exportar datos a Origin Pro Lab se enumeran ordenados en las siguientes líneas:
+%
+%
+%\begin{enumerate}
+	%
+	%\item Cargar una curva de datos en la interfaz principal \textit{Magetoresistance Characterization Software} mediante el Menú de herramientas File/->Open, o realizar una medida y esperar a que esta concluya y los datos queden representados en la interfaz principal tal y como muestra la Figura \ref{fig:SWpic32}. 
+	%
+	%\newpage
+	%
+	%\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.35]{capitulo8/SW_pic32}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic32} Representación de curva de datos en la interfaz principal.}
+	%\end{figure}  
+	%
+	%\item Seleccionar el Menú de Herramientas File/->Export Data to Origin Pro Lab, Figura \ref{fig:SWpic31}.
+%
+	%\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.6]{capitulo8/SW_pic31}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic31} Submenú de exportación a Origin Pro Lab.}
+	%\end{figure}
+	%
+	%\item Esperar a la inicialización de Origin y a la aparición de la hoja de cálculo con los datos representados, Figura \ref{fig:SWpic33}.
+	%
+	%\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.35]{capitulo8/SW_pic33}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic33} Submenú de exportación a Origin Pro Lab.}
+	%\end{figure}
+	%
+	%\item Estamos listos para operar con los datos exportados en la aplicación Origin Pro Lab.
+	%
+%\end{enumerate}
+%
+%
+%\newpage
+%\subsubsection{Estructura de los datos exportados a Origin Pro Lab.}
+%
+%Todos los datos exportados de nuestras variables en Matlab deben alojarse de forma ordenada e intuitiva en las hojas de cálculo de Origin Pro Lab, que dispone de una ordenación de datos por filas y columnas, a su vez en hojas o sheets, y a su vez en plantillas.
+%
+%Los datos se dividirán en dos plantillas:
+%
+%\begin{itemize}
+	%\item \textbf{Plantilla \textit{ResExp} - Resultados Experimentales:} donde irán los parámetros generales de la medida y los parámetros absolutos de cada curva.
+	%
+	%\begin{itemize}
+		%\item \underline{Parámetros generales de la medida:} van insertados en la \textit{sheet1} de la plantilla \textit{ResExp}. Figura \ref{fig:SWpic34}. 
+	%\end{itemize}
+	%
+	%\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.5]{capitulo8/SW_pic34}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic34} Parámetros generales de la medida exportados a Origin Pro Lab.}
+	%\end{figure}
+	%
+	%\begin{itemize}
+		%\item \underline{Parámetros absolutos de cada curva:} van insertados en la plantilla \textit{ResExp} de forma consecutiva a partir de la \textit{sheet1}. Si solo se ha calculado 1 curva (solo se especificó un valor de corriente de polarización) solo se ocupará la \textit{sheet2} con los parámetros absolutos de dicha curva. En caso de ser más de una curva, sus parámetros absolutos se irán rellenando en las consecutivas \textit{sheet3}, \textit{sheet4}, etc... Figura \ref{fig:SWpic38}.
+	%\end{itemize}
+	%
+	%\newpage
+	%
+	%
+	%\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.5]{capitulo8/SW_pic38}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic38} Parámetros absolutos de la curva exportados a Origin Pro Lab.}
+	%\end{figure}
+	%
+	%\bigskip
+	%
+	%\item \textbf{Plantilla DatosExp - Datos Experimento:} donde irán los puntos de representación de cada curva obtenida.
+%\end{itemize}
+%
+%Esta plantilla será de uso exclusivo para la representación de los puntos que conforman las curvas obtenidas para cada corriente de polarización aplicada al dispositivo analizado.
+%
+%De esta manera, si la medición se hizo para una única corriente de polarización, los puntos de la curva de caracterización se incluirán ordenados por columnas en la \textit{sheet1} de esta plantilla, tal y como puede observarse en la Figura \ref{fig:SWpic36}.
+%
+  %\smallskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.35]{capitulo8/SW_pic36}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic36} Puntos de la curva exportados a Origin Pro Lab.}
+	%\end{figure}
+%
+%\newpage
+%
+%Cada columna contiene los puntos de un parámetro susceptible de ser representado conformando una curva de caracterización del dispositivo, ya sea una curva de (R vs. Campo magnético), (MR vs. corriente de pista), (V vs. Campo magnético), (dV vs. d$\mathrm{I_{pista}}$), etc, dependiendo del análisis llevado a cabo. 
+%
+%Si se ha hecho una caracterización para más de una única corriente de polarización, los datos se alojarán de forma ordenada en las consecutivas \textit{sheets} de esta plantilla indicando a que $\mathrm{I_{polarización}}$ pertenece cada conjunto de puntos, Figura \ref{fig:SWpic37}.
+%
+  %\bigskip
+	%\begin{figure}[H]%here
+	%\noindent \begin{centering}
+	%\includegraphics[scale=0.8]{capitulo8/SW_pic37}
+	%\par\end{centering}
+	%\smallskip
+	%\caption{\label{fig:SWpic37} Sheets de la plantilla \textit{DatosExp} al exportar una medida para 6 distintos valores de $\mathrm{I_{polarización}}$.}
+	%\end{figure}
+
+\newpage
+\cleardoublepage

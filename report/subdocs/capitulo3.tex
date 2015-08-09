@@ -1,0 +1,108 @@
+
+\chapter{Análisis del sistema.}
+\label{cap:capitulo_3}
+En este capítulo se detallará la fase de análisis del proyecto, partiendo de los requisitos técnicos explicados en el capítulo \ref{cap:capitulo_2}. Se detallarán las distintas opciones de diseño y los problemas y soluciones que han ido apareciendo a lo largo del proyecto.
+
+\section{Análisis del horno}
+La figura XXXXX muestra el diagrama de nuestro horno con los elementos más importantes. EL horno está controlado principalmente por el termostato que se encargará de encender/apagar el relé que permite el paso de corriente hacia las resistencias que calientan el horno. 
+A continuación se dará una explicación más detallada de los distintos componentes.
+
+\subsection{Termostato}
+
+Un termostato es un componente de un sistema de control que comprueba la temperatura de un sistema de manera que mantiene la temperatura de dicho sistema cercana a una consigna. El termostato consigue esto mediante el calentamiento o enfriamiento de dispositivos en on o off. En nuestro caso, mediante el calentamiento de unas resistencias que cederán calor al interior del horno. 
+
+\smallskip	
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.1]{capitulo3/termostato}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:termostato} Termostato.}
+\end{figure}
+
+
+\subsection{Termistor}
+Un termistor es un dispositivo que cambia su impedancia dependiendo de la temperatura.
+
+La impedancia del termistor es leída por un sistema de control, usualmente basado en un microcontrolador, que es programado para realizar diferentes operaciones a determinadas temperaturas.
+Dicha temperatura la veremos reflejada en un termómetro de mercurio situado en la parte frontal del horno.
+
+\hfill
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.3]{capitulo3/termistor}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:termistor} Termistor.}
+\end{figure}
+	
+ 
+
+
+\subsection{Relé}
+Un relé es un dispositivo electromecánico que mediante una bobina y un electroimán acciona uno o varios contactos que permitirán la apertura o el cierre de otros circuitos eléctricos independientes. En nuestro caso, permitirá el paso de la corriente que calentará por efecto Joule las resistencias que cederán energía en forma de calor al horno.
+
+\smallskip	
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.8]{capitulo3/rele}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:rele} Relé multi9 CT.}
+\end{figure}
+
+Este rele tiene un voltaje de operación de 250 V AC y 25 A. Y su esquemático lo podemos ver a continuación en la figura \ref{fig:esquema_rele}\cite{multi9}.
+
+\smallskip	
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.8]{capitulo3/esquema_rele}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:esquema_rele}Esquema relé de dos puertas.}
+\end{figure}
+
+\subsection{Fusibles}
+Los fusibles son pequeños dispositivos que permiten el paso constante de la corriente eléctrica hasta que ésta supera el valor máximo permitido. Cuando aquello sucede, entonces el fusible, inmediatamente, cortará el paso de la corriente eléctrica a fin de evitar algún tipo de accidente, protegiendo los aparatos eléctricos de "quemarse" o estropearse..
+
+El mecanismo que posee el fusible para cortar el paso de la electricidad consta básicamente en que, una vez superado el valor establecido de corriente permitido, el dispositivo se derrite, abriendo el circuito, lo que permite el corte de la electricidad. De no existir este mecanismo, o debido a su mal funcionamiento, el sistema se recalentaría a tal grado que podría causar, incluso, un incendio.
+
+						
+\begin{figure}[H]%here
+\noindent \begin{centering}
+\includegraphics[scale=0.2]{capitulo3/fusible}
+\par\end{centering}
+\smallskip
+\caption{\label{fig:fusible} Fusible.}
+\end{figure}
+
+El fusible incorporado en el horno tiene las siguientes características: 
+
+\begin{itemize}
+\item Soplado de acción rápida.
+\item Capacidad de ruptura de intensidad AC de 100 kA.
+\item Intensidad de 6 A.
+\item Tensión nominanl de 600V.
+\end{itemize}
+
+
+
+\section{Modificaciones del horno}
+En primer lugar empezaremos analizando que módificaciones serán necesarias en el horno. 
+
+Ya hemos visto cómo funciona, y vimos que el control del encendido y apagado para el calentamiento lo lleva a cabo el termostato. Nosotros queremos controlar todo desde una \acrshort{PCB} controlada por un microcontrolador, por lo que tendremos que quitar el termostato de manera que desde la \acrshort{PCB} podamos seguir controlando el horno. La solución que se llevó a cabo fue la de realizar un \textit{bypass} al termostato de manera que no tenga ningún control sobre nuestro horno.
+
+El termostato controla un relé que es el que hace que se circule o no la corriente hacia las resistencias que calientan el horno. Al usar un control \glsname{PID}, controlaremos el horno con una señal \acrshort{PWM}. 
+
+Las señales \acrshort{PWM} cambian de alta a baja en periodos de tiempo muy pequeños. Al ser el relé un elemento de conmutación mecánica, el cambio de estado tan rápido a la larga hara que se rompa. Por lo que se opta por quitarlo y hacer ese cambio de estado ON/OFF mediante un optotriac que irá incorporado en la \acrshort{PCB}.
+
+\section{Localización de la \acrshort{PCB}}
+Disponemos de varias opciones donde colocar la \acrshort{PCB}, aunque no se tomará ninguna decisión hasta que no tengamos la \acrshort{PCB} fabricada.
+
+\begin{itemize}
+\item Parte superior del horno.
+\item Lateral del horno.
+\item Interior del horno abriendo agujeros para que sean accesibles los dispositivos de comunicación hombre-máquina.
+\end{itemize}
+
+

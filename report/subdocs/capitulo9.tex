@@ -1,0 +1,397 @@
+
+\chapter{Pruebas y resultados.}
+
+hola
+
+%Una vez constituido en su totalidad el sistema de caracterización de dispositivos magnetorresistivos, llegamos a la fase de testeo y validación del sistema en su conjunto.
+%
+%Tras haber validado de forma individual el correcto funcionamiento de cada instrumento controlado de forma remota, nos centramos en un análisis global del comportamiento del sistema, cuya forma más eficiente de validación es la de medir el tipo de dispositivos para los que el sistema ha sido diseñado.
+%
+%Esta validación no pretende convertirse en una exhaustiva publicación sobre el completo análisis y comportamiento de los dispositivos caracterizados, sino la verificación de los procedimientos de caracterización por si mismos, que deben llegar a resultados coherentes en base a las especificaciones técnicas de cada sensor.
+%
+%Por ello, lo que haremos será citar el tipo de sensor que se ha analizado, sus especificaciones de fabricación y de qué manera se ha procedido con su análisis, concluyendo con una breve explicación de los resultados obtenidos.
+%
+%
+%\newpage
+%
+%\section{Pruebas con Magnetorresistencias individuales}
+%
+%En esta sección se expondrán las curvas de caracterización de algunas magnetorresistencias aisladas. Todas ellas se encuentran en dispositivos sin encapsular, litografiados en una oblea como se comentó en la sección \ref{litografiado_obleasi} del capítulo 5.
+%
+%El posicionamiento sobre los \textit{pads} de estos dispositivos se realiza en la mesa de puntas Karl-Suss o en la mesa auxiliar fija que incorpora las bobinas, sección \ref{mesita_auxif} del capítulo 6.
+%
+%Puesto que todos estos dispositivos son restos desechados del proceso de fabricación de sensores encapsulados, muchos de ellos tienen desperfectos y problemas de fabricación que pueden hacer que no funcionen como deben. 
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.035]{capitulo9/sensor_3x3_verde}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:3x3_oblea_verde} Oblea de 3x3 máscaras con sensores spin valve.}
+%\end{figure}
+%
+%Una de las pruebas que se llevaron a cabo fué un posicionamiento asistido sobre la oblea de la Figura . Con esto se pretendió evaluar el estado de sus magnetorresistencias R1, R2, R3 y R4 para comprobar su valor resistivo a campo 0 Oe y el correcto contacto eléctrico entre sus pads. La máscara de este sensor es la misma que la que se encuentra en la Figura \ref{fig:SV07_encapsulated}.
+%
+%El \textit{platen} de la mesa Karl-Suss PSM6 permite levantar el contacto de las puntas sobre la magnetorresistencia y posicionarnos sobre otro dispositivo moviendo el \textit{wafer stage} de la mesa, haciendo el proceso de medida mucho más eficiente.
+%
+%La siguiente Tabla \ref{tab:3x3_oblea_verde} muestra el valor resistivo de las magnetorresistencias R1, R2, R3 y R4 (en k$\Omega$) para cada máscara de entre las 9 que tiene la oblea.
+%
+%\begin{table}[H]
+%\begin{center}
+%\bigskip
+%\includegraphics[scale=0.7]{capitulo9/medidas_sensor_verde}
+%\smallskip
+%\caption{Comprobación de las resistencias de las mascaras.}
+%\label{tab:3x3_oblea_verde}
+%\end{center}
+%\end{table} 
+%
+%
+%La mayoría de magnetorresistencias medidas muestran un valor resistivo entre 1.65-1.70 k$\Omega$. Sin embargo, algunas de ellas presentan problemas en los contactos (X) o medían valores de resistencia que diferían bastante de la media.
+%
+%En la Figura \ref{fig:medida1_explic} se caracteriza la resistencia R3 de la máscara 4 en función del campo magnético generado por las bobinas, de $\pm$100 Oe. 
+ %
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/R3_R10u_disp4_3x3_verde}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:medida1_explic} Magnetorresistencia spin valve con campo perpendicular al vector $\vec{M}$ fijo.}
+%\end{figure}
+%
+%En la Figura \ref{fig:medida1_explic}, el campo se ha aplicado en dirección perpendicular al vector de magnetización fijo o \textit{pinned} de la magnetorresistencia. Como consecuencia, el vector de magnetización de la capa libre rota desde una posición paralela a una posición perpendicular, respecto del vector de magnetización fijo.
+%
+%Esto propicia que el valor mínimo de resistencia se alcance para un valor de campo nulo. Además, el rango máximo de variación de la resistencia del dispositivo es solo la mitad del máximo $\Delta$R posible \cite{LowFieldSensors}. Registramos un índice magnetorresistivo  MR=1.88$\%$ para esta representación, lo que supondría aproximadamente un 4$\%$ si aplicásemos el campo en dirección paralela al vector de magnetización fijo. Éste valor que encaja dentro del rango de índices citado en \ref{explicacion_teorica_spv} para los \textit{spin valve}. 
+%
+%A continuación, analizaremos otra magnetorresistencia aislada, concretamente la R3 de la máscara 5 del dispositivo fotografiado en la Figura \ref{fig:cristal_SV07_5x5} del capítulo 5. La disposición del dispositivo sobre la mesa de puntas auxiliar puede observarse en la Figura \ref{fig:4x5_oblea_azul}, rodeada por las bobinas.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.06]{capitulo9/sensor_4x5_azul}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:4x5_oblea_azul} Oblea de 4x5 máscaras con sensores spin valve.}
+%\end{figure}
+%
+%En este caso el campo magnético se aplica en dirección perpendicular al vector de magnetización fijo de la \textit{pinned layer}. Con esta configuración conseguimos que el vector de magnetización libre rote entre una alineación paralela y/o antiparalela respecto del vector de magnetización fijo. Como se indicó anteriormente, esta técnica permite explorar el máximo rango $\Delta$R de la magnetorresistencia.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/R3_R10u_disp5_4x5}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:medida2_explic} Magnetorresistencia spin valve con campo paralelo al vector $\vec{M}$ fijo.}
+%\end{figure}
+%
+%En la Figura \ref{fig:medida2_explic}, se observa una disminución del valor resistivo máximo a medida que el campo en sentido negativo va disminuyendo su valor absoluto. En este caso, para el campo magnético positivo el vector de magnetización libre y fijo se encuentran alineados de forma paralela, produciendo el mínimo valor de resistencia en torno a los 1515 $\Omega$.
+%
+%Notamos una pequeña zona de histéresis debida al campo magnético remanente en el sentido negativo. El ancho de histéresis tiene un valor Hc= 20 Oe, y a su vez la curva se encuentra desplazada respecto del eje de campo 0 Oe un valor Hf=17.51 Oe.
+%
+%Este dispositivo muestra refleja un índice magnetorresistivo MR= 2.8346$\%$ relativamente bajo para los dispositivos actuales de este tipo. A continuación mostramos diferentes representaciones de interés que se obtienen del post-procesado de datos, Figura \ref{fig:medida2_exp_adicionales}.
+%
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\subfloat[Corriente por las bobinas.]{\includegraphics[scale=0.45]{capitulo9/corrientebobina}}
+%\hspace{0.1cm}
+%\subfloat[Corriente por la magnetorresistencia en función del campo.]{\includegraphics[scale=0.45]{capitulo9/corriente}}
+%\vspace{0.5cm}
+%\smallskip
+%\caption{\label{fig:medida2_exp_adicionales} Representaciones adicionales.}
+%\par\end{centering}
+%\end{figure}
+%
+%Podemos apreciar una mayor concentración de puntos en la zona cercana a campo 0 Oe. Esto lo conseguimos por medio del barrido secundario explicado en la sección \ref{InterfazMedidaIndi1} del capítulo anterior. Con ello aseguramos una mayor toma de puntos en la zona de interés.
+%
+%Es también interesante observar la curva de corriente a través de la magnetorresistencia en función del campo magnético aplicado sobre ella, como vemos en la Figura \ref{fig:medida2_exp_adicionales}(b). 
+%
+%Esta medida se configuró para una corriente de polarización $\mathrm{I_{polarización}}$= 1 mA. Esta corriente se consigue aplicando un determinado potencial V que el algoritmo calcula antes de medir. La curva de corriente muestra como varía la corriente inducida por dicho potencial V aplicado a la magnetorresistencia, a medida que esta varía su resistencia debido al campo magnético incidente.
+%
+%
+%Por último concluiremos con el análisis de un dispositivo MTJ también sin encapsular. En este dispositivo se obtuvo una muy buena linealidad así como índices magnetorresistivos altos en comparación a los obtenidos con \textit{spin valves}.
+%
+%El campo magnético se ha aplicado de forma paralela al vector de magnetización fijo de la capa \textit{pinned}. A continuación se exponen las dos curvas obtenidas y se aportan parámetros absolutos de interés.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/mtj_medida_1}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:medida3_explic} Magnetorresistencia MTJ MR=52.6893$\%$.}
+%\end{figure}
+%
+%Para la magnetorresistencia de la Figura \ref{fig:medida3_explic}, se midió inicialmente una resistencia en reposo de 55 $\Omega$. Puede comprobarse como la curva comienza a saturarse para valores de campo magnético próximos a los 70 Oe. Se mide una buena linealidad en la zona de transición entre campo en sentido negativo y positivo, con un ancho de histéresis Hc=16.324 Oe con un ligero desplazamiento Hf=7.68 Oe respecto del eje de campo 0. 
+%
+%En la región lineal de la curva, se obtiene una derivada máxima de 3.215 $\Omega$/Oe que equivale a un incremento del índice MR del 6.012$\%$/Oe en ese mismo punto. Para concluir, el índice magnetorresistivo obtenido es MR=52.6893$\%$, valor que coincide con las estimaciones teóricas tratadas en la sección \ref{mtj_seccion_explicacion} del capítulo 4.
+%
+%En la Figura \ref{fig:medida4_explic}, observamos la magnetorresistencia de valor nominal R=35 $\Omega$ para campo 0. El índice magnetorresistivo alcanzado para un barrido de campo entre $\pm$100 Oe es de 16.5561$\%$, con una histéresis de anchura Hc=13.446 Oe y un desplazamiento Hf=8.2441 Oe.
+%
+%\newpage
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/mtj_medida_2}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:medida4_explic} Magnetorresistencia MTJ MR=16.5561$\%$.}
+%\end{figure}
+%
+%El valor máximo de resistencia ($\mathrm{R_{max}}$=39.2276 $\Omega$) se alcanza para un campo de 100 Oe mientras que la mínima resistencia ($\mathrm{R_{min}}$=33.6665 $\Omega$) se alcanza a -60 Oe. En la región lineal de la curva, se registra un máximo de variación resistiva en función de la variación de campo magnético para un valor de 1.4373 $\Omega$/Oe y un equivalente de 4.2706$\%$/Oe del índice MR. Estos valores, aunque extraídos automáticamente por el post-procesado de datos de la curva, pueden comprobarse en las representaciones de las pendientes de cada curva, Figura \ref{fig:medida5_explic}.
+%
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\subfloat[Derivada dMR/dH.]{\includegraphics[scale=0.4]{capitulo9/dMR-dH}}
+%\hspace{0.5cm}
+%\subfloat[Derivada dR/dH.]{\includegraphics[scale=0.4]{capitulo9/dR-dH}}
+%\vspace{0.5cm}
+%\subfloat[Derivada dI/dH.]{\includegraphics[scale=0.4]{capitulo9/dI-dH}}
+%\smallskip
+%\caption{\label{fig:medida5_explic} Representación de derivadas.}
+%\par\end{centering}
+%\end{figure} 
+%
+%
+%
+%\newpage
+%
+%\section{Pruebas con Sensores magnetorresistivos en configuración de puente de Wheatstone}
+%
+%Han sido varios los sensores medidos, a continuación damos algunos resultados obtenidos explicando el procedimiento de análisis ejecutado y ofreciendo fotografías del proceso de posicionado en cada caso. 
+%
+%
+%\subsection{Sensor ZETEX ZMY20M}
+%
+%El tipo de sensores encapsulados que utilizaremos son de la marca \textit{ZETEX} y consisten en un conjunto de cuatro magnetorresistencias de tipo AMR en configuración de puente de Wheatstone, con un \textit{easy axis} de sensibilidad al campo magnético común para las 4 magnetorresistencias. La geometría del encapsulado se puede observar en la Figura \ref{fig:zetex_encap}. 
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo9/sensor_zmy20m}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_encap} Sensor magnetorresistivo ZETEX ZMY20M.}
+%\end{figure}
+%
+%Donde sus magnetorresistencias se encuentran dispuestas según la configuración de la Figura \ref{fig:zetex_config_interna}. Podemos ver como dependiendo de la composición interna de los \textit{Barber Pole}, cada magnetorresistencia incrementará o decrecerá su valor resistivo para el mismo valor y dirección del campo aplicado.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=1.05]{capitulo9/puente_zmy20m}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_config_interna} Configuración del puente de Wheatstone del sensorZETEX ZMY20M.}
+%\end{figure}
+%
+%Esta es la característica principal y necesaria de los elementos de un sensor en configuración de puente de Wheatstone, la variación 2 a 2 de sus elementos diagonales, para desequilibrar el puente y producir la salida diferencial.
+%
+%Sin embargo, a diferencia de los sensores no comerciales de tipo integrado y fabricados por el INESC-MN comentados en el capítulo 5, estos sensores no incluyen una pista de corriente sino que están diseñados para colocar el encapsulado sobre las pistas de corriente que hemos fabricado sobre la PCB.
+%
+%\subsubsection{Caracterización de la $\mathrm{V_{OUT}}$}
+%
+%La Figura \ref{fig:zetex_vout_1} muestra la gráfica de la salida diferencial en tensión del puente ZMY20M para un barrido de campo magnético en el \textit{easy axis} del sensor. El barrido de campo magnético se realizó para seis valores de corriente de polarización como se indica en la leyenda.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo9/ZETEX_1}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_vout_1} Caracterización $\mathrm{V_{OUT}}$ del sensor ZMY20M.}
+%\end{figure}
+%
+%Como puede observarse, la representación obtenida se aproxima bastante a la curva de caracterización típica ofrecida por el fabricante, Figura \ref{fig:zetex_vout_fabricante}. Teniendo en cuenta que la resistencia equivalente del puente es aproximadamente 1.6 k$\mathrm{\Omega}$, por cada mA que incrementemos la corriente de polarización, estaremos aumentando la alimentación del puente y consecuentemente obtendremos una mayor salida diferencial, acorde a la sensibilidad del dispositivo. La tensión de \textit{offset} registrada varía entre 2 mV y 3.5 mV.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.75]{capitulo9/ZETEX_graf_comercial}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_vout_fabricante} Caracterización $\mathrm{V_{OUT}}$ ofrecida por el fabricante.}
+%\end{figure} 
+%
+%\newpage
+%
+%Notar también que el punto de saturación se alcanza de forma simétrica para un campo magnético de $\mathrm{\pm}3$ kA/m, o un equivalente de 37.5 Oe considerando el vacío. Como vemos las curvas experimentales también comienzan a saturar su salida diferencial en torno a dicho valor de campo magnético. El sentido de la curva dependerá de en que posición respecto de su \textit{easy axis} se haya dispuesto el sensor dentro de la influencia de las líneas de campo.
+%
+%La siguiente representación, Figura \ref{fig:zetex_vout_5ibias}, es resultado de analizar la salida del mismo sensor pero excitándolo magnéticamente mediante la circulación de una corriente por la pista de 25 mils, dentro de un rango de $\pm$10 mA. Las corrientes de polarización en este caso van de 2 mA a 6 mA con un incremento de 1 mA.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/ZETEX_25mils_5ibias}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_vout_5ibias} Salida $\mathrm{V_{OUT}}$ para diferentes $\mathrm{I_{polarización}}$.}
+%\end{figure} 
+%
+%En la anterior gráfica puede observarse la salida del puente para el campo magnético generado por la pista. Al igual que en la caracterización de la Figura \ref{fig:zetex_vout_1}, el incremento de la tensión $\mathrm{V_{OUT}}$ con la corriente de polarización también es manifiesto. De media, obtenemos una sensibilidad de 1.25 ($\mathrm{\mu}$V/mA)/mA. 
+%
+%La tensión de \textit{offset} registrada en estos resultados prácticos oscila entre los 0.4 mV y los 1.4 mV, según que corriente de polarización se esté empleando.
+%
+%A continuación, Figura \ref{fig:comp_pistas_4A}, fijamos la $\mathrm{I_{polarización}}$ a un valor de 4 mA y llevamos a cabo, sobre las pistas de 12.5, 25 y 50 mils, un barrido en corriente entre $\mathrm{\pm}$4 A. Exportamos las gráficas para poder analizarlas más detalladamente y obtenemos las siguientes representaciones, Figura \ref{fig:comp_pistas_4A}.
+%
+%\newpage
+%
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\subfloat[Pista de 12.5 mils.]{\includegraphics[scale=0.5]{capitulo9/Vout_125mils_4A_4mAIbias}}
+%\hspace{0.5cm}
+%\subfloat[Pista de 25 mils.]{\includegraphics[scale=0.5]{capitulo9/Vout_25mils_4A_4mAIbias}}
+%\vspace{0.25cm}
+%\subfloat[Pista de 50 mils.]{\includegraphics[scale=0.35]{capitulo9/Vout_50mils_4A_4mAIbias}}
+%\smallskip
+%\caption{\label{fig:comp_pistas_4A} Curvas $\mathrm{V_{OUT}}$ en función de la intensidad por las pistas de corriente.}
+%\par\end{centering}
+%\end{figure}
+%\smallskip
+%
+%La excelente linealidad en las representaciones se debe al pequeño rango de excitación magnética al que se somete el dispositivo y a su excelente sensibilidad. 
+%
+%Si nos fijamos en el tramo lineal de la curva obtenida para $\mathrm{I_{polarización}}$=4 mA en la Figura \ref{fig:interp_lin_4ibias_vout}, podemos establecer una relación entre los valores de campo magnético en Oe y corriente de pista en A para los que se obtienen idénticos valores de tensión $\mathrm{V_{OUT}}$. 
+%
+%\newpage
+ %
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/rango_lineal_Vout_4ibias}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:interp_lin_4ibias_vout} Interpolación del tramo lineal de $\mathrm{V_{OUT}}$ vs. Campo magnético (Oe) para $\mathrm{I_{polarización}}$=4 mA.}
+%\end{figure} 
+%
+%
+%Despejando en los polinomios interpolados, obtenemos las relaciones entre campo magnético y corriente por cada pista de cobre, recogidas en la Tabla \ref{tab:relac_campo_corriente_pist}.
+%
+%\begin{table}[H]
+%\begin{center}
+%\bigskip
+%\includegraphics[scale=0.7]{capitulo9/tabla_campo_bobinas_corriente_pistas}
+%\smallskip
+%\caption{Relación entre el campo magnético generado por las bobinas y la corriente necesaria por cada pista de corriente para inducir el mismo campo magnético.}
+%\label{tab:relac_campo_corriente_pist}
+%\end{center}
+%\end{table}
+%
+%A partir de los resultados de la tabla anterior se pueden interpolar rectas con las que conseguir un determinado campo magnético alimentando las pistas con una cierta corriente, siempre dentro de los márgenes soportados por la PCB.
+%
+%Los valores de campo magnético inducidos por las pistas de corriente se encuentran dentro de la previsión realizada mediante las simulaciones de la sección \ref{dis_plac_cobre_maxw}. 
+%
+%Sin embargo, para la altura real a la que el sensor se encuentra dispuesto sobre la pista, $>$1 mm, los campos magnéticos inducidos se degradan considerablemente con respecto a su valor en la superficie inmediata del cobre. Esto implica que indiferentemente del ancho de la pista, el campo magnético generado por cualquiera de ellas sea prácticamente idéntico a tal altura efectiva, como se simuló en Figura \ref{fig:vertical_grafica_conjunta}. De ahí que no haya prácticamente diferencia entre las tres representaciones de la Figura \ref{fig:comp_pistas_4A}.
+%
+%No obstante, el sensor responde de una forma muy lineal con una sensibilidad de 1.143 (mV/mA)/A, prácticamente idéntica a la obtenida en la Figura \ref{fig:zetex_vout_5ibias}. 
+%
+%
+%\newpage
+%\subsubsection{Caracterización MR}
+%
+%Para concluir con el apartado referente a este sensor, realizamos un análisis del cambio resistivo de las cuatro magnetorresistencias del puente, registrando sus valores durante un barrido de campo magnético entre $\pm$60 Oe, Figura \ref{fig:zetex_4MR}. 
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.45]{capitulo9/ZETEX_4_MR_60_Oe}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:zetex_4MR} Análisis magnetorresistivo (MR) de los 4 elementos del puente.}
+%\end{figure} 
+%
+%Como puede apreciarse, la variación resistiva para el continuo incremento del campo magnético afecta del mismo modo a las parejas de magnetorresistencias diagonalmente opuestas en el puente, siendo además esta variación de sentido opuesto entre una pareja y otra. 
+%
+%Si comprobamos los valores de las cuatro magnetorresistencias para un determinado valor de campo magnético, la tensión diferencial que produzcan para una $\mathrm{I_{polarización}}$=4 mA debe coincidir con la representación de la Figura \ref{fig:zetex_vout_1}. Así ocurre con los valores resistivos para campo nulo, donde se obtiene un \textit{offset} diferencial de apenas 2.4 mV, ya el los puentes nunca se encuentran perfectamente equilibrados.
+%
+%En cuanto a las curvas de cada magnetorresistencia, a continuación se incluyen los parámetros absolutos más significativos de cada una (Tabla \ref{tab:datos_4_MR_analisis}).
+%
+%\begin{table}[H]
+%\begin{center}
+%\bigskip
+%\includegraphics[scale=0.75]{capitulo9/tabla_analis_MR}
+%\smallskip
+%\caption{Parámetros absolutos de R1, R2, R3 y R4.}
+%\label{tab:datos_4_MR_analisis}
+%\end{center}
+%\end{table}
+%
+%Como vimos en la sección \ref{anisotropico_AMR_explain_sec}, los índices MR de las cuatro magnetorresistencias AMR obtenidos están dentro de lo previsto para este tipo de estructuras \textit{barber pole}.
+%
+%
+%\newpage
+%\subsection{Sensor Sensitec AA747}
+%
+%Este tipo de sensor encapsulado está compuesto por dos puentes de Wheatstone individuales colocados como se muestra en la Figura \ref{fig:sensitec_esquemaw}. Las pruebas las realizaremos sobre el puente 1, ya que es más fácil posicionarlo según su \textit{easy axis} que en el caso del puente 2, que está dispuesto dentro de su encapsulado con una inclinación de $45^{\circ}$ con respecto a la vertical del mismo.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.8]{capitulo9/Sensitec_AA747_easy_axis}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:sensitec_esquemaw} Esquema Sensitec AA747.}
+%\end{figure} 
+%
+%Las magnetorresistencias de este sensor son también de tipo AMR. La variación de la salida diferencial $\mathrm{V_{OUT}}$ de estos sensores está directamente relacionada con el ángulo de incidencia del campo magnético respecto de la vertical del esquema anterior.
+%
+%De este modo, los valores máximos de $\mathrm{V_{OUT}}$ se alcanzan para un ángulo de incidencia $\mathrm{\alpha=}90^{\circ}$, tal y como muestra la caracterización presente en el \textit{datasheet} del dispositivo, Figura \ref{fig:sensitec_caracfabrica}.
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.8]{capitulo9/Sensitec_AA747_graf_comercial}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:sensitec_caracfabrica} Salida $\mathrm{V_{OUT}}$ en función del ángulo de incidencia $\mathrm{\alpha}$.}
+%\end{figure} 
+%
+%\newpage
+%\subsubsection{Caracterización de la $\mathrm{V_{OUT}}$}
+%
+%En nuestro caso práctico dispusimos el sensor de tal forma que las líneas de campo homogéneas de las bobinas incidiesen con ángulo 
+%$\mathrm{\alpha=90^{\circ}}$. La resistencia equivalente del puente es aproximadamente de 3.075 k$\mathrm{\Omega}$, por lo que se polarizó el puente con una $\mathrm{I_{polarización}}$=2 mA para no superar la tensión máxima de alimentación de 8 V.
+%
+%Tras un barrido de campo entre $\mathrm{\pm}$100 Oe, la curva de tensión $\mathrm{V_{OUT}}$ obtenida se encuentra en la Figura \ref{fig:sensitec_salida_vout1}. 
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo9/SensitecAA747_Vout_100Oe}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:sensitec_salida_vout1} Salida $\mathrm{V_{OUT}}$ en función del campo magnético.}
+%\end{figure} 
+%
+%Como podemos comprobar, para valores extremos de campo magnético en ambos sentidos sobre el eje de incidencia $\mathrm{\alpha=90^{\circ}}$, el puente alcanza su máxima tensión diferencial a la salida en torno a los -65 mV. 
+%
+%Conforme se va disminuyendo el módulo del valor del campo magnético aplicado en $\mathrm{90^{\circ}}$ ó $\mathrm{-90^{\circ}}$, la tensión diferencial va disminuyendo a medida que el puente va recobrando su equilibrio, hasta que para un campo de 0 Oe el puente ofrece una salida aparentemente nula ($\mathrm{V_{offset}}$=0.78 mV).
+%
+%Si nos fijamos en la caracterización que ofrece el fabricante, el puente alcanza su máximo desequilibrio en tensión para campos aplicados perpendicularmente al \textit{easy axis}, siendo además esta diferencia directamente proporcional a la intensidad del campo magnético aplicado. En este sentido los resultados prácticos se ajustan bastante a las especificaciones teóricas del fabricante. 
+%
+%
+%\subsubsection{Caracterización MR}
+%
+%Es igualmente interesante analizar el cambio en la resistividad de los cuatro elementos magnetorresistivos del puente 1. La tensión de salida se produce debido a un desequilibrio del valor de resistencia de sus elementos, provocado a su vez por el campo magnético incidente. Gracias a nuestro software evaluamos la variación resistiva sufrida por cada magnetorresistencia, individualmente.
+%
+%Para ello configuramos una $\mathrm{I_{polarización}}$=2 mA y un barrido entre $\pm$100 Oe. Medimos la resistencia de R1, R2, R3 y R4 del puente 1 para cada valor de campo magnético, mediante el algortimo explicado en la sección \ref{varia_seccion_MR_exp}, obteniendo la siguiente representación (Figura \ref{fig:sensitec_salida_MR1}).
+%
+%\smallskip
+%\begin{figure}[H]%here
+%\noindent \begin{centering}
+%\includegraphics[scale=0.5]{capitulo9/SensitecAA747_MR_100Oe}
+%\par\end{centering}
+%\smallskip
+%\caption{\label{fig:sensitec_salida_MR1} Resistencias R1, R2, R3 y R4 en función del campo magnético.}
+%\end{figure} 
+%
+%Observamos como solo las resistencias R2 y R4 varían su resistencia, ya que debido a su disposición dentro del encapsulado, son las únicas magnetorresistencias sensibles al campo magnético en la dirección de incidencia $\mathrm{\alpha=}90^{\circ}$. 
+%
+%Como datos de interés, notar un índice magnetorresistivo del 2.45$\mathrm{\%}$ para las resistencias R2 y R4, que experimentan un rango de variación de su resistencia de 73.8 $\mathrm{\Omega}$ y 72.6 $\mathrm{\Omega}$ respectivamente. Notar también como para campo magnético 0 Oe el valor resistivo de las cuatro magnetorresistencias es próximo a 3.076 $\mathrm{\Omega}$, equilibrando el puente y haciendo que la tensión diferencial prácticamente nula, como ya comprobamos en el análisis previo.  
+%
+%Este sensor está concebido para que se le haga rotar en medio de un campo magnético, o para que las líneas de campo magnético roten con respecto a su \textit{easy axis}. De esta forma las magnetorresistencias R1 y R3, hasta ahora insensibles al campo mágnético aplicado, comenzarían a variar conforme el ángulo $\mathrm{\alpha}$ se mueve entre la perpendicular y la paralela al \textit{easy axis}.
+%
+%\cleardoublepage{}

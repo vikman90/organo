@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<txcop:outputProfiles version="1" xmlns:txcop="http://schemas.ToolsCenter.org/TeXnicCenter/OutputProfiles.xsd">
+	<outputProfileList>
+		<outputProfile name="LaTeX &#8680; PDF+Glo+Sumatra" stopOnLatexError="false">
+			<texCommand execute="true" path="pdflatex.exe" arguments="-synctex=-1 -interaction=nonstopmode &quot;%Wm&quot;"/>
+			<bibTexCommand execute="true" path="bibtex.exe" arguments="&quot;%bm&quot;"/>
+			<makeIndexCommand execute="true" path="makeindex.exe" arguments="&quot;%bm&quot;"/>
+			<postProcessors>
+				<processor name="makeglossaries" path="makeglossaries_amroldan.bat" arguments="" inputFile="" outputFile=""/>
+			</postProcessors>
+			<viewer path="&quot;&quot;" closeBeforeCompilation="false">
+				<viewProjectCommand type="commandLine">
+					<commandLineCommand path="&quot;&quot;" arguments="&quot;%bm.pdf&quot;"/>
+					<ddeCommand path="SumatraPDF.exe" server="acroview" topic="control" command="[DocOpen(&quot;%bm.pdf&quot;)][FileOpen(&quot;%bm.pdf&quot;)]"/>
+				</viewProjectCommand>
+				<viewCurrentFileCommand type="dde">
+					<commandLineCommand path="&quot;&quot;" arguments=""/>
+					<ddeCommand path="&quot;&quot;" server="SUMATRA" topic="control" command="[ForwardSearch(&quot;%bm.pdf&quot;,&quot;%Wc&quot;,%l,0,0,1)]"/>
+				</viewCurrentFileCommand>
+				<viewCloseCommand type="commandLine">
+					<commandLineCommand path="&quot;&quot;" arguments=""/>
+					<ddeCommand path="" server="acroview" topic="control" command="[DocClose(&quot;%bm.pdf&quot;)]"/>
+				</viewCloseCommand>
+			</viewer>
+		</outputProfile>
+	</outputProfileList>
+</txcop:outputProfiles>

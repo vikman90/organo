@@ -1,0 +1,10 @@
+del *.g*
+del *.idx
+del *.acr
+del *.acn
+del *.sbl
+del *.sym
+del *.log
+del *.tmp
+del *.toc
+del *.out

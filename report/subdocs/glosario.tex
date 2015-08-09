@@ -1,0 +1,44 @@
+\chapter*{Abreviaturas y siglas}%
+\fancyhead{}
+\fancyhead[RO]{\small{\nouppercase{Abreviaturas y siglas}}}
+\fancyhead[LE]{\small{\nouppercase{Abreviaturas y siglas}}}%
+%\printglossary[type=acronym,title=AcrÃ³nimos y siglas,toctitle=AcrÃ³nimos y siglas]
+\printglossary[style=long3col,type=\acronymtype,title=Acrónimos,toctitle=Acrónimos]
+\clearpage{\pagestyle{plain}\cleardoublepage}%
+
+
+
+%Glosario
+\clearpage{\pagestyle{fancy}\cleardoublepage}%
+\fancyhead{}
+\fancyhead[RO]{\small{\nouppercase{Glosario}}}
+\fancyhead[LE]{\small{\nouppercase{Glosario}}}%
+%Begin ----  Para que funcione bien el TOC en PDF
+\cleardoublepage
+\phantomsection \label{Glosar}
+%END  ---- Para que funcione bien el TOC en PDF
+
+\printglossary[type=main,title=Glosario,toctitle=Glosario]
+
+
+%Listado de SÃ­mbolos
+\clearpage{\pagestyle{fancy}\cleardoublepage}%
+\fancyhead{}
+\fancyhead[RO]{\small{\nouppercase{Listado de símbolos}}}
+\fancyhead[LE]{\small{\nouppercase{Listado de símbolos}}}%
+%Begin ----  Para que funcione bien el TOC en PDF
+\cleardoublepage
+\phantomsection \label{ListadoSimbolos}
+%END  ---- Para que funcione bien el TOC en PDF
+
+\printglossary[style=long3col,type=symbols,title=Listado de SÃ­mbolos,toctitle=Listado de Símbolos]
+%\addcontentsline{toc}{chapter}{SÃ­mbolos}
+
+%Ãndice AlfabÃ©tico de apariciones
+\clearpage{\pagestyle{fancy}\cleardoublepage}
+\fancyhead{}
+\fancyhead[RO]{\small{\nouppercase{indice de apariciones}}}
+\fancyhead[LE]{\small{\nouppercase{indice de apariciones}}}%
+
+
+
