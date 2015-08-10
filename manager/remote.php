@@ -22,6 +22,7 @@ echo <<< EOT
 <section>
     <div>
         <h2>{$tr['remote']}</h2>
+        <p>Página no implementada.</p>
     </div>
 </section>
 

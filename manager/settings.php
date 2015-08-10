@@ -22,6 +22,7 @@ echo <<< EOT
 <section>
     <div>
         <h2>{$tr['settings']}</h2>
+        <p>Página no implementada.</p>
     </div>
 </section>
 
