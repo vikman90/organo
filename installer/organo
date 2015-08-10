@@ -1,0 +1,26 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	ServerName organo.ddns.net
+
+	DocumentRoot /home/pi/manager
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /home/pi/manager>
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	Alias /pool /home/pi/midis
+
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
