@@ -20,7 +20,7 @@ $db->set_charset('utf8');
 function db_get_playlists() {
     global $db;
 
-    $sql = "SELECT idplaylist, playlist.name, COUNT(idscore) FROM playlist LEFT JOIN score ON score.playlist = idplaylist GROUP BY idplaylist";
+    $sql = "SELECT idplaylist, playlist.name, COUNT(idscore) FROM playlist LEFT JOIN score ON score.playlist = idplaylist GROUP BY idplaylist ORDER BY playlist.name ASC";
     $result = $db->query($sql);
     $playlists = [];
 
