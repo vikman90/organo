@@ -105,8 +105,7 @@ function login() {
         html_error('args');
 
     $user = LINUX_USERNAME;
-    $pass = $_POST['password'];
-
+    $pass = escapeshellarg($_POST['password']);
     exec("/usr/bin/sudo /usr/bin/organ-login $user $pass", $output, $retval);
 
     if (!$retval) {
