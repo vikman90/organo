@@ -5,5 +5,6 @@
 
 USER='organ'
 
+mkdir -p obj bin
 adduser --quiet --group --system --no-create-home $USER
-adduser $USER gpio
+adduser $USER organ
