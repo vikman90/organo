@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 #define GPIO_BASE 0x20200000
 #define GPIO_LENGTH 0x80
@@ -40,8 +41,9 @@ static volatile unsigned int *gpio_addr;
 #define RCKL 27		// Register clock
 #define SRCKL 22	// Shifting clock
 
-static const char PORTS[] = { 2, 3, 4, 17 };
-static char state[LENGTH][NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
+static const char PORTS[] = { 2, 3, 4, 17 };			// GPIO ports
+static const struct timespec PULSE_WIDTH = { 0, 13 };	// SN74HC595D: tpd = 13 ns
+static char state[LENGTH][NTRACKS];						// Matrix of LENGTH rows and NTRACKS columns
 
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
 
@@ -106,11 +108,13 @@ void output_update() {
 		
 		// Pulse on SRCKL
 		*(gpio_addr + OFFSET_SET0) = (1 << SRCKL);
+		nanosleep(&PULSE_WIDTH, NULL);
 		*(gpio_addr + OFFSET_CLR0) = (1 << SRCKL);
 	}
 	
 	// Pulse on RCKL
 	*(gpio_addr + OFFSET_SET0) = (1 << RCKL);
+	nanosleep(&PULSE_WIDTH, NULL);
 	*(gpio_addr + OFFSET_CLR0) = (1 << RCKL);
 }
 
