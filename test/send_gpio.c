@@ -25,15 +25,15 @@ static volatile uint32_t *gpio_addr;
 int gpio_setup()
 {
 	int fd = open("/dev/mem", O_RDWR);
-	
+
 	if (fd < 0)
 		return -1;
-	
+
 	gpio_addr = (uint32_t*)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
-	
+
 	if (gpio_addr == MAP_FAILED)
 		return -1;
-	
+
 	return 0;
 }
 
@@ -93,9 +93,26 @@ int main()
 		fprintf(stderr, "Error setup()\n");
 		return EXIT_FAILURE;
 	}
-	
-	while (1)
-		printf("Lectura: %u\n", gpio_level_pin(3));
 
+	////////////////////////////////////////////////////////////////////////////
+
+	// Ponemos los pines 2 y 3 como salida
+	gpio_fsel(2, GPIO_OUTPUT);
+	gpio_fsel(3, GPIO_OUTPUT);
+	
+	// Ponemos el pin 4 como entrada
+	gpio_fsel(4, GPIO_INPUT);
+	
+	// Emitimos un 1 por GPIO2 y un 0 por un GPIO3
+	gpio_set_pin(2);
+	gpio_clear_pin(3);
+	
+	// Leemos valor del GPIO4
+	printf("GPIO4: %d\n", gpio_level_pin(4));
+
+	////////////////////////////////////////////////////////////////////////////
+
+	printf("pulsa una tecla para salir...");
+	getchar();
 	return EXIT_SUCCESS;
 }
