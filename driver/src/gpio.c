@@ -30,7 +30,7 @@ static volatile unsigned int *gpio_addr;
 
 /*
  * Track 0: 8 keys, starting at C4 (baroque keyboard)
- * Track 1: 8 keys, starting at C4 (romantic keyboard) 
+ * Track 1: 8 keys, starting at C4 (romantic keyboard)
  * Track 2: 8 keys, starting at C4 (pedals)
  * Track 3: 8 keys, starting at C4 (stops)
  */
@@ -50,25 +50,27 @@ static void gpio_fsel(unsigned int pin, enum gpio_function func);
 int output_init() {
 	int fd = open("/dev/mem", O_RDWR);
 	int i;
-	
+
 	if (fd < 0)
 		return -1;
-	
+
 	// Map GPIO physical address
-	
+
 	gpio_addr = (unsigned int *)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
-	
+
 	if (gpio_addr == MAP_FAILED)
 		return -1;
-	
+
+	bzero(state, LENGTH * NTRACKS);
+
 	// Set GPIO function
-	
+
 	gpio_fsel(RCKL, GPIO_OUTPUT);
 	gpio_fsel(SRCKL, GPIO_OUTPUT);
-	
+
 	for (i = 0; i < NTRACKS; i++)
 		gpio_fsel(PORTS[i], GPIO_OUTPUT);
-	
+
 	return 0;
 }
 
@@ -78,14 +80,14 @@ void output_destroy() {
 
 void output_noteon(int track, int note) {
 	note -= OFFSET;
-	
+
 	if (track < NTRACKS && note >= 0 && note < LENGTH)
 		state[note][track] = 1;
 }
 
 void output_noteoff(int track, int note) {
 	note -= OFFSET;
-	
+
 	if (track < NTRACKS && note >= 0 && note < LENGTH)
 		state[note][track] = 0;
 }
@@ -93,29 +95,29 @@ void output_noteoff(int track, int note) {
 void output_update() {
 	int i, j;
 	unsigned int setmask, clearmask;
-	
+
 	for (i = LENGTH - 1; i >= 0; i--) {
 		setmask = clearmask = 0;
-		
+
 		for (j = 0; j < NTRACKS; j++) {
-			setmask |= state[i][j] & (1 << PORTS[j]);
-			clearmask |= ~state[i][j] & (1 << PORTS[j]);
+			setmask |= state[i][j] << PORTS[j];
+			clearmask |= !state[i][j] << PORTS[j];
 		}
-		
+
 		// Dump
 		*(gpio_addr + OFFSET_SET0) = setmask;
 		*(gpio_addr + OFFSET_CLR0) = clearmask;
-		
+
 		// Pulse on SRCKL
-		*(gpio_addr + OFFSET_SET0) = (1 << SRCKL);
+		*(gpio_addr + OFFSET_SET0) = 1 << SRCKL;
 		nanosleep(&PULSE_WIDTH, NULL);
-		*(gpio_addr + OFFSET_CLR0) = (1 << SRCKL);
+		*(gpio_addr + OFFSET_CLR0) = 1 << SRCKL;
 	}
-	
+
 	// Pulse on RCKL
-	*(gpio_addr + OFFSET_SET0) = (1 << RCKL);
+	*(gpio_addr + OFFSET_SET0) = 1 << RCKL;
 	nanosleep(&PULSE_WIDTH, NULL);
-	*(gpio_addr + OFFSET_CLR0) = (1 << RCKL);
+	*(gpio_addr + OFFSET_CLR0) = 1 << RCKL;
 }
 
 void output_panic() {
@@ -125,5 +127,8 @@ void output_panic() {
 
 static void gpio_fsel(unsigned int pin, enum gpio_function func)
 {
-	*(gpio_addr + pin / 10) = func << pin % 10 * 3;
+	volatile unsigned int *reg = gpio_addr + pin / 10;
+	int shift = pin % 10 * 3;
+	
+	*reg = (*reg & ~(7 << shift)) | (func << shift);
 }
