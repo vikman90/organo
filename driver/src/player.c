@@ -33,7 +33,7 @@ static int playscore(midifile_t *file) {
 
 	bzero(finished, file->ntracks);
 	output_panic();
-	
+
 	while (1) {
 		active = 0;
 		min_delta = INT_MAX;
@@ -72,7 +72,6 @@ static int playscore(midifile_t *file) {
 					}
 
 					event = event->next;
-
 				}
 
 				// 2 Find minimum delta and ending contition
@@ -129,7 +128,7 @@ static void* player_run(void *arg) {
 		for (i = 0; 1; i = (i + 1) % nfiles) {
 			if (error[i])
 				continue;
-			
+
 			if (midifile_init(&file, playlist[i]) < 0) {
 				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
 				midifile_destroy(&file);
@@ -143,14 +142,14 @@ static void* player_run(void *arg) {
 				int retval = playscore(&file);
 				syslog(LOG_INFO, "Execution finished with code %d", retval);
 				midifile_destroy(&file);
-				
+
 				if (retval)
 					break;
 			}
 		}
 	} else {
 		// No loop
-	
+
 		for (i = 0; i < nfiles; i++) {
 			if (midifile_init(&file, playlist[i]) < 0) {
 				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
@@ -161,7 +160,7 @@ static void* player_run(void *arg) {
 				int retval = playscore(&file);
 				syslog(LOG_INFO, "Execution finished with code %d", retval);
 				midifile_destroy(&file);
-				
+
 				if (retval)
 					break;
 		}
@@ -176,15 +175,15 @@ static void* player_run(void *arg) {
 int player_start(char **_playlist, int n, int _loop) {
 	if (state != STOPPED)
 		player_stop();
-	
+
 	// Delete scores at this point to avoid race conditions
-	
+
 	if (playlist) {
 		int i;
-		
+
 		for (i = 0; i < nfiles; i++)
 			free(playlist[i]);
-		
+
 		free(playlist);
 	}
 
@@ -193,12 +192,12 @@ int player_start(char **_playlist, int n, int _loop) {
 	nfiles = n;
 	loop = _loop;
 	cur_ifile = 0;
-	
+
 	if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
 		active = 0;
 		return -1;
 	}
-	
+
 	state = PLAYING;
 	return 0;
 }
@@ -245,7 +244,7 @@ int player_resume() {
 int player_stop() {
 	if (!active)
 		state = STOPPED;
-	
+
 	switch (state) {
 	case PAUSED:
 		pthread_mutex_unlock(&mutex);

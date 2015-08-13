@@ -3,6 +3,10 @@
  * Implementation of output_* interface
  * Victor Manuel Fernandez Castro
  * 31 July 2015
+ *
+ * Target device:
+ * Raspberry Pi B - BCM2835
+ * Custom organ interpreter board with SN74HC595D shifting registers
  */
 
 #include <stdlib.h>
@@ -11,7 +15,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <time.h>
 
 #define GPIO_BASE 0x20200000
 #define GPIO_LENGTH 0x80
@@ -42,10 +45,15 @@ static volatile unsigned int *gpio_addr;
 #define SRCKL 22	// Shifting clock
 
 static const char PORTS[] = { 2, 3, 4, 17 };			// GPIO ports
-static const struct timespec PULSE_WIDTH = { 0, 13 };	// SN74HC595D: tpd = 13 ns
 static char state[LENGTH][NTRACKS];						// Matrix of LENGTH rows and NTRACKS columns
 
+// Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
+
+// Very short delay
+static void delay();
+
+// Initialize output
 
 int output_init() {
 	int fd = open("/dev/mem", O_RDWR);
@@ -74,9 +82,13 @@ int output_init() {
 	return 0;
 }
 
+// Release output
+
 void output_destroy() {
 	munmap((void *)gpio_addr, GPIO_LENGTH);
 }
+
+// Play note
 
 void output_noteon(int track, int note) {
 	note -= OFFSET;
@@ -85,12 +97,16 @@ void output_noteon(int track, int note) {
 		state[note][track] = 1;
 }
 
+// Stop note
+
 void output_noteoff(int track, int note) {
 	note -= OFFSET;
 
 	if (track < NTRACKS && note >= 0 && note < LENGTH)
 		state[note][track] = 0;
 }
+
+// Dump data into output
 
 void output_update() {
 	int i, j;
@@ -110,25 +126,48 @@ void output_update() {
 
 		// Pulse on SRCKL
 		*(gpio_addr + OFFSET_SET0) = 1 << SRCKL;
-		nanosleep(&PULSE_WIDTH, NULL);
+		delay();
 		*(gpio_addr + OFFSET_CLR0) = 1 << SRCKL;
 	}
 
 	// Pulse on RCKL
 	*(gpio_addr + OFFSET_SET0) = 1 << RCKL;
-	nanosleep(&PULSE_WIDTH, NULL);
+	delay();
 	*(gpio_addr + OFFSET_CLR0) = 1 << RCKL;
 }
+
+// Silence every note and reset device
 
 void output_panic() {
 	bzero(state, LENGTH * NTRACKS);
 	output_update();
 }
 
-static void gpio_fsel(unsigned int pin, enum gpio_function func)
+// Select GPIO pin direction
+
+void gpio_fsel(unsigned int pin, enum gpio_function func)
 {
 	volatile unsigned int *reg = gpio_addr + pin / 10;
 	int shift = pin % 10 * 3;
-	
+
 	*reg = (*reg & ~(7 << shift)) | (func << shift);
+}
+
+// Very short delay
+
+void delay() {
+
+	// SN74HC595D tpd = 13 ns
+	// 10 instr * ( 1 / 700 MHz ) >= 14.2 ns
+
+	asm ("nop\n\t"
+	     "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop\n\t"
+		 "nop");
 }
