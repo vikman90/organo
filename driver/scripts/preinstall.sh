@@ -8,6 +8,7 @@ CONFIG_DIR='/etc/organ'
 CONFIG_FILE='remote.conf'
 
 mkdir -p $(dirname $0)/../obj $(dirname $0)/../bin
+chown pi:pi $(dirname $0)/../obj $(dirname $0)/../bin
 chmod a+x $(dirname $0)/organ
 
 adduser --quiet --group --system --no-create-home $USER

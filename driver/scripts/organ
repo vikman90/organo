@@ -14,8 +14,7 @@
 ### END INIT INFO
 
 SOCKET="/run/organd.sock"
-DAEMON="/usr/sbin/organd"
-PROCESS='organd'
+DAEMON='organd'
 USER="organ"
 GROUP="organ"
 
@@ -24,13 +23,14 @@ GROUP="organ"
 case $1 in
 	"start")
 		log_daemon_msg "Iniciando servicio..."
-		pid=$(ps -e | grep $PROCESS | cut -d' ' -f2)
+		pid=$(ps -e | grep $DAEMON | cut -d' ' -f2)
 
 		if [ ! -z "$pid" ]; then
 			log_progress_msg "Servicio ya iniciado"
 			log_end_msg 0
 		else
-			$DAEMON $(id -u $USER) $(id -g $GROUP)
+			rm -f $SOCKET
+			/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
 
 			if [ $? != "0" ]; then
 				log_failure_msg "No se pudo iniciar el servicio"
@@ -43,7 +43,7 @@ case $1 in
 
 	"stop")
 		log_daemon_msg "Parando servicio..."
-		pid=$(ps -e | grep $PROCESS | cut -d' ' -f2)
+		pid=$(ps -e | grep $DAEMON | cut -d' ' -f2)
 
 		if [ -z "$pid" ]; then
 			log_progress_msg "El servicio no estaba iniciado"
