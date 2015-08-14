@@ -150,4 +150,25 @@ function db_delete_score($idscore) {
     $stmt->execute();
 }
 
+function db_get_shortcuts() {
+    global $db;
 
+    $sql = "SELECT idshortcut, playlist FROM shortcut ORDER BY idshortcut ASC";
+    $result = $db->query($sql);
+    $shortcuts = [];
+
+    while ($row = $result->fetch_row())
+        $shortcuts[] = ['id' => $row[0], 'playlist' => $row[1]];
+
+    return $shortcuts;
+}
+
+function db_set_shortcut($idshortcut, $idplaylist) {
+    global $db;
+
+    $sql = "UPDATE shortcut SET playlist = ? WHERE idshortcut = ?";
+    $stmt = $db->prepare($sql);
+    $stmt->bind_param('ii', $idplaylist, $idshortcut);
+    $stmt->execute();
+    return $stmt->affected_rows;
+}

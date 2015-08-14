@@ -51,6 +51,8 @@ switch ($_GET['action']) {
     case 'delete_score':
         delete_score();
         break;
+    case 'set_shortcut':
+        set_shortcut();
     default:
         html_error('args');
 }
@@ -249,4 +251,34 @@ function delete_score() {
     unlink(SCORE_DIR . '/' . $score['source']);
     db_delete_score($score['id']);
     html_redirect(last_page());
+}
+
+function set_shortcut() {
+    test_auth();
+
+    if (!(isset($_POST['idshortcut']) && isset($_POST['idplaylist'])))
+        html_error('args');
+
+    $idshortcut = $_POST['idshortcut'];
+    $idplaylist = ($_POST['idplaylist']) ? $_POST['idplaylist'] : null;
+
+    if (!db_set_shortcut($idshortcut, $idplaylist))
+        html_error('args');
+
+    // Update shortcuts on config file
+
+    $file = fopen(REMOTE_CONFIG, 'w');
+
+    foreach (db_get_shortcuts() as $sc) {
+        $playlist = db_get_playlist($sc['playlist']);
+
+        if ($playlist)
+            foreach ($playlist['scores'] as $score)
+                fwrite($file, SCORE_DIR . '/' . $score['source'] . ' ');
+
+        fwrite($file, "\n");
+    }
+
+    fclose($file);
+    html_redirect('remote.php');
 }

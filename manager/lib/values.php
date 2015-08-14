@@ -23,3 +23,5 @@ const DOWNLOADS_DIR = 'pool';
 
 const BUFFER_MAX = 256;
 const SOCKET_PATH = "/run/organd.sock";
+
+const REMOTE_CONFIG = '/etc/organ/remote.conf';

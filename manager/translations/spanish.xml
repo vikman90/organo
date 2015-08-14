@@ -54,4 +54,5 @@
     <string name="unknown">Desconocido</string>
     <string name="stopped">Detenido</string>
     <string name="error_playlist_empty">Lista vacía.</string>
+    <string name="button">Botón</string>
 </translation>
