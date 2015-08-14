@@ -14,6 +14,6 @@ int uart_init();
 void uart_destroy();
 
 // Dispatching loop
-void uart_loop();
+int uart_loop();
 
 #endif

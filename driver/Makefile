@@ -36,11 +36,9 @@ CP_FILE		= cp
 RM_FILE		= rm -f
 RM_DIR		= rm -rf
 
-TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/remoted $(BIN)/test $(BIN)/login $(BIN)/organ
+TARGET		= $(BIN)/midinfo $(BIN)/organd $(BIN)/test $(BIN)/login $(BIN)/organ
 
-INSTALLS	= $(INSTALL_INIT)/organ $(INSTALL_INIT)/remote \
-				$(INSTALL_SBIN)/organd $(INSTALL_SBIN)/remoted \
-				$(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ $(INSTALL_BIN)/organ-midinfo
+INSTALLS	= $(INSTALL_INIT)/organ $(INSTALL_SBIN)/organd $(INSTALL_BIN)/organ-login $(INSTALL_BIN)/organ $(INSTALL_BIN)/organ-midinfo
 
 .PHONY: all install uninstall preinstall clean objclean
 
@@ -56,12 +54,6 @@ $(INSTALL_SBIN)/organd: $(BIN)/organd
 	$(CP_FILE) $< $@
 	insserv organ
 	service organ start
-
-$(INSTALL_SBIN)/remoted: $(BIN)/remoted
-	service remote stop 2> /dev/null; true
-	$(CP_FILE) $< $@
-	insserv remote
-	service remote start
 
 $(INSTALL_INIT)/organ: $(SCRIPTS)/organ
 	$(CP_FILE) $< $@
@@ -80,9 +72,7 @@ $(INSTALL_BIN)/organ-midinfo: $(BIN)/midinfo
 
 uninstall:
 	service organ stop 2> /dev/null; true
-	service remote stop 2> /dev/null; true
 	insserv -r organ
-	insserv -r remote
 	$(RM_FILE) $(INSTALLS)
 
 preinstall:
@@ -103,10 +93,7 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-$(BIN)/remoted: $(OBJ)/remoted.o $(OBJ)/uart.o
+$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o $(OBJ)/uart.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
@@ -114,8 +101,7 @@ $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o:  $(INC)/output.h $(INC)/player.h $(INC)/socket.h
+$(OBJ)/organd.o:  $(INC)/output.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
-$(OBJ)/remoted.o: $(INC)/uart.h
 $(OBJ)/socket.o: $(INC)/player.h
 $(OBJ)/test.o: $(INC)/output.h $(INC)/player.h

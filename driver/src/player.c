@@ -17,6 +17,7 @@ static int nfiles;
 static int loop;
 static volatile int cur_ifile = 0;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t playback = PTHREAD_MUTEX_INITIALIZER;
 
 // Play a file
 
@@ -40,8 +41,8 @@ static int playscore(midifile_t *file) {
 
 		if (state != PLAYING) {
 			if (state == PAUSED) {
-				pthread_mutex_lock(&mutex);
-				pthread_mutex_unlock(&mutex);
+				pthread_mutex_lock(&playback);
+				pthread_mutex_unlock(&playback);
 			} else {
 				// STOPPED
 				output_panic();
@@ -113,12 +114,10 @@ static int playscore(midifile_t *file) {
 
 // Thread's main function
 
-static void* player_run(void *arg) {
+static void* player_run(void __attribute__((unused)) *arg) {
 	int i, nerrors = 0;
 	char error[nfiles];
 	midifile_t file;
-
-	arg = arg;
 
 	if (loop) {
 		bzero(error, nfiles);
@@ -173,8 +172,12 @@ static void* player_run(void *arg) {
 // Play a playlist
 
 int player_start(char **_playlist, int n, int _loop) {
+	int retval;
+
 	if (state != STOPPED)
 		player_stop();
+
+	pthread_mutex_lock(&mutex);
 
 	// Delete scores at this point to avoid race conditions
 
@@ -195,11 +198,14 @@ int player_start(char **_playlist, int n, int _loop) {
 
 	if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
 		active = 0;
-		return -1;
+		retval = -1;
+	} else {
+		state = PLAYING;
+		retval = 0;
 	}
 
-	state = PLAYING;
-	return 0;
+	pthread_mutex_unlock(&mutex);
+	return retval;
 }
 
 // Wait thread to end (only if loop = 0)
@@ -211,60 +217,85 @@ int player_wait() {
 // Pause player, if running
 
 int player_pause() {
+	int retval;
+
+	pthread_mutex_lock(&mutex);
+
 	if (!active)
 		state = STOPPED;
 
 	if (state != PLAYING)
-		return -1;
+		retval = -1;
+	else {
 
-	pthread_mutex_lock(&mutex);
-	state = PAUSED;
-	return 0;
+		pthread_mutex_lock(&playback);
+		state = PAUSED;
+		retval = 0;
+	}
+
+	pthread_mutex_unlock(&mutex);
+	return retval;
 }
 
 // Resume player, if paused
 
 int player_resume() {
+	int retval;
+
+	pthread_mutex_lock(&mutex);
+
 	if (!active)
 		state = STOPPED;
 
 	switch (state) {
 	case PAUSED:
 		state = PLAYING;
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&playback);
 	case PLAYING:
-		return 0;
+		retval = 0;
+		break;
 	default:
-		return -1;
+		retval = -1;
 	}
+
+	pthread_mutex_unlock(&mutex);
+	return retval;
 }
 
 // Stop player
 
 int player_stop() {
+	pthread_mutex_lock(&mutex);
+
 	if (!active)
 		state = STOPPED;
 
 	switch (state) {
 	case PAUSED:
-		pthread_mutex_unlock(&mutex);
+		pthread_mutex_unlock(&playback);
 	case PLAYING:
 		state = STOPPED;
 		pthread_join(thread, NULL);
 	default:
-		return 0;
+		;
 	}
+
+	pthread_mutex_unlock(&mutex);
+	return 0;
 }
 
 // Get state and current idplaylist and idscore
 
-enum player_state_t player_state(const char **file) {
+player_state_t player_state(const char **file) {
+	pthread_mutex_lock(&mutex);
+	player_state_t _state = state;
+
 	if (!active)
 		state = STOPPED;
-	else if ((state == PLAYING || state == PAUSED) && file) {
-		*file = playlist[cur_ifile];
-		return state;
-	}
 
-	return state;
+	if ((state == PLAYING || state == PAUSED) && file)
+		*file = playlist[cur_ifile];
+
+	pthread_mutex_unlock(&mutex);
+	return _state;
 }

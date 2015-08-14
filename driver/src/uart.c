@@ -10,34 +10,32 @@
 #include <sys/un.h>
 #include <strings.h>
 #include <termios.h>
+#include <pthread.h>
 #include <unistd.h>
 #include <syslog.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include "player.h"
 
 #define BAUD_RATE B9600
 #define UART_BUFFER_MAX 16
 #define UART_BUFFER_MIN 10
-#define SOCK_BUFFER_MAX 4096
+#define FILE_BUFFER_MAX 4096
 
 static const char UART_PATH[] = "/dev/ttyAMA0";
-static const char SOCKET_PATH[] = "/run/organd.sock";
 static const char CONFIG_PATH[] = "/etc/organ/remote.conf";
 
 static struct termios oldtio;
 static int tty;
 
+// Thread entry point
+static void* uart_run(void *arg);
+
 // Play a list
-static void uart_playlist(int list);
+static int uart_playlist(int list);
 
-// Pause or resume
-static void uart_pause();
-
-// Stop playback
-static void uart_stop();
-
-// Open the socket and return socket descriptor (or -1 if error)
-static int socket_open();
+// Pause or return playback
+static int uart_pause();
 
 // Initialization of the serial port
 
@@ -68,7 +66,14 @@ void uart_destroy() {
 
 // Dispatching loop
 
-void uart_loop() {
+int uart_loop() {
+	static pthread_t thread;
+	return pthread_create(&thread, NULL, uart_run, NULL) != 0;
+}
+
+// Thread entry point
+
+void* uart_run(void __attribute__((unused)) *arg) {
 	char buffer[UART_BUFFER_MAX] = { 0 };
 
 	while (1) {
@@ -81,150 +86,102 @@ void uart_loop() {
 		
 		switch (buffer[7]) {
 		case 'a':
-			syslog(LOG_WARNING, "Battery low\n");
+			syslog(LOG_WARNING, "Battery low");
+			
 		case 'A':
-			uart_playlist(0);
+			if (uart_playlist(0) < 0)
+				syslog(LOG_ERR, "Error on uart_playlist()");
+			
 			break;
+			
 		case 'b':
-			syslog(LOG_WARNING, "Battery low\n");
+			syslog(LOG_WARNING, "Battery low");
+			
 		case 'B':
-			uart_playlist(1);
+			if (uart_playlist(1) < 0)
+				syslog(LOG_ERR, "Error on uart_playlist()");
+			
 			break;
+			
 		case 'd':
-			syslog(LOG_WARNING, "Battery low\n");
+			syslog(LOG_WARNING, "Battery low");
+			
 		case 'D':
-			uart_pause();
+			if (uart_pause() < 0)
+				syslog(LOG_ERR, "Error on uart_pause()");
+			
 			break;
+			
 		case 'h':
-			syslog(LOG_WARNING, "Battery low\n");
+			syslog(LOG_WARNING, "Battery low");
+			
 		case 'H':
-			uart_stop();
+			if (player_stop() < 0)
+				syslog(LOG_ERR, "Error on player_stop()");
+			
 			break;
+			
+		default:
+			syslog(LOG_ERR, "Button not recognised");
 		}
 	}
+	
+	return NULL;
 }
 
 // Play a list
 
-void uart_playlist(int list) {
-	int sock, i, n;
+int uart_playlist(int list) {
+	int i, n;
 	FILE *file = fopen(CONFIG_PATH, "r");
 	char *next;
-	char filebuf[SOCK_BUFFER_MAX];
-	char sockbuf[SOCK_BUFFER_MAX];
-	
+	char **playlist;
+	char buffer[FILE_BUFFER_MAX];
+
 	if (!file) {
 		syslog(LOG_ERR, "fopen(): %m");
-		return;
+		return -1;
 	}
 	
 	for (i = 0; i < list; i++) {
-		if (!fgets(filebuf, SOCK_BUFFER_MAX, file)) {
+		if (!fgets(buffer, FILE_BUFFER_MAX, file)) {
 			syslog(LOG_ERR, "End of file reached");
 			fclose(file);
-			return;
+			return -1;
 		}
 	}
 	
 	fclose(file);
-	next = strtok(filebuf, " ");
+	next = strtok(buffer, " ");
 	
 	if (!next) {
 		syslog(LOG_WARNING, "Playlist empty");
-		return;
+		return -1;
 	}
 	
 	for (n = 1; (next = strtok(NULL, " ")); n++);
-	sprintf(sockbuf, "PLAYLOOP %d %s", n, filebuf);
+	playlist = (char **)malloc(sizeof(char *) * n);
+	next = strtok(buffer, " ");
 	
-	sock = socket_open();
-	
-	if (!sock)
-		return;
-	
-	send(sock, sockbuf, strlen(sockbuf), 0);
-	n = recv(sock, sockbuf, SOCK_BUFFER_MAX, 0);
-	
-	if (n < 0)
-		syslog(LOG_ERR, "recv(): %m");
-	
-	sockbuf[n] = '\0';
-	
-	if (!strcmp(sockbuf, "OK"))
-		syslog(LOG_ERR, "Daemon returned error.");
-		
-	close(sock);
-}
-
-// Pause or resume
-
-void uart_pause() {
-	char buffer[SOCK_BUFFER_MAX];
-	int sock = socket_open();
-	int n;
-	
-	if (!sock)
-		return;
-	
-	send(sock, "STATUS", 6, 0);
-	n = recv(sock, buffer, SOCK_BUFFER_MAX, 0);
-	buffer[n] = '\0';
-	
-	if (!strncmp(buffer, "PLAYING", 7))
-		send(sock, "PAUSE", 5, 0);
-	else if (!strncmp(buffer, "PAUSED", 6))
-		send(sock, "RESUME", 6, 0);
-	else {
-		// Stopped
-		close(sock);
-		return;
+	for (i = 0; (next = strtok(NULL, " ")); i++) {
+		playlist[i] = malloc(strlen(next) + 1);
+		strcpy(playlist[i], next);
 	}
 	
-	recv(sock, buffer, SOCK_BUFFER_MAX, 0);
-	
-	if (strncmp(buffer, "OK", 2))
-		syslog(LOG_ERR, "Daemon returned error.");
-	
-	close(sock);
+	return player_start(playlist, n, 1);
 }
 
-// Stop playback
+// Pause or return playback
 
-void uart_stop() {
-	char buffer[SOCK_BUFFER_MAX];
-	int sock = socket_open();
+int uart_pause() {
+	player_state_t state = player_state(NULL);
 	
-	if (!sock)
-		return;
-	
-	send(sock, "STOP", 4, 0);
-	recv(sock, buffer, SOCK_BUFFER_MAX, 0);
-	
-	if (strncmp(buffer, "OK", 2))
-		syslog(LOG_ERR, "Daemon returned error.");
-	
-	close(sock);
-}
-
-// Open the socket and return socket descriptor (or -1 if error)
-
-int socket_open() {
-	int sock;
-	struct sockaddr_un addr;
-	sock = socket(AF_UNIX, SOCK_STREAM, 0);
-
-	if (sock < 0) {
-		syslog(LOG_ERR, "socket(): %m");
-		return -1;
+	switch (state) {
+	case PAUSED:
+		return player_resume();
+	case PLAYING:
+		return player_pause();
+	default:
+		return 0;
 	}
-	
-	addr.sun_family = AF_UNIX;
-	strcpy(addr.sun_path, SOCKET_PATH);
-
-	if (connect(sock, (const struct sockaddr *)&addr, sizeof(addr)) < 0) {
-		syslog(LOG_ERR, "connect(): %m");
-		return -1;
-	}
-	
-	return sock;
 }

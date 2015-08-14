@@ -12,6 +12,7 @@
 #include "socket.h"
 #include "player.h"
 #include "output.h"
+#include "uart.h"
 
 static const char LOG_IDENT[] = "organd";				// Logging identity
 
@@ -20,6 +21,7 @@ static const char LOG_IDENT[] = "organd";				// Logging identity
 static void cleanup() {
 	player_stop();
 	output_destroy();
+	uart_destroy();
 	socket_destroy();
 	closelog();
 }
@@ -61,6 +63,13 @@ static int setup(int uid, int gid) {
 		syslog(LOG_ERR, "Error at output_init()");
 		return -1;
 	}
+	
+	// UART
+	
+	if (uart_init() < 0) {
+		syslog(LOG_ERR, "Error at uart_init()");
+		return -1;
+	}
 
 	// Change UID and GID
 
@@ -87,6 +96,7 @@ int main(int argc, char **argv) {
 	if (setup(atoi(argv[1]), atoi(argv[2])) < 0)
 		return EXIT_FAILURE;
 	
+	uart_loop();
 	socket_loop();
 
 	return EXIT_SUCCESS;

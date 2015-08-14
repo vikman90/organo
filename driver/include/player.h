@@ -5,7 +5,7 @@
 
 #include "midi.h"
 
-enum player_state_t { PAUSED, PLAYING, STOPPED };
+typedef enum player_state_t { PAUSED, PLAYING, STOPPED } player_state_t;
 
 /*
  * Play a playlist
@@ -29,6 +29,6 @@ int player_resume();
 int player_stop();
 
 // Get state and the path of the currently playing file
-enum player_state_t player_state(const char **file);
+player_state_t player_state(const char **file);
 
 #endif // PLAYER_H

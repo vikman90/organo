@@ -132,7 +132,7 @@ void socket_loop() {
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STATUS", 6)) {
 			const char *path;
-			enum player_state_t state = player_state(&path);
+			player_state_t state = player_state(&path);
 
 			switch (state) {
 			case PAUSED:
