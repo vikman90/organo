@@ -1,7 +1,7 @@
 /*
- * Daemon for listening requests
+ * Daemon for listening remote Receiver from UART
  * Victor Manuel Fernandez Castro
- * 1 August 2015
+ * 14 August 2015
  */
 
 #include <syslog.h>
@@ -9,18 +9,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "socket.h"
-#include "player.h"
-#include "output.h"
+#include "uart.h"
 
-static const char LOG_IDENT[] = "organd";				// Logging identity
+static const char LOG_IDENT[] = "remoted";	// Logging identity
 
 // Cleanup function, called automatically on exiting.
 
 static void cleanup() {
-	player_stop();
-	output_destroy();
-	socket_destroy();
+	uart_destroy();
 	closelog();
 }
 
@@ -48,22 +44,14 @@ static int setup(int uid, int gid) {
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
 
-	// Socket
+	// UART
 
-	if (socket_init(uid, gid) < 0) {
+	if (uart_init() < 0) {
 		syslog(LOG_ERR, "Error at socket_init()");
 		return -1;
 	}
 
-	// Output
-
-	if (output_init() < 0) {
-		syslog(LOG_ERR, "Error at output_init()");
-		return -1;
-	}
-
 	// Change UID and GID
-
 
 	if (setgid(gid) < 0) {
 		syslog(LOG_ERR, "setgid(): %m");
@@ -87,7 +75,7 @@ int main(int argc, char **argv) {
 	if (setup(atoi(argv[1]), atoi(argv[2])) < 0)
 		return EXIT_FAILURE;
 	
-	socket_loop();
+	uart_loop();
 
 	return EXIT_SUCCESS;
 }
