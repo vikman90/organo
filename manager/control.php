@@ -264,21 +264,6 @@ function set_shortcut() {
 
     if (!db_set_shortcut($idshortcut, $idplaylist))
         html_error('args');
-
-    // Update shortcuts on config file
-
-    $file = fopen(REMOTE_CONFIG, 'w');
-
-    foreach (db_get_shortcuts() as $sc) {
-        $playlist = db_get_playlist($sc['playlist']);
-
-        if ($playlist)
-            foreach ($playlist['scores'] as $score)
-                fwrite($file, SCORE_DIR . '/' . $score['source'] . ' ');
-
-        fwrite($file, "\n");
-    }
-
-    fclose($file);
+    
     html_redirect('remote.php');
 }
