@@ -15,10 +15,10 @@
 #include <stdio.h>
 
 #define BAUD_RATE B9600
-#define BUFFER_MAX 16
+#define BUFFER_MAX 10
 #define BUFFER_MIN 10
 
-static const char UART[] = "/dev/ttyAMA0";
+static const char UART[] = "/dev/ttyACM0";
 static struct termios oldtio;
 static int tty;
 
@@ -33,6 +33,7 @@ int uart_init() {
 
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
+	termios.c_cflag = CS8;
 	termios.c_cc[VMIN] = BUFFER_MIN;
 	cfsetispeed(&termios, BAUD_RATE);
 	tcsetattr(tty, TCSANOW, &termios);
@@ -46,7 +47,7 @@ void uart_destroy() {
 }
 
 int main() {
-	char buffer[BUFFER_MAX] = { 0 };
+	char buffer[BUFFER_MAX + 1] = { 0 };
 	signal(SIGTERM, uart_destroy);
 
 	if (uart_init() < 0)
@@ -62,5 +63,7 @@ int main() {
 		
 		buffer[n] = '\0';
 		printf("Leidos %d bytes: %s\n", n, buffer);
+		
+		printf("Funcion: %c\n", buffer[7]);
 	}
 }
