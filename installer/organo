@@ -1,20 +1,22 @@
+Define root
+
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
-	ServerName organo.ddns.net
+	ServerName
 
-	DocumentRoot /home/pi/manager
+	DocumentRoot $root
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory /home/pi/manager>
+	<Directory $root>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny
 		allow from all
 	</Directory>
 
-	Alias /pool /home/pi/midis
+	Alias /pool
 
 	ErrorLog ${APACHE_LOG_DIR}/error.log
 
