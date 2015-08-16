@@ -55,6 +55,9 @@ case $1 in
 				log_failure_msg "No se pudo parar el servicio"
 				exit 1
 			else
+				until [ -z $(ps -e | grep $DAEMON | cut -d' ' -f2) ]; do
+					sleep 1
+				done
 				rm -f $SOCKET
 				log_end_msg 0
 			fi

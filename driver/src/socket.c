@@ -21,7 +21,7 @@
 
 static const char SOCKET_PATH[] = "/run/organd.sock";	// Path for socket file
 
-static int sock;
+static int sock = -1;
 static char buffer[BUFFER_LENGTH];
 
 static int play(char *arg, int loop);

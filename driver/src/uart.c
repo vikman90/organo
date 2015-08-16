@@ -18,7 +18,7 @@
 #include "player.h"
 
 #define BAUD_RATE B9600
-#define UART_BUFFER_MAX 16
+#define UART_BUFFER_MAX 10
 #define UART_BUFFER_MIN 10
 #define FILE_BUFFER_MAX 4096
 
@@ -26,7 +26,7 @@ static const char UART_PATH[] = "/dev/ttyAMA0";
 static const char CONFIG_PATH[] = "/etc/organ/remote.conf";
 
 static struct termios oldtio;
-static int tty;
+static int tty = -1;
 
 // Thread entry point
 static void* uart_run(void *arg);
@@ -50,9 +50,11 @@ int uart_init() {
 
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
+	termios.c_cflag = CS8;
 	termios.c_cc[VMIN] = UART_BUFFER_MIN;
 	cfsetispeed(&termios, BAUD_RATE);
 	tcsetattr(tty, TCSANOW, &termios);
+	tcflush(tty, TCIFLUSH);
 
 	return 0;
 }
@@ -74,10 +76,12 @@ int uart_loop() {
 // Thread entry point
 
 void* uart_run(void __attribute__((unused)) *arg) {
-	char buffer[UART_BUFFER_MAX] = { 0 };
+	char buffer[UART_BUFFER_MAX + 1] = { 0 };
 
 	while (1) {
+		syslog(LOG_DEBUG, "Waiting for read...");
 		int n = read(tty, buffer, UART_BUFFER_MAX);
+		syslog(LOG_DEBUG, "Read %d: %s", n, buffer);
 		
 		if (n < 0) {
 			syslog(LOG_ERR, "read(): %m");
@@ -143,7 +147,7 @@ int uart_playlist(int list) {
 		return -1;
 	}
 	
-	for (i = 0; i < list; i++) {
+	for (i = 0; i <= list; i++) {
 		if (!fgets(buffer, FILE_BUFFER_MAX, file)) {
 			syslog(LOG_ERR, "End of file reached");
 			fclose(file);
@@ -152,20 +156,22 @@ int uart_playlist(int list) {
 	}
 	
 	fclose(file);
-	next = strtok(buffer, " ");
+	next = strtok(buffer, " \n");
 	
 	if (!next) {
 		syslog(LOG_WARNING, "Playlist empty");
 		return -1;
 	}
 	
-	for (n = 1; (next = strtok(NULL, " ")); n++);
+	for (n = 1; (next = strtok(NULL, " \n")); n++);
 	playlist = (char **)malloc(sizeof(char *) * n);
-	next = strtok(buffer, " ");
+	next = buffer;
 	
-	for (i = 0; (next = strtok(NULL, " ")); i++) {
-		playlist[i] = malloc(strlen(next) + 1);
+	for (i = 0; i < n; i++) {
+		int length = strlen(next) + 1;
+		playlist[i] = malloc(length);
 		strcpy(playlist[i], next);
+		next += length;
 	}
 	
 	return player_start(playlist, n, 1);
@@ -182,6 +188,6 @@ int uart_pause() {
 	case PLAYING:
 		return player_pause();
 	default:
-		return 0;
+		return -1;
 	}
 }
