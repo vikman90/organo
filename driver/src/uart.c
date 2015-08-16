@@ -16,14 +16,13 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include "player.h"
+#include "database.h"
 
 #define BAUD_RATE B9600
-#define UART_BUFFER_MAX 10
-#define UART_BUFFER_MIN 10
-#define FILE_BUFFER_MAX 4096
+#define BUFFER_MAX 10
+#define BUFFER_MIN 10
 
 static const char UART_PATH[] = "/dev/ttyAMA0";
-static const char CONFIG_PATH[] = "/etc/organ/remote.conf";
 
 static struct termios oldtio;
 static int tty = -1;
@@ -51,7 +50,7 @@ int uart_init() {
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
 	termios.c_cflag = CS8;
-	termios.c_cc[VMIN] = UART_BUFFER_MIN;
+	termios.c_cc[VMIN] = BUFFER_MIN;
 	cfsetispeed(&termios, BAUD_RATE);
 	tcsetattr(tty, TCSANOW, &termios);
 	tcflush(tty, TCIFLUSH);
@@ -76,12 +75,10 @@ int uart_loop() {
 // Thread entry point
 
 void* uart_run(void __attribute__((unused)) *arg) {
-	char buffer[UART_BUFFER_MAX + 1] = { 0 };
+	char buffer[BUFFER_MAX + 1] = { 0 };
 
 	while (1) {
-		syslog(LOG_DEBUG, "Waiting for read...");
-		int n = read(tty, buffer, UART_BUFFER_MAX);
-		syslog(LOG_DEBUG, "Read %d: %s", n, buffer);
+		int n = read(tty, buffer, BUFFER_MAX);
 		
 		if (n < 0) {
 			syslog(LOG_ERR, "read(): %m");
@@ -93,7 +90,7 @@ void* uart_run(void __attribute__((unused)) *arg) {
 			syslog(LOG_WARNING, "Battery low");
 			
 		case 'A':
-			if (uart_playlist(0) < 0)
+			if (uart_playlist(1) < 0)
 				syslog(LOG_ERR, "Error on uart_playlist()");
 			
 			break;
@@ -102,7 +99,7 @@ void* uart_run(void __attribute__((unused)) *arg) {
 			syslog(LOG_WARNING, "Battery low");
 			
 		case 'B':
-			if (uart_playlist(1) < 0)
+			if (uart_playlist(2) < 0)
 				syslog(LOG_ERR, "Error on uart_playlist()");
 			
 			break;
@@ -136,45 +133,31 @@ void* uart_run(void __attribute__((unused)) *arg) {
 // Play a list
 
 int uart_playlist(int list) {
-	int i, n;
-	FILE *file = fopen(CONFIG_PATH, "r");
-	char *next;
+	int n, retval = 0;
 	char **playlist;
-	char buffer[FILE_BUFFER_MAX];
-
-	if (!file) {
-		syslog(LOG_ERR, "fopen(): %m");
+	
+	if (db_init() < 1) {
+		syslog(LOG_ERR, "Error at db_init()");
 		return -1;
 	}
 	
-	for (i = 0; i <= list; i++) {
-		if (!fgets(buffer, FILE_BUFFER_MAX, file)) {
-			syslog(LOG_ERR, "End of file reached");
-			fclose(file);
-			return -1;
-		}
+	n = db_query(&playlist, list);
+	
+	switch (n) {
+	case -1:
+		syslog(LOG_ERR, "Error at db_query()");
+		retval = -1;
+		
+	case 0:
+		syslog(LOG_ERR, "Playlist empty");
+		retval = -1;
+		
+	default:
+		retval = player_start(playlist, n, 1);
 	}
 	
-	fclose(file);
-	next = strtok(buffer, " \n");
-	
-	if (!next) {
-		syslog(LOG_WARNING, "Playlist empty");
-		return -1;
-	}
-	
-	for (n = 1; (next = strtok(NULL, " \n")); n++);
-	playlist = (char **)malloc(sizeof(char *) * n);
-	next = buffer;
-	
-	for (i = 0; i < n; i++) {
-		int length = strlen(next) + 1;
-		playlist[i] = malloc(length);
-		strcpy(playlist[i], next);
-		next += length;
-	}
-	
-	return player_start(playlist, n, 1);
+	db_destroy();
+	return retval;
 }
 
 // Pause or return playback

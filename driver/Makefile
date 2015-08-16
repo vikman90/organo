@@ -29,7 +29,7 @@ CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
 INCPATH		= -I$(INC)
-LIBS		= 
+LIBS		= -lmysqlclient
 LDFLAGS		= -O1 -s -pthread
 
 CP_FILE		= cp
@@ -93,7 +93,7 @@ $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
-$(BIN)/organd: $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o $(OBJ)/uart.o
+$(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o $(OBJ)/uart.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
@@ -105,3 +105,4 @@ $(OBJ)/organd.o:  $(INC)/output.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/socket.o: $(INC)/player.h
 $(OBJ)/test.o: $(INC)/output.h $(INC)/player.h
+$(OBJ)/uart.o: $(INC)/database.h $(INC)/database.h
