@@ -65,14 +65,14 @@ typedef struct midikey_t {
 } midikey_t;
 
 typedef struct metaevent_t {
-	char type;
+	unsigned char type;
 	unsigned int length;
 	char *data;
 } metaevent_t;
 
 typedef struct midievent_t {
 	int delta;
-	char type;
+	unsigned char type;
 	char channel;
 	
 	union {

@@ -93,6 +93,88 @@ int midifile_init(midifile_t *score, const char *path) {
 	return 0;
 }
 
+// Parse events for a track, until reaching END_OF_TRACK
+
+int parse(midievent_t **first, int fd) {
+	char buffer[4];
+	midievent_t *current;
+	unsigned char value, status = 0;
+
+	// Mtrk
+
+	read(fd, buffer, 4);
+
+	if (memcmp(buffer, "MTrk", 4)) {
+		*first = NULL;
+		return -1;
+	}
+
+	// Length of chunk (ignore)
+
+	lseek(fd, 4, SEEK_CUR);
+
+	current = (midievent_t *)malloc(sizeof(midievent_t));
+	*first = current;
+
+	while (1) {
+		current->delta = varlen(fd);
+		read(fd, &value, 1);
+
+		if (value < 0xF0) {
+
+			// Standard event
+
+			if (value < 0x80) {
+
+				// Keep running status
+
+				current->type = status & 0xF0;
+				current->channel = status & 0x0F;
+				current->param1 = value;
+			} else {
+				current->type = value & 0xF0;
+				current->channel = value & 0x0F;
+				read(fd, &current->param1, 1);
+				status = value;
+			}
+
+			if (!(current->type == PROGRAM_CHANGE || current->type == CHANNEL_AFTERTOUCH))
+				read(fd, &current->param2, 1);
+
+		} else if (value == METAEVENT) {
+			current->type = value;
+			current->metaevent = (metaevent_t *)malloc(sizeof(metaevent_t));
+			read(fd, &current->metaevent->type, 1);
+			current->metaevent->length = varlen(fd);
+			current->metaevent->data = (char *)malloc(current->metaevent->length);
+			read(fd, current->metaevent->data, current->metaevent->length);
+
+			if (current->metaevent->type == END_OF_TRACK) {
+				current->next = NULL;
+				break;
+			}
+		} else if (value == 0xF0) {
+			 // System exclusive event, discard
+
+			 unsigned char byte;
+
+			 do {
+				 read(fd, &byte, 1);
+			 } while (byte != 0xF7);
+			 
+			 continue;
+		} else {
+			current->next = NULL;
+			return -1;
+		}
+
+		current->next = (midievent_t *)malloc(sizeof(midievent_t));
+		current = current->next;
+	}
+
+	return 0;
+}
+
 // Deletes a file structure
 
 void midifile_destroy(midifile_t *file) {
@@ -182,90 +264,10 @@ int midifile_duration(const midifile_t *file) {
 	return waiting / 1000000;
 }
 
-// Parse events for a track, until reaching END_OF_TRACK
-
-static int parse(midievent_t **first, int fd) {
-	char buffer[4];
-	midievent_t *current;
-	char value, status = 0;
-
-	// Mtrk
-
-	read(fd, buffer, 4);
-
-	if (memcmp(buffer, "MTrk", 4)) {
-		*first = NULL;
-		return -1;
-	}
-
-	// Length of chunk (ignore)
-
-	lseek(fd, 4, SEEK_CUR);
-
-	current = (midievent_t *)malloc(sizeof(midievent_t));
-	*first = current;
-
-	while (1) {
-		current->delta = varlen(fd);
-		read(fd, &value, 1);
-
-		if (value < 0xF0) {
-
-			// Standard event
-
-			if (value < 0x80) {
-
-				// Keep running status
-
-				current->type = status & 0xF0;
-				current->channel = status & 0x0F;
-				current->param1 = value;
-			} else {
-				current->type = value & 0xF0;
-				current->channel = value & 0x0F;
-				read(fd, &current->param1, 1);
-				status = value;
-			}
-
-			if (!(current->type == PROGRAM_CHANGE || current->type == CHANNEL_AFTERTOUCH))
-				read(fd, &current->param2, 1);
-
-		} else if (value == METAEVENT) {
-			current->type = value;
-			current->metaevent = (metaevent_t *)malloc(sizeof(metaevent_t));
-			read(fd, &current->metaevent->type, 1);
-			current->metaevent->length = varlen(fd);
-			current->metaevent->data = (char *)malloc(current->metaevent->length);
-			read(fd, current->metaevent->data, current->metaevent->length);
-
-			if (current->metaevent->type == END_OF_TRACK) {
-				current->next = NULL;
-				break;
-			}
-		} else if (value == 0xF0) {
-			 // System exclusive event, discard
-
-			 char byte;
-
-			 do {
-				 read(fd, &byte, 1);
-			 } while (byte != 0xF7);
-		} else {
-			current->next = NULL;
-			return -1;
-		}
-
-		current->next = (midievent_t *)malloc(sizeof(midievent_t));
-		current = current->next;
-	}
-
-	return 0;
-}
-
 // Reads a variable-lenvth value from file
 
 static int varlen(int fd) {
-	char byte;
+	unsigned char byte;
 	int value;
 
 	read(fd, &byte, 1);

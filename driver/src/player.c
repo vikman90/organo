@@ -153,7 +153,7 @@ static void* player_run(void __attribute__((unused)) *arg) {
 			if (midifile_init(&file, playlist[i]) < 0) {
 				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
 				midifile_destroy(&file);
-			} else
+			} else {
 				cur_ifile = i;
 				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
 				int retval = playscore(&file);
@@ -162,6 +162,7 @@ static void* player_run(void __attribute__((unused)) *arg) {
 
 				if (retval)
 					break;
+			}
 		}
 	}
 
