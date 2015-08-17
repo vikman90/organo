@@ -11,31 +11,45 @@
 
 #define LCD_ROWS 4
 #define LCD_COLS 20
+
+/*
 #define PIN_RS 28	// BCM pin 20
 #define PIN_ES 27	// BCM pin 16
 #define PIN_D4 26	// BCM pin 12
 #define PIN_D5 11	// BCM pin 7
 #define PIN_D6 10	// BCM pin 8
 #define PIN_D7 6	// BCM pin 25
+*/
+
+#define PIN_RS 20
+#define PIN_ES 16
+#define PIN_D4 12
+#define PIN_D5 7
+#define PIN_D6 8
+#define PIN_D7 25
 
 int main() {
-	int lcd = lcdInit(LCD_ROWS, LCD_COLS, 4, PIN_RS, PIN_ES, PIN_D4, PIN_D5, PIN_D6, PIN_D7, 0, 0, 0, 0);
+	int lcd;
+	
+	wiringPiSetupGpio();
+	lcd = lcdInit(LCD_ROWS, LCD_COLS, 4, PIN_RS, PIN_ES, PIN_D7, PIN_D6, PIN_D5, PIN_D4, 0, 0, 0, 0);
 
 	if (lcd < 0) {
 		fprintf(stderr, "Error en lcdInit()\n");
 		return EXIT_FAILURE;
 	}
 
-	//lcdClear(lcd);
-	lcdPosition(lcd, 0, 0);
-	lcdPuts(lcd, "Hola Mundo!");
-	lcdPosition(lcd, 0, 1);
-	lcdPuts(lcd, "Kaixo mundua!");
-	lcdPosition(lcd, 0, 2);
-	lcdPuts(lcd, "Hola món!");
-	lcdPosition(lcd, 0, 3);
-	lcdPuts(lcd, "Ola mundo!");
+	while (1) {
+		lcdPosition(lcd, 0, 0);
+		lcdPuts(lcd, "Hola Mundo!");
+		lcdPosition(lcd, 0, 1);
+		lcdPuts(lcd, "Kaixo mundua!");
+		lcdPosition(lcd, 0, 2);
+		lcdPuts(lcd, "Hola món!");
+		lcdPosition(lcd, 0, 3);
+		lcdPuts(lcd, "Ola mundo!");
+		delay(100);
+	}
 
-	getchar();
 	return EXIT_SUCCESS;
 }
