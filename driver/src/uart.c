@@ -39,9 +39,10 @@ static int uart_pause();
 // Initialization of the serial port
 
 int uart_init() {
-	tty = open(UART_PATH, O_RDONLY | O_NOCTTY);
 	struct termios termios;
-
+	
+	tty = open(UART_PATH, O_RDONLY | O_NOCTTY | O_NONBLOCK);
+	
 	if (tty < 0) {
 		syslog(LOG_ERR, "open(): %m");
 		return -1;
@@ -49,7 +50,7 @@ int uart_init() {
 
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
-	termios.c_cflag = CS8;
+	termios.c_cflag = CS8 | CLOCAL | CREAD;
 	termios.c_cc[VMIN] = BUFFER_MIN;
 	cfsetispeed(&termios, BAUD_RATE);
 	tcsetattr(tty, TCSANOW, &termios);
@@ -82,7 +83,7 @@ void* uart_run(void __attribute__((unused)) *arg) {
 		
 		if (n < 0) {
 			syslog(LOG_ERR, "read(): %m");
-			continue;
+			break;
 		}
 		
 		switch (buffer[7]) {
