@@ -10,6 +10,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <strings.h>
 #include <sys/mman.h>
 #include <sys/types.h>
@@ -46,6 +47,7 @@ static volatile unsigned int *gpio_addr;
 
 static const char PORTS[] = { 2, 3, 4, 17 };			// GPIO ports
 static char state[LENGTH][NTRACKS];						// Matrix of LENGTH rows and NTRACKS columns
+static char stack[LENGTH][NTRACKS] = { { 0 } };				// Stack for state
 
 // Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
@@ -140,6 +142,19 @@ void output_update() {
 
 void output_panic() {
 	bzero(state, LENGTH * NTRACKS);
+	output_update();
+}
+
+// Save state
+
+void output_push() {
+	memcpy(stack, state, LENGTH * NTRACKS);
+}
+
+// Restore state
+
+void output_pop() {
+	memcpy(state, stack, LENGTH * NTRACKS);
 	output_update();
 }
 

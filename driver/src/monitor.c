@@ -21,9 +21,10 @@
 static const char OFFSET[] = { 36, 36, 24, 60 };
 static const char LENGTH[] = { 48, 48, 12, 26 };
 
-static unsigned int notes;
-static char *state;
-static char **channel;
+static unsigned int notes;	// Number of controlled notes
+static char *state;			// Length: notes
+static char *stack;			// Length: notes
+static char **channel;		// Pointers to initial sections of each channel into state
 
 int output_init() {
 	unsigned int i;
@@ -33,6 +34,7 @@ int output_init() {
 		notes += LENGTH[i];
 	
 	state = (char *)malloc(notes * sizeof(char));
+	stack = (char *)malloc(notes * sizeof(char));
 	channel = (char **)malloc(NTRACKS * sizeof(char *));
 	
 	if (!(state && channel))
@@ -50,6 +52,7 @@ int output_init() {
 
 void output_destroy() {
 	free(state);
+	free(stack);
 	free(channel);
 }
 
@@ -85,5 +88,14 @@ void output_update() {
 
 void output_panic() {
 	memset(state, 0, notes);
+	output_update();
+}
+
+void output_push() {
+	memcpy(stack, state, notes);
+}
+
+void output_pop() {
+	memcpy(state, stack, notes);
 	output_update();
 }

@@ -41,8 +41,11 @@ static int playscore(midifile_t *file) {
 
 		if (state != PLAYING) {
 			if (state == PAUSED) {
+				output_push();
+				output_panic();
 				pthread_mutex_lock(&playback);
 				pthread_mutex_unlock(&playback);
+				output_pop();
 			} else {
 				// STOPPED
 				output_panic();

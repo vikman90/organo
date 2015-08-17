@@ -21,4 +21,10 @@ void output_update();
 // Silence every note and reset device
 void output_panic();
 
+// Save state
+void output_push();
+
+// Restore state
+void output_pop();
+
 #endif // ORGAN_H
