@@ -5,7 +5,7 @@
 
 #include "midi.h"
 
-typedef enum player_state_t { PAUSED, PLAYING, STOPPED } player_state_t;
+typedef enum player_state_t { PAUSED, PLAYING, STOPPED, ENGINEER } player_state_t;
 
 /*
  * Play a playlist
@@ -30,5 +30,11 @@ int player_stop();
 
 // Get state and the path of the currently playing file
 player_state_t player_state(const char **file);
+
+// Enter into Engineering Mode
+int player_engineer_enter();
+
+// Exit from Engineering Mode
+int player_engineer_exit();
 
 #endif // PLAYER_H
