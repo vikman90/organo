@@ -10,10 +10,10 @@ int output_init();
 void output_destroy();
 
 // Play note
-void output_noteon(char track, char note);
+void output_noteon(int track, int note);
 
 // Stop note
-void output_noteoff(char track, char note);
+void output_noteoff(int track, int note);
 
 // Dump data into output
 void output_update();
