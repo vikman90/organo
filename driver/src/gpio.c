@@ -47,7 +47,6 @@ static volatile unsigned int *gpio_addr;
 
 static const char PORTS[] = { 2, 3, 4, 17 };			// GPIO ports
 static char state[LENGTH][NTRACKS];						// Matrix of LENGTH rows and NTRACKS columns
-static char stack[LENGTH][NTRACKS] = { { 0 } };				// Stack for state
 
 // Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
@@ -145,17 +144,15 @@ void output_panic() {
 	output_update();
 }
 
-// Save state
+// Silence every note, keeping device's state
 
-void output_push() {
+void output_silence() {
+	char stack[LENGTH][NTRACKS] = { { 0 } };
+
 	memcpy(stack, state, LENGTH * NTRACKS);
-}
-
-// Restore state
-
-void output_pop() {
-	memcpy(state, stack, LENGTH * NTRACKS);
+	bzero(state, LENGTH * NTRACKS);
 	output_update();
+	memcpy(state, stack, LENGTH * NTRACKS);
 }
 
 // Select GPIO pin direction

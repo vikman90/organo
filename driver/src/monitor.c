@@ -16,43 +16,33 @@
  * Track 3: 26 keys, starting at C4 (stops)
  */
 
-#define NTRACKS  4
+#define NOTES 134	// Number of controlled notes
+#define NTRACKS 4	// Number of tracks
 
 static const char OFFSET[] = { 36, 36, 24, 60 };
 static const char LENGTH[] = { 48, 48, 12, 26 };
 
-static unsigned int notes;	// Number of controlled notes
-static char *state;			// Length: notes
-static char *stack;			// Length: notes
+static char state[NOTES];	// Length: notes
 static char **channel;		// Pointers to initial sections of each channel into state
 
 int output_init() {
 	unsigned int i;
-	notes = 0;
-	
-	for (i = 0; i < NTRACKS; i++)
-		notes += LENGTH[i];
-	
-	state = (char *)malloc(notes * sizeof(char));
-	stack = (char *)malloc(notes * sizeof(char));
+	int offset = 0;
+
 	channel = (char **)malloc(NTRACKS * sizeof(char *));
 	
-	if (!(state && channel))
+	if (!channel)
 		return -1;
 	
-	notes = 0;
-	
 	for (i = 0; i < NTRACKS; i++) {
-		channel[i] = &state[notes];
-		notes += LENGTH[i];
+		channel[i] = &state[offset];
+		offset += LENGTH[i];
 	}
 	
 	return 0;
 }
 
 void output_destroy() {
-	free(state);
-	free(stack);
 	free(channel);
 }
 
@@ -86,16 +76,23 @@ void output_update() {
 	printf("\n");
 }
 
+void output_silence() {
+	int i;
+	int j;
+	
+	for (i = 0; i < NTRACKS; i++) {
+		printf("Pista %d: ", i);
+		
+		for (j = 0; j < LENGTH[i]; j++)
+			printf("0");
+		
+		printf("\n");
+	}
+	
+	printf("\n");
+}
+
 void output_panic() {
-	memset(state, 0, notes);
-	output_update();
-}
-
-void output_push() {
-	memcpy(stack, state, notes);
-}
-
-void output_pop() {
-	memcpy(state, stack, notes);
+	memset(state, 0, NOTES);
 	output_update();
 }
