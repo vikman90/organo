@@ -113,6 +113,8 @@ int main(int argc, char **argv) {
 			printf("Estado: en pausa, archivo %s\n", buffer + 8);
 		else if (!strncmp(buffer, "STOPPED", 7))
 			printf("Estado: detenido.\n");
+		else if (!strncmp(buffer, "ENGINEER", 8))
+			printf("Estado: modo Ingenieria.\n");
 		else
 			printf("Estado: %s\n", buffer);
 	} else {

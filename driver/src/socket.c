@@ -148,6 +148,11 @@ void socket_loop() {
 			case STOPPED:
 				send(peer, "STOPPED", 7, 0);
 				break;
+				
+			case ENGINEER:
+				send(peer, "ENGINEER", 8, 0);
+				break;
+				
 			default:
 				syslog(LOG_ERR, "Error: unknown state.");
 				send(peer, "ERROR", 5, 0);
