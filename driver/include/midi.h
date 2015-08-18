@@ -13,7 +13,7 @@ enum format_t { SINGLE_TRACK, MULTIPLE_SIMULTANEOUS, MULTIPLE_INDEPENDENT };
 enum division_t { TICKS_PER_BEAT, FRAMES_PER_SECOND };
 enum midimode_t { MAJOR, MINOR };
 
-enum midievent_type_t { 
+enum midievent_type_t {
 	NOTE_OFF = 0x80,
 	NOTE_ON = 0x90,
 	NOTE_AFTERTOUCH = 0xA0,
@@ -74,20 +74,20 @@ typedef struct midievent_t {
 	int delta;
 	unsigned char type;
 	char channel;
-	
+
 	union {
 		char param1;
 		char note;			// NOTE_OFF, NOTE_ON, NOTE_AFTERTOUCH
 		char controller;	// CONTROLLER
 		char program;		// PROGRAM_CHANGE
 	};
-	
+
 	union {
 		char param2;
 		char velocity;		// NOTE_OFF, NOTE_ON
 		char value;		// CONTROLLER
 	};
-	
+
 	struct metaevent_t *metaevent;
 	struct midievent_t *next;
 } midievent_t;
