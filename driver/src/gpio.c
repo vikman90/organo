@@ -18,8 +18,27 @@
 #include <fcntl.h>
 #include "gpio.h"
 
-static volatile gpio_t *gpio;			// GPIO base address
-static const char PORTS[] = PIN_PORTS;				// GPIO ports
+#define GPIO_BASE 0x20200000
+#define GPIO_LENGTH 0x80
+
+#define PIN_RCKL 27		// Register clock
+#define PIN_SRCKL 22	// Shifting clock
+
+typedef struct gpio_t {
+	unsigned int gpfsel[6];
+	unsigned int _reserved1;
+	unsigned int gpset[2];
+	unsigned int _reserved2;
+	unsigned int gpclr[2];
+	unsigned int _reserved3;
+	unsigned int gplev[2];
+} gpio_t;
+
+enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
+
+static const char PORTS[] = { 2, 3, 4, 17 };		// GPIO ports
+
+static volatile gpio_t *gpio;						// GPIO base address
 static char state[OUTPUT_LENGTH][OUTPUT_NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
 
 // Select GPIO pin direction
