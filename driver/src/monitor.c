@@ -11,7 +11,7 @@
 
 /*
  * Track 0: 48 keys, starting at C2 (baroque keyboard)
- * Track 1: 48 keys, starting at C2 (romantic keyboard) 
+ * Track 1: 48 keys, starting at C2 (romantic keyboard)
  * Track 2: 12 keys, starting at C1 (pedals)
  * Track 3: 26 keys, starting at C4 (stops)
  */
@@ -30,15 +30,15 @@ int output_init() {
 	int offset = 0;
 
 	channel = (char **)malloc(NTRACKS * sizeof(char *));
-	
+
 	if (!channel)
 		return -1;
-	
+
 	for (i = 0; i < NTRACKS; i++) {
 		channel[i] = &state[offset];
 		offset += LENGTH[i];
 	}
-	
+
 	return 0;
 }
 
@@ -48,14 +48,14 @@ void output_destroy() {
 
 void output_noteon(int track, int note) {
 	note -= OFFSET[track];
-	
+
 	if (track < NTRACKS && note >= 0 && note < LENGTH[track])
 		channel[track][note] = 1;
 }
 
 void output_noteoff(int track, int note) {
 	note -= OFFSET[track];
-	
+
 	if (track < NTRACKS && note >= 0 && note < LENGTH[track])
 		channel[track][note] = 0;
 }
@@ -63,32 +63,32 @@ void output_noteoff(int track, int note) {
 void output_update() {
 	int i;
 	int j;
-	
+
 	for (i = 0; i < NTRACKS; i++) {
 		printf("Pista %d: ", i);
-		
+
 		for (j = 0; j < LENGTH[i]; j++)
 			printf("%hhd", channel[i][j]);
-		
+
 		printf("\n");
 	}
-	
+
 	printf("\n");
 }
 
 void output_silence() {
 	int i;
 	int j;
-	
+
 	for (i = 0; i < NTRACKS; i++) {
 		printf("Pista %d: ", i);
-		
+
 		for (j = 0; j < LENGTH[i]; j++)
 			printf("0");
-		
+
 		printf("\n");
 	}
-	
+
 	printf("\n");
 }
 

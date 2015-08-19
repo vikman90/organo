@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "peripherals.h"
 #include "socket.h"
 #include "player.h"
 #include "output.h"
@@ -63,16 +64,22 @@ static int setup(int uid, int gid) {
 		syslog(LOG_ERR, "Error at output_init()");
 		return -1;
 	}
-	
+
 	// UART
-	
+
 	if (uart_init() < 0) {
 		syslog(LOG_ERR, "Error at uart_init()");
 		return -1;
 	}
 
-	// Change UID and GID
+	// Peripherals
 
+	if (periph_init() < 0) {
+		syslog(LOG_ERR, "Error at periph_init()");
+		return -1;
+	}
+
+	// Change UID and GID
 
 	if (setgid(gid) < 0) {
 		syslog(LOG_ERR, "setgid(): %m");
@@ -92,10 +99,10 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Syntax: %s <uid> <gid>", argv[0]);
 		return EXIT_FAILURE;
 	}
-	
+
 	if (setup(atoi(argv[1]), atoi(argv[2])) < 0)
 		return EXIT_FAILURE;
-	
+
 	uart_loop();
 	socket_loop();
 

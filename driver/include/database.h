@@ -7,14 +7,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "midi.h"
-
-typedef struct score_t {
-	int idscore;
-	char *path;
-	midifile_t *file;
-} score_t;
-
 // Initializes the database. Returns 0 on success or -1 on error
 int db_init();
 

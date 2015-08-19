@@ -29,7 +29,7 @@ CC			= gcc
 DEFINES		=
 CFLAGS		= -pipe -O2 -Wall -Wextra -pthread $(DEFINES)
 INCPATH		= -I$(INC)
-LIBS		= -lmysqlclient
+LIBS		= -lmysqlclient -lwiringPi -lwiringPiDev -lrt
 LDFLAGS		= -O1 -s -pthread
 
 CP_FILE		= cp
@@ -85,24 +85,28 @@ objclean:
 	$(RM_FILE) $(OBJ)/*.o
 
 $(BIN)/login: $(OBJ)/login.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS) -lcrypt
+	$(CC) $(LDFLAGS) -o $@ $^ -lcrypt
 
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 $(BIN)/organ: $(OBJ)/organ.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
-$(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/player.o $(OBJ)/socket.o $(OBJ)/uart.o
+$(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(OBJ)/peripherals.o $(OBJ)/player.o $(OBJ)/socket.o $(OBJ)/uart.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
+$(OBJ)/gpio.o: $(INC)/gpio.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o:  $(INC)/output.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h
+$(OBJ)/organd.o:  $(INC)/output.h $(INC)/peripherals.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h
+$(OBJ)/peripherals.o: $(INC)/gpio.h $(INC)/player.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
 $(OBJ)/socket.o: $(INC)/player.h
 $(OBJ)/test.o: $(INC)/output.h $(INC)/player.h
-$(OBJ)/uart.o: $(INC)/database.h $(INC)/database.h
+$(OBJ)/uart.o: $(INC)/database.h $(INC)/player.h
+
+$(INC)/gpio.h: $(INC)/output.h

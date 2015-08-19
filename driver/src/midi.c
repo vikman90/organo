@@ -161,7 +161,7 @@ int parse(midievent_t **first, int fd) {
 			 do {
 				 read(fd, &byte, 1);
 			 } while (byte != 0xF7);
-			 
+
 			 continue;
 		} else {
 			current->next = NULL;
@@ -210,14 +210,14 @@ int midifile_duration(const midifile_t *file) {
 	int finished[file->ntracks];
 	int active, min_delta, tempo = DEFAULT_TEMPO, waiting = 0;
 	unsigned short i;
-	
+
 	for (i = 0; i < file->ntracks; i++) {
 		tracks[i] = file->tracks[i];
 		deltas[i] = tracks[i]->delta;
 	}
-	
+
 	bzero(finished, file->ntracks * sizeof(int));
-	
+
 	while (1) {
 		active = 0;
 		min_delta = INT_MAX;

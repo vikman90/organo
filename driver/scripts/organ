@@ -23,13 +23,12 @@ GROUP="organ"
 case $1 in
 	"start")
 		log_daemon_msg "Iniciando servicio..."
-		pid=$(ps -e | grep $DAEMON | cut -d' ' -f2)
+		pid=$(ps -e | grep $DAEMON | cut -b-5)
 
 		if [ ! -z "$pid" ]; then
 			log_progress_msg "Servicio ya iniciado"
 			log_end_msg 0
 		else
-			rm -f $SOCKET
 			/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
 
 			if [ $? != "0" ]; then
@@ -43,7 +42,7 @@ case $1 in
 
 	"stop")
 		log_daemon_msg "Parando servicio..."
-		pid=$(ps -e | grep $DAEMON | cut -d' ' -f2)
+		pid=$(ps -e | grep $DAEMON | cut -b-5)
 
 		if [ -z "$pid" ]; then
 			log_progress_msg "El servicio no estaba iniciado"
@@ -55,7 +54,7 @@ case $1 in
 				log_failure_msg "No se pudo parar el servicio"
 				exit 1
 			else
-				until [ -z $(ps -e | grep $DAEMON | cut -d' ' -f2) ]; do
+				until [ -z $(ps -e | grep $DAEMON | cut -b-5) ]; do
 					sleep 1
 				done
 				rm -f $SOCKET

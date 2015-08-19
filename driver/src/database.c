@@ -4,7 +4,6 @@
  * 2 August 2015
  */
 
-#include "database.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -45,7 +44,7 @@ int db_query(char ***scores, int idshortcut) {
 	MYSQL_RES *result;
 
 	sprintf(query, "SELECT source FROM shortcut, score WHERE idshortcut = %d AND shortcut.playlist = score.playlist", idshortcut);
-	
+
 	if (mysql_query(conn, query))
 		return -1;
 
@@ -56,7 +55,7 @@ int db_query(char ***scores, int idshortcut) {
 
 	nrows = mysql_num_rows(result);
 	*scores = (char **)malloc(nrows * sizeof(char*));
-	
+
 	for (i = 0; i < nrows; i++) {
 		MYSQL_ROW row = mysql_fetch_row(result);
 

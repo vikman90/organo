@@ -43,7 +43,8 @@ int socket_init(int uid, int gid) {
 		syslog(LOG_ERR, "socket(): %m");
 		return -1;
 	}
-
+	
+	unlink(SOCKET_PATH);
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, SOCKET_PATH);
 
@@ -76,13 +77,15 @@ int socket_init(int uid, int gid) {
 
 void socket_destroy() {
 	close(sock);
+	unlink(SOCKET_PATH);
 }
 
 // Dispatching loop
 
 void socket_loop() {
 	int peer, bytes;
-	
+	char path[BUFFER_LENGTH];
+
 	while (1) {
 		peer = accept(sock, NULL, 0);
 
@@ -131,8 +134,7 @@ void socket_loop() {
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STATUS", 6)) {
-			const char *path;
-			player_state_t state = player_state(&path);
+			player_state_t state = player_state(path);
 
 			switch (state) {
 			case PAUSED:
@@ -148,6 +150,11 @@ void socket_loop() {
 			case STOPPED:
 				send(peer, "STOPPED", 7, 0);
 				break;
+
+			case ENGINEER:
+				send(peer, "ENGINEER", 8, 0);
+				break;
+
 			default:
 				syslog(LOG_ERR, "Error: unknown state.");
 				send(peer, "ERROR", 5, 0);

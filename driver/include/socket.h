@@ -3,7 +3,7 @@
  * Victor Manuel Fernandez Castro
  * 8 August 2015
  */
- 
+
 #ifndef SOCKET_H
 #define SOCKET_H
 

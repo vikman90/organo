@@ -8,6 +8,7 @@
 #include <syslog.h>
 #include "player.h"
 #include "output.h"
+#include "midi.h"
 
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;
@@ -45,7 +46,7 @@ static int playscore(midifile_t *file) {
 				pthread_mutex_lock(&playback);
 				pthread_mutex_unlock(&playback);
 			} else {
-				// STOPPED
+				// STOPPED or ENGINEER
 				output_panic();
 				return 1;
 			}
@@ -174,36 +175,50 @@ static void* player_run(void __attribute__((unused)) *arg) {
 // Play a playlist
 
 int player_start(char **_playlist, int n, int _loop) {
-	int retval;
-
-	if (state != STOPPED)
-		player_stop();
+	int retval = 0;
 
 	pthread_mutex_lock(&mutex);
 
-	// Delete scores at this point to avoid race conditions
+	if (state < STOPPED && !active)
+		state = STOPPED;
 
-	if (playlist) {
-		int i;
+	switch (state) {
+	case PAUSED:
+		pthread_mutex_unlock(&playback);
 
-		for (i = 0; i < nfiles; i++)
-			free(playlist[i]);
+	case PLAYING:
+		state = STOPPED;
+		pthread_join(thread, NULL);
 
-		free(playlist);
-	}
+	case STOPPED:
 
-	active = 1;
-	playlist = _playlist;
-	nfiles = n;
-	loop = _loop;
-	cur_ifile = 0;
+		// Delete scores at this point to avoid race conditions
 
-	if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
-		active = 0;
+		if (playlist) {
+			int i;
+
+			for (i = 0; i < nfiles; i++)
+				free(playlist[i]);
+
+			free(playlist);
+		}
+
+		active = 1;
+		playlist = _playlist;
+		nfiles = n;
+		loop = _loop;
+		cur_ifile = 0;
+
+		if (pthread_create(&thread, NULL, player_run, NULL) != 0) {
+			active = 0;
+			retval = -1;
+		} else
+			state = PLAYING;
+
+		break;
+
+	case ENGINEER:
 		retval = -1;
-	} else {
-		state = PLAYING;
-		retval = 0;
 	}
 
 	pthread_mutex_unlock(&mutex);
@@ -219,20 +234,18 @@ int player_wait() {
 // Pause player, if running
 
 int player_pause() {
-	int retval;
+	int retval = 0;
 
 	pthread_mutex_lock(&mutex);
 
-	if (!active)
+	if (state < STOPPED && !active)
 		state = STOPPED;
 
 	if (state != PLAYING)
 		retval = -1;
 	else {
-
 		pthread_mutex_lock(&playback);
 		state = PAUSED;
-		retval = 0;
 	}
 
 	pthread_mutex_unlock(&mutex);
@@ -242,11 +255,11 @@ int player_pause() {
 // Resume player, if paused
 
 int player_resume() {
-	int retval;
+	int retval = 0;
 
 	pthread_mutex_lock(&mutex);
 
-	if (!active)
+	if (state < STOPPED && !active)
 		state = STOPPED;
 
 	switch (state) {
@@ -254,7 +267,6 @@ int player_resume() {
 		state = PLAYING;
 		pthread_mutex_unlock(&playback);
 	case PLAYING:
-		retval = 0;
 		break;
 	default:
 		retval = -1;
@@ -267,9 +279,11 @@ int player_resume() {
 // Stop player
 
 int player_stop() {
+	int retval = 0;
+
 	pthread_mutex_lock(&mutex);
 
-	if (!active)
+	if (state < STOPPED && !active)
 		state = STOPPED;
 
 	switch (state) {
@@ -278,7 +292,49 @@ int player_stop() {
 	case PLAYING:
 		state = STOPPED;
 		pthread_join(thread, NULL);
-	default:
+	case STOPPED:
+		break;
+	case ENGINEER:
+		retval = -1;
+	}
+
+	pthread_mutex_unlock(&mutex);
+	return retval;
+}
+
+// Get state and copies the path of the currently playing file
+
+player_state_t player_state(char *file) {
+	pthread_mutex_lock(&mutex);
+	player_state_t _state = state;
+
+	if (state < STOPPED && !active)
+		state = STOPPED;
+
+	if ((state == PLAYING || state == PAUSED) && file)
+		strcpy(file, playlist[cur_ifile]);
+
+	pthread_mutex_unlock(&mutex);
+	return _state;
+}
+
+// Enter into Engineering Mode
+
+int player_engineer_enter() {
+	pthread_mutex_lock(&mutex);
+
+	if (state < STOPPED && !active)
+		state = STOPPED;
+
+	switch (state) {
+	case PAUSED:
+		pthread_mutex_unlock(&playback);
+	case PLAYING:
+		state = STOPPED;
+		pthread_join(thread, NULL);
+	case STOPPED:
+		state = ENGINEER;
+	case ENGINEER:
 		;
 	}
 
@@ -286,18 +342,21 @@ int player_stop() {
 	return 0;
 }
 
-// Get state and current idplaylist and idscore
+// Exit from Engineering Mode
 
-player_state_t player_state(const char **file) {
+int player_engineer_exit() {
+	int retval = 0;
+
 	pthread_mutex_lock(&mutex);
-	player_state_t _state = state;
 
-	if (!active)
+	if (state < STOPPED && !active)
 		state = STOPPED;
 
-	if ((state == PLAYING || state == PAUSED) && file)
-		*file = playlist[cur_ifile];
+	if (state == ENGINEER)
+		state = STOPPED;
+	else
+		retval = -1;
 
 	pthread_mutex_unlock(&mutex);
-	return _state;
+	return retval;
 }

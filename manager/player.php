@@ -42,9 +42,17 @@ switch ($state[0]) {
 
         break;
 
-    default:
+    case 'STOPPED':
         $playlist = null;
         $name = $tr['stopped'];
+        break;
+
+    case 'ENGINEER':
+        $playlist = null;
+        $name = $tr['engineer'];
+
+    default:
+        ;
 }
 
 $play_hidden = $state[0] == 'PLAYING' ? 'hidden' : '';

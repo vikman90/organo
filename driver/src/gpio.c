@@ -16,37 +16,30 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "gpio.h"
 
 #define GPIO_BASE 0x20200000
 #define GPIO_LENGTH 0x80
 
-// We divide by 4 because sum of pointers is base 4 (sizeof(int))
+#define PIN_RCKL 27		// Register clock
+#define PIN_SRCKL 22	// Shifting clock
 
-#define OFFSET_SET0 7
-#define OFFSET_SET1 8
-#define OFFSET_CLR0 10
-#define OFFSET_CLR1 11
-#define OFFSET_LEVEL0 13
-#define OFFSET_LEVEL1 14
+typedef struct gpio_t {
+	unsigned int gpfsel[6];
+	unsigned int _reserved1;
+	unsigned int gpset[2];
+	unsigned int _reserved2;
+	unsigned int gpclr[2];
+	unsigned int _reserved3;
+	unsigned int gplev[2];
+} gpio_t;
 
 enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
-static volatile unsigned int *gpio_addr;
 
-/*
- * Track 0: 8 keys, starting at C4 (baroque keyboard)
- * Track 1: 8 keys, starting at C4 (romantic keyboard)
- * Track 2: 8 keys, starting at C4 (pedals)
- * Track 3: 8 keys, starting at C4 (stops)
- */
+static const char PORTS[] = { 2, 3, 4, 17 };		// GPIO ports
 
-#define NTRACKS  4	// Number of tracks
-#define LENGTH 7	// Length of each register
-#define OFFSET 60	// Base MIDI note
-#define RCKL 27		// Register clock
-#define SRCKL 22	// Shifting clock
-
-static const char PORTS[] = { 2, 3, 4, 17 };			// GPIO ports
-static char state[LENGTH][NTRACKS];						// Matrix of LENGTH rows and NTRACKS columns
+static volatile gpio_t *gpio;						// GPIO base address
+static char state[OUTPUT_LENGTH][OUTPUT_NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
 
 // Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
@@ -65,19 +58,19 @@ int output_init() {
 
 	// Map GPIO physical address
 
-	gpio_addr = (unsigned int *)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
+	gpio = (gpio_t *)mmap(NULL, GPIO_LENGTH, PROT_READ | PROT_WRITE, MAP_SHARED, fd, GPIO_BASE);
 
-	if (gpio_addr == MAP_FAILED)
+	if (gpio == MAP_FAILED)
 		return -1;
 
-	bzero(state, LENGTH * NTRACKS);
+	bzero(state, OUTPUT_LENGTH * OUTPUT_NTRACKS);
 
 	// Set GPIO function
 
-	gpio_fsel(RCKL, GPIO_OUTPUT);
-	gpio_fsel(SRCKL, GPIO_OUTPUT);
+	gpio_fsel(PIN_RCKL, GPIO_OUTPUT);
+	gpio_fsel(PIN_SRCKL, GPIO_OUTPUT);
 
-	for (i = 0; i < NTRACKS; i++)
+	for (i = 0; i < OUTPUT_NTRACKS; i++)
 		gpio_fsel(PORTS[i], GPIO_OUTPUT);
 
 	return 0;
@@ -86,24 +79,24 @@ int output_init() {
 // Release output
 
 void output_destroy() {
-	munmap((void *)gpio_addr, GPIO_LENGTH);
+	munmap((void *)gpio, GPIO_LENGTH);
 }
 
 // Play note
 
 void output_noteon(int track, int note) {
-	note -= OFFSET;
+	note -= OUTPUT_OFFSET;
 
-	if (track < NTRACKS && note >= 0 && note < LENGTH)
+	if (track < OUTPUT_NTRACKS && note >= 0 && note < OUTPUT_LENGTH)
 		state[note][track] = 1;
 }
 
 // Stop note
 
 void output_noteoff(int track, int note) {
-	note -= OFFSET;
+	note -= OUTPUT_OFFSET;
 
-	if (track < NTRACKS && note >= 0 && note < LENGTH)
+	if (track < OUTPUT_NTRACKS && note >= 0 && note < OUTPUT_LENGTH)
 		state[note][track] = 0;
 }
 
@@ -113,53 +106,53 @@ void output_update() {
 	int i, j;
 	unsigned int setmask, clearmask;
 
-	for (i = LENGTH - 1; i >= 0; i--) {
+	for (i = OUTPUT_LENGTH - 1; i >= 0; i--) {
 		setmask = clearmask = 0;
 
-		for (j = 0; j < NTRACKS; j++) {
+		for (j = 0; j < OUTPUT_NTRACKS; j++) {
 			setmask |= state[i][j] << PORTS[j];
 			clearmask |= !state[i][j] << PORTS[j];
 		}
 
 		// Dump
-		*(gpio_addr + OFFSET_SET0) = setmask;
-		*(gpio_addr + OFFSET_CLR0) = clearmask;
+		gpio->gpset[0] = setmask;
+		gpio->gpclr[0] = clearmask;
 
 		// Pulse on SRCKL
-		*(gpio_addr + OFFSET_SET0) = 1 << SRCKL;
+		gpio->gpset[0] = 1 << PIN_SRCKL;
 		delay();
-		*(gpio_addr + OFFSET_CLR0) = 1 << SRCKL;
+		gpio->gpclr[0] = 1 << PIN_SRCKL;
 	}
 
 	// Pulse on RCKL
-	*(gpio_addr + OFFSET_SET0) = 1 << RCKL;
+	gpio->gpset[0] = 1 << PIN_RCKL;
 	delay();
-	*(gpio_addr + OFFSET_CLR0) = 1 << RCKL;
+	gpio->gpclr[0] = 1 << PIN_RCKL;
 }
 
 // Silence every note and reset device
 
 void output_panic() {
-	bzero(state, LENGTH * NTRACKS);
+	bzero(state, OUTPUT_LENGTH * OUTPUT_NTRACKS);
 	output_update();
 }
 
 // Silence every note, keeping device's state
 
 void output_silence() {
-	char stack[LENGTH][NTRACKS] = { { 0 } };
+	char stack[OUTPUT_LENGTH][OUTPUT_NTRACKS] = { { 0 } };
 
-	memcpy(stack, state, LENGTH * NTRACKS);
-	bzero(state, LENGTH * NTRACKS);
+	memcpy(stack, state, OUTPUT_LENGTH * OUTPUT_NTRACKS);
+	bzero(state, OUTPUT_LENGTH * OUTPUT_NTRACKS);
 	output_update();
-	memcpy(state, stack, LENGTH * NTRACKS);
+	memcpy(state, stack, OUTPUT_LENGTH * OUTPUT_NTRACKS);
 }
 
 // Select GPIO pin direction
 
 void gpio_fsel(unsigned int pin, enum gpio_function func)
 {
-	volatile unsigned int *reg = gpio_addr + pin / 10;
+	volatile unsigned int *reg = &gpio->gpfsel[pin / 10];
 	int shift = pin % 10 * 3;
 
 	*reg = (*reg & ~(7 << shift)) | (func << shift);
