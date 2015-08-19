@@ -82,6 +82,7 @@ void socket_destroy() {
 
 void socket_loop() {
 	int peer, bytes;
+	char path[BUFFER_LENGTH];
 	
 	while (1) {
 		peer = accept(sock, NULL, 0);
@@ -131,8 +132,7 @@ void socket_loop() {
 			} else
 				send(peer, "OK", 2, 0);
 		} else if (!strncmp(buffer, "STATUS", 6)) {
-			const char *path;
-			player_state_t state = player_state(&path);
+			player_state_t state = player_state(path);
 
 			switch (state) {
 			case PAUSED:

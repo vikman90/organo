@@ -301,9 +301,9 @@ int player_stop() {
 	return retval;
 }
 
-// Get state and current idplaylist and idscore
+// Get state and copies the path of the currently playing file
 
-player_state_t player_state(const char **file) {
+player_state_t player_state(char *file) {
 	pthread_mutex_lock(&mutex);
 	player_state_t _state = state;
 
@@ -311,7 +311,7 @@ player_state_t player_state(const char **file) {
 		state = STOPPED;
 
 	if ((state == PLAYING || state == PAUSED) && file)
-		*file = playlist[cur_ifile];
+		strcpy(file, playlist[cur_ifile]);
 
 	pthread_mutex_unlock(&mutex);
 	return _state;
