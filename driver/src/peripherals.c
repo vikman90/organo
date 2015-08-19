@@ -152,6 +152,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				output_noteoff(track, note);
 				note = (note + 1) % OUTPUT_LENGTH;
 				output_noteon(track, note);
+				output_update();
 			}
 
 		// Counterclockwise event
@@ -175,6 +176,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				output_noteoff(track, note);
 				note = (note + OUTPUT_LENGTH - 1) % OUTPUT_LENGTH;
 				output_noteon(track, note);
+				output_update();
 			}
 
 		// Push event
@@ -192,6 +194,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 
 				track = note = 0;
 				output_noteon(track, note);
+				output_update();
 				state = ENGINEER_ON;
 				break;
 
@@ -204,6 +207,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 					note = 0;
 					output_noteon(track, note);
 				}
+				output_update();
 			}
 		}
 
