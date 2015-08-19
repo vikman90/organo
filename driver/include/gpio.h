@@ -9,8 +9,6 @@
 
 #include "output.h"
 
-
-
 /*
  * Track 0: 7 keys, starting at C4 (baroque keyboard)
  * Track 1: 7 keys, starting at C4 (romantic keyboard)

@@ -175,22 +175,22 @@ static void* player_run(void __attribute__((unused)) *arg) {
 
 int player_start(char **_playlist, int n, int _loop) {
 	int retval = 0;
-	
+
 	pthread_mutex_lock(&mutex);
-	
+
 	if (state < STOPPED && !active)
 		state = STOPPED;
-	
+
 	switch (state) {
 	case PAUSED:
 		pthread_mutex_unlock(&playback);
-		
+
 	case PLAYING:
 		state = STOPPED;
 		pthread_join(thread, NULL);
-		
+
 	case STOPPED:
-	
+
 		// Delete scores at this point to avoid race conditions
 
 		if (playlist) {
@@ -213,9 +213,9 @@ int player_start(char **_playlist, int n, int _loop) {
 			retval = -1;
 		} else
 			state = PLAYING;
-	
+
 		break;
-		
+
 	case ENGINEER:
 		retval = -1;
 	}
@@ -279,7 +279,7 @@ int player_resume() {
 
 int player_stop() {
 	int retval = 0;
-	
+
 	pthread_mutex_lock(&mutex);
 
 	if (state < STOPPED && !active)
@@ -321,10 +321,10 @@ player_state_t player_state(char *file) {
 
 int player_engineer_enter() {
 	pthread_mutex_lock(&mutex);
-	
+
 	if (state < STOPPED && !active)
 		state = STOPPED;
-	
+
 	switch (state) {
 	case PAUSED:
 		pthread_mutex_unlock(&playback);
@@ -336,7 +336,7 @@ int player_engineer_enter() {
 	case ENGINEER:
 		;
 	}
-	
+
 	pthread_mutex_unlock(&mutex);
 	return 0;
 }
@@ -345,17 +345,17 @@ int player_engineer_enter() {
 
 int player_engineer_exit() {
 	int retval = 0;
-	
+
 	pthread_mutex_lock(&mutex);
-	
+
 	if (state < STOPPED && !active)
 		state = STOPPED;
-	
+
 	if (state == ENGINEER)
 		state = STOPPED;
 	else
 		retval = -1;
-	
+
 	pthread_mutex_unlock(&mutex);
 	return retval;
 }

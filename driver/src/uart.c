@@ -40,9 +40,9 @@ static int uart_pause();
 
 int uart_init() {
 	struct termios termios;
-	
+
 	tty = open(UART_PATH, O_RDONLY | O_NOCTTY | O_NONBLOCK);
-	
+
 	if (tty < 0) {
 		syslog(LOG_ERR, "open(): %m");
 		return -1;
@@ -80,54 +80,54 @@ void* uart_run(void __attribute__((unused)) *arg) {
 
 	while (1) {
 		int n = read(tty, buffer, BUFFER_MAX);
-		
+
 		if (n < 0) {
 			syslog(LOG_ERR, "read(): %m");
 			break;
 		}
-		
+
 		switch (buffer[7]) {
 		case 'a':
 			syslog(LOG_WARNING, "Battery low");
-			
+
 		case 'A':
 			if (uart_playlist(1) < 0)
 				syslog(LOG_ERR, "Error on uart_playlist()");
-			
+
 			break;
-			
+
 		case 'b':
 			syslog(LOG_WARNING, "Battery low");
-			
+
 		case 'B':
 			if (uart_playlist(2) < 0)
 				syslog(LOG_ERR, "Error on uart_playlist()");
-			
+
 			break;
-			
+
 		case 'd':
 			syslog(LOG_WARNING, "Battery low");
-			
+
 		case 'D':
 			if (uart_pause() < 0)
 				syslog(LOG_ERR, "Error on uart_pause()");
-			
+
 			break;
-			
+
 		case 'h':
 			syslog(LOG_WARNING, "Battery low");
-			
+
 		case 'H':
 			if (player_stop() < 0)
 				syslog(LOG_ERR, "Error on player_stop()");
-			
+
 			break;
-			
+
 		default:
 			syslog(LOG_ERR, "Button not recognised");
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -136,27 +136,27 @@ void* uart_run(void __attribute__((unused)) *arg) {
 int uart_playlist(int list) {
 	int n, retval = 0;
 	char **playlist;
-	
+
 	if (db_init() < 1) {
 		syslog(LOG_ERR, "Error at db_init()");
 		return -1;
 	}
-	
+
 	n = db_query(&playlist, list);
-	
+
 	switch (n) {
 	case -1:
 		syslog(LOG_ERR, "Error at db_query()");
 		retval = -1;
-		
+
 	case 0:
 		syslog(LOG_ERR, "Playlist empty");
 		retval = -1;
-		
+
 	default:
 		retval = player_start(playlist, n, 1);
 	}
-	
+
 	db_destroy();
 	return retval;
 }
@@ -165,7 +165,7 @@ int uart_playlist(int list) {
 
 int uart_pause() {
 	player_state_t state = player_state(NULL);
-	
+
 	switch (state) {
 	case PAUSED:
 		return player_resume();
