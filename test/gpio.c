@@ -23,7 +23,7 @@ gpio_t pin;
 static int gpio_init(int n, gpio_t *reg)
 {
 	char buffer[BUFFER_SIZE];
-/*	int fd = open("/sys/class/gpio/export", O_WRONLY);
+	int fd = open("/sys/class/gpio/export", O_WRONLY);
 
 	if (fd < 0) {
 		perror("export");
@@ -32,11 +32,11 @@ static int gpio_init(int n, gpio_t *reg)
 
 	if (dprintf(fd, "%d\n", n) < 1) {
 		fprintf(stderr, "dprintf() < 1\n");
-		return -1;
+		//return -1;
 	}
 
 	close(fd);
-*/
+
 	reg->n = n;
 	sprintf(buffer, "/sys/class/gpio/gpio%d/direction", n);
 
@@ -61,16 +61,16 @@ static int gpio_init(int n, gpio_t *reg)
 
 static void gpio_finalize(gpio_t *reg)
 {
-//	int fd = open("/sys/class/gpio/unexport", O_WRONLY);
+	int fd = open("/sys/class/gpio/unexport", O_WRONLY);
 
 	close(reg->direction);
 	close(reg->value);
 	close(reg->edge);
 	close(reg->active_low);
 
-/*	dprintf(fd, "%d\n", reg->n);
+	dprintf(fd, "%d\n", reg->n);
 	close(fd);
-*/
+
 }
 
 static void onexit()
@@ -92,7 +92,7 @@ int main()
 	struct epoll_event req;
 	struct epoll_event events;
 
-	if (gpio_init(3, &pin) < 0) {
+	if (gpio_init(18, &pin) < 0) {
 		fprintf(stderr, "Error en gpio_init()\n");
 		return EXIT_FAILURE;
 	}
@@ -105,7 +105,7 @@ int main()
 	req.data.fd = pin.value;
 
 	write(pin.direction, "in\n", 3);
-	write(pin.edge, "rising\n", 7);
+	write(pin.edge, "falling\n", 7);
 
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, pin.value, &req) < 0) {
 		perror("Error en epoll_ctl()");
