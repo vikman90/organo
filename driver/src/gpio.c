@@ -30,8 +30,6 @@ typedef struct gpio_t {
 	unsigned int gpset[2];
 	unsigned int _reserved2;
 	unsigned int gpclr[2];
-	unsigned int _reserved3;
-	unsigned int gplev[2];
 } gpio_t;
 
 enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
@@ -105,29 +103,30 @@ void output_noteoff(int track, int note) {
 void output_update() {
 	int i, j;
 	unsigned int setmask, clearmask;
+	char *p = &state[0][0];
 
-	for (i = OUTPUT_LENGTH - 1; i >= 0; i--) {
+	for (i = 0; i < OUTPUT_LENGTH; i++) {
 		setmask = clearmask = 0;
 
 		for (j = 0; j < OUTPUT_NTRACKS; j++) {
-			setmask |= state[i][j] << PORTS[j];
-			clearmask |= !state[i][j] << PORTS[j];
+			setmask |= *p << PORTS[j];
+			clearmask |= !*(p++) << PORTS[j];
 		}
 
 		// Dump
-		gpio->gpset[0] = setmask;
-		gpio->gpclr[0] = clearmask;
+		*gpio->gpset = setmask;
+		*gpio->gpclr = clearmask;
 
 		// Pulse on SRCKL
-		gpio->gpset[0] = 1 << PIN_SRCKL;
 		delay();
-		gpio->gpclr[0] = 1 << PIN_SRCKL;
+		*gpio->gpset = 1 << PIN_SRCKL;
+		*gpio->gpclr = 1 << PIN_SRCKL;
 	}
 
 	// Pulse on RCKL
-	gpio->gpset[0] = 1 << PIN_RCKL;
 	delay();
-	gpio->gpclr[0] = 1 << PIN_RCKL;
+	*gpio->gpset = 1 << PIN_RCKL;
+	*gpio->gpclr = 1 << PIN_RCKL;
 }
 
 // Silence every note and reset device
