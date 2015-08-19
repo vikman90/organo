@@ -8,6 +8,7 @@
 #include <syslog.h>
 #include "player.h"
 #include "output.h"
+#include "midi.h"
 
 static pthread_t thread;
 static volatile enum player_state_t state = STOPPED;

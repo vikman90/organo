@@ -4,7 +4,6 @@
  * 2 August 2015
  */
 
-#include "database.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

@@ -3,8 +3,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "midi.h"
-
 typedef enum player_state_t { PAUSED, PLAYING, STOPPED, ENGINEER } player_state_t;
 
 /*
