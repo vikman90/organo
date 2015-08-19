@@ -30,7 +30,7 @@
 #define BUFFER_LENGTH 256	// Buffer to receive file path from player
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
-typedef enum state_t { ENGINEER_OFF, MENU, ENGINEER_ON };
+typedef enum periph_state_t { ENGINEER_OFF, MENU, ENGINEER_ON } periph_state_t;
 
 // Rotary clockwise event
 static void rot_cw();
@@ -42,15 +42,15 @@ static void rot_ccw();
 static void rot_push();
 
 // Thread start point
-static void* periph_run(void __attribute__((unused)) *arg);
+static void* periph_run(void *arg);
 
-static int lcd;							// LCD file descriptor
-static int buttons[3] = { 0 };			// Array of pushed buttons
-static state_t state = ENGINEER_OFF;	// Current state
-static int track;						// Active track
-static int note;						// Active note
-static pthread_t thread;				// Dispatching thread
-static sem_t semaphore;					// Semaphore for synchronization
+static int lcd;								// LCD file descriptor
+static int buttons[3] = { 0 };				// Array of pushed buttons
+static periph_state_t state = ENGINEER_OFF;	// Current state
+static int track;							// Active track
+static int note;							// Active note
+static pthread_t thread;					// Dispatching thread
+static sem_t semaphore;						// Semaphore for synchronization
 
 // Initialize peripherals and start threads
 
@@ -61,14 +61,14 @@ int periph_init() {
 		return -1;
 	}
 
-	if (sem_init(&semaphore, 0, 0) {
+	if (sem_init(&semaphore, 0, 0)) {
 		syslog(LOG_ERR, "sem_init(): %m");
 		return -1;
 	}
 
 	lcd = lcdInit(LCD_ROWS, LCD_COLS, 4, LCD_RS, LCD_ES, LCD_D4, LCD_D5, LCD_D6, LCD_D7, 0, 0, 0, 0);
 
-	if (lcd < 1) {
+	if (lcd < 0) {
 		syslog(LOG_ERR, "lcdInit(): %m");
 		return -1;
 	}
@@ -110,8 +110,9 @@ void rot_push() {
 
 // Thread start point
 
-void* periph_run(void *arg) {
+void* periph_run(void __attribute__((unused)) *arg) {
 	struct timespec timeout = { 0, 0 };
+	player_state_t plstate;
 	char filename[BUFFER_LENGTH];
 
 	while (1) {
@@ -196,7 +197,7 @@ void* periph_run(void *arg) {
 
 		switch (state) {
 		case ENGINEER_OFF:
-			player_state_t plstate = player_state(filename);
+			plstate = player_state(filename);
 			lcdPosition(lcd, 0, 0);
 
 			switch (plstate) {
@@ -219,7 +220,7 @@ void* periph_run(void *arg) {
 
 		case MENU:
 			lcdPosition(lcd, 3, 1);
-			lcdPuts("MODO INGENIERO");
+			lcdPuts(lcd, "MODO INGENIERO");
 			break;
 
 		case ENGINEER_ON:
@@ -238,4 +239,6 @@ void* periph_run(void *arg) {
 		timeout.tv_nsec += (int)((TIMEOUT - (int)TIMEOUT) * 1000000000);
 		sem_timedwait(&semaphore, &timeout);
 	}
+	
+	return NULL;
 }
