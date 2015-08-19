@@ -29,7 +29,6 @@ case $1 in
 			log_progress_msg "Servicio ya iniciado"
 			log_end_msg 0
 		else
-			rm -f $SOCKET
 			/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
 
 			if [ $? != "0" ]; then

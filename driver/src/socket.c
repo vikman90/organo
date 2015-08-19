@@ -43,7 +43,8 @@ int socket_init(int uid, int gid) {
 		syslog(LOG_ERR, "socket(): %m");
 		return -1;
 	}
-
+	
+	unlink(SOCKET_PATH);
 	addr.sun_family = AF_UNIX;
 	strcpy(addr.sun_path, SOCKET_PATH);
 
@@ -76,6 +77,7 @@ int socket_init(int uid, int gid) {
 
 void socket_destroy() {
 	close(sock);
+	unlink(SOCKET_PATH);
 }
 
 // Dispatching loop
