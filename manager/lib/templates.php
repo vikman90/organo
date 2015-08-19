@@ -133,7 +133,6 @@ function html_navigation($selected = null) {
     $player = $selected == 'player' ? 'selected' : '';
     $playlists = $selected == 'playlists' ? 'selected' : '';
     $remote = $selected == 'remote' ? 'selected' : '';
-    $settings = $selected == 'settings' ? 'selected' : '';
 
     echo <<< EOT
 <nav>
@@ -146,9 +145,6 @@ function html_navigation($selected = null) {
         </li>
         <li class="$remote" id="nav-remote">
             <a href="remote.php">{$tr['remote']}</a>
-        </li>
-        <li class="$settings" id="nav-settings">
-            <a href="settings.php">{$tr['settings']}</a>
         </li>
     </ul>
 </nav>

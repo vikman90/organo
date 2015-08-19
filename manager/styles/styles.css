@@ -170,10 +170,6 @@ nav li:hover, nav li.selected {
     background-image: url(../images/remote.png);
 }
 
-#nav-settings {
-    background-image: url(../images/settings.png);
-}
-
 /************************************** Section ***********************************************************************/
 
 section {
