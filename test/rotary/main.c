@@ -19,10 +19,7 @@ void changeA() {
 	a = digitalRead(PIN_A);
 	b = digitalRead(PIN_B);
 	
-	if (a == b)
-		printf("a == b, giraste a derecha\n");
-	else
-		printf("a <> b, giraste a izquierda\n");
+	printf("a = %d  b = %d\n", a, b);
 }
 
 void riseC() {
