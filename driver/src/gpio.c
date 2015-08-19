@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 #include "gpio.h"
 
 #define GPIO_BASE 0x20200000
@@ -35,15 +36,13 @@ typedef struct gpio_t {
 enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
 
 static const char PORTS[] = { 2, 3, 4, 17 };		// GPIO ports
+const struct timespec PULSE_WIDTH = { 0, 100 };		// 100 ns
 
 static volatile gpio_t *gpio;						// GPIO base address
 static char state[OUTPUT_LENGTH][OUTPUT_NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
 
 // Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
-
-// Very short delay
-static void delay();
 
 // Initialize output
 
@@ -118,14 +117,14 @@ void output_update() {
 		*gpio->gpclr = clearmask;
 
 		// Pulse on SRCKL
-		delay();
 		*gpio->gpset = 1 << PIN_SRCKL;
+		nanosleep(&PULSE_WIDTH, NULL);
 		*gpio->gpclr = 1 << PIN_SRCKL;
 	}
 
 	// Pulse on RCKL
-	delay();
 	*gpio->gpset = 1 << PIN_RCKL;
+	nanosleep(&PULSE_WIDTH, NULL);
 	*gpio->gpclr = 1 << PIN_RCKL;
 }
 
@@ -155,23 +154,4 @@ void gpio_fsel(unsigned int pin, enum gpio_function func)
 	int shift = pin % 10 * 3;
 
 	*reg = (*reg & ~(7 << shift)) | (func << shift);
-}
-
-// Very short delay
-
-void delay() {
-
-	// SN74HC595D tpd = 13 ns
-	// 10 instr * ( 1 / 700 MHz ) >= 14.2 ns
-
-	asm ("nop\n\t"
-	     "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop\n\t"
-		 "nop");
 }
