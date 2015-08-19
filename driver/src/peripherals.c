@@ -22,8 +22,8 @@
 #define LCD_D6 8
 #define LCD_D7 25
 
-#define ROT_CW 18	// Clockwise
-#define ROT_CCW 24	// Counterclockwise
+#define ROT_CH_A 18	// Clockwise
+#define ROT_CH_B 24	// Counterclockwise
 #define ROT_PUSH 23	// Button
 
 #define TIMEOUT 1.0			// Waiting time to force LCD updating
@@ -32,11 +32,8 @@
 typedef enum button_t { CW, CCW, PUSH } button_t;
 typedef enum periph_state_t { ENGINEER_OFF, MENU, ENGINEER_ON } periph_state_t;
 
-// Rotary clockwise event
-static void rot_cw();
-
-// Rotary counterclockwise event
-static void rot_ccw();
+// Rotary change on channel A
+static void rot_change();
 
 // Rotary push event
 static void rot_push();
@@ -46,9 +43,6 @@ static void* periph_run(void *arg);
 
 static int lcd;								// LCD file descriptor
 static int buttons[3] = { 0 };				// Array of pushed buttons
-static periph_state_t state = ENGINEER_OFF;	// Current state
-static int track;							// Active track
-static int note;							// Active note
 static pthread_t thread;					// Dispatching thread
 static sem_t semaphore;						// Semaphore for synchronization
 
@@ -77,9 +71,16 @@ int periph_init() {
 		syslog(LOG_ERR, "pthread_create(): %m");
 		return -1;
 	}
+	
+	pinMode(ROT_CH_A, INPUT);
+	pinMode(ROT_CH_B, INPUT);
+	pinMode(ROT_PUSH, INPUT);
+	
+	pullUpDnControl(ROT_CH_A, PUD_UP);
+	pullUpDnControl(ROT_CH_B, PUD_UP);
+	pullUpDnControl(ROT_PUSH, PUD_DOWN);
 
-	wiringPiISR(ROT_CW, INT_EDGE_RISING, rot_cw);
-	wiringPiISR(ROT_CCW, INT_EDGE_RISING, rot_ccw);
+	wiringPiISR(ROT_CH_A, INT_EDGE_BOTH, rot_change);
 	wiringPiISR(ROT_PUSH, INT_EDGE_RISING, rot_push);
 
 	return 0;
@@ -87,32 +88,45 @@ int periph_init() {
 	// We must not destroy the semaphore because ISR threads can't be removed at this time
 }
 
-// Rotary clockwise event
+// Rotary change on channel A
 
-void rot_cw() {
-	buttons[CW] = 1;
-	sem_post(&semaphore);
-}
-
-// Rotary counterclockwise event
-
-void rot_ccw() {
-	buttons[CCW] = 1;
+static void rot_change() {
+	static int first = 1;
+	int b;
+	
+	if (first) {
+		first = 0;
+		return;
+	}
+	
+	b = digitalRead(ROT_CH_B);
+	
+	// b=1 => cw
+	
+	buttons[1 - b] = 1;
 	sem_post(&semaphore);
 }
 
 // Rotary push event
 
 void rot_push() {
-	buttons[PUSH] = 1;
-	sem_post(&semaphore);
+	static int first = 1;
+	
+	if (first) {
+		first = 0;
+	} else {
+		buttons[PUSH] = 1;
+		sem_post(&semaphore);
+	}
 }
 
 // Thread start point
 
 void* periph_run(void __attribute__((unused)) *arg) {
 	struct timespec timeout = { 0, 0 };
+	periph_state_t state = ENGINEER_OFF;
 	player_state_t plstate;
+	int track = 0, note = 0;
 	char filename[BUFFER_LENGTH];
 
 	while (1) {
@@ -184,7 +198,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			case ENGINEER_ON:
 				output_noteoff(track, note);
 
-				if (++note == OUTPUT_NTRACKS)
+				if (++track == OUTPUT_NTRACKS)
 					state = MENU;
 				else {
 					note = 0;
@@ -194,6 +208,8 @@ void* periph_run(void __attribute__((unused)) *arg) {
 		}
 
 		// Update LCD
+		
+		lcdClear(lcd);
 
 		switch (state) {
 		case ENGINEER_OFF:
