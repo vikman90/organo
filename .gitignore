@@ -1,7 +1,3 @@
-**/__pycache__/
-manager/.idea/
-mysql/*.png
-pcb/*/History
 report/*.acn
 report/*.g*
 report/*.idx
