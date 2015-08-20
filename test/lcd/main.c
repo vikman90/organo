@@ -32,7 +32,7 @@ int main() {
 	int lcd;
 	
 	wiringPiSetupGpio();
-	lcd = lcdInit(LCD_ROWS, LCD_COLS, 4, PIN_RS, PIN_ES, PIN_D7, PIN_D6, PIN_D5, PIN_D4, 0, 0, 0, 0);
+	lcd = lcdInit(LCD_ROWS, LCD_COLS, 4, PIN_RS, PIN_ES, PIN_D4, PIN_D5, PIN_D6, PIN_D7, 0, 0, 0, 0);
 
 	if (lcd < 0) {
 		fprintf(stderr, "Error en lcdInit()\n");
