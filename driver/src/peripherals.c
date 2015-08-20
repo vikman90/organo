@@ -22,9 +22,9 @@
 #define LCD_D6 8
 #define LCD_D7 25
 
-#define ROT_CH_A 18	// Clockwise
-#define ROT_CH_B 24	// Counterclockwise
-#define ROT_PUSH 23	// Button
+#define ROT_CH_A 18	// Channel A
+#define ROT_CH_B 24	// Channel B
+#define ROT_PUSH 23	// Pulsation
 
 #define TIMEOUT 1.0			// Waiting time to force LCD updating
 #define BUFFER_LENGTH 256	// Buffer to receive file path from player
@@ -92,18 +92,19 @@ int periph_init() {
 
 static void rot_change() {
 	static int first = 1;
-	int b;
+	int a, b;
 	
 	if (first) {
 		first = 0;
 		return;
 	}
 	
+	a = digitalRead(ROT_CH_A);
 	b = digitalRead(ROT_CH_B);
 	
-	// b=1 => cw
+	// a==b => CW
 	
-	buttons[1 - b] = 1;
+	buttons[a == b] = 1;
 	sem_post(&semaphore);
 }
 
