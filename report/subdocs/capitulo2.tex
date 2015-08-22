@@ -1,64 +1,80 @@
 \chapter{Requisitos técnicos del diseño}
 \label{cap:capitulo_2}
 
-En este capítulo nos centraremos en detallar los requisitos técnicos de nuestro diseño a nivel tanto
-\textit{hardware} como \textit{firmware}
+Como hemos adelantado, pretendemos diseñar un sistema autónomo capaz de hacer sonar un órgano de tubos, tal como lo haría un artista. El uso está enfocado a minimizar la interacción del usuario con el sistema. 
 
-
+Para especificar el diseño de este proyecto hemos propuesto una serie de requisitos tanto \textit{hardware} como \textit{software}:
 
 \section{Requisitos \textit{hardware}}
-A nivel \textit{hardware} se nos pide:
+
 \begin{itemize}
-\item[-] Diseñar una \acrshort{PCB} que sea capaz de realizar el control de temperatura de nuestro horno. 
-\item[-] Dotar a la \acrshort{PCB} de los dispositivos necesarios para la comunicación hombre-máquina.
-\item[-] El mecanismo de control de la temperatura ha de ser un controlador PID.
-\item[-] Los sensores de temperatura serán PT100 de cuatro hilos.
+	
+	\item[-] Un juego de mecanismos accionará las teclas, otro moverá los pedales y otro desplazará los registros de timbres.
+	
+	\item[-] El sistema no podrá acceder a la mecánica interna del instrumento, ni modificarlo de ninguna forma.
+	
+	\item[-] No podrá apoyarse demasiado peso sobre el órgano, ni hacerse contraapoyo (hacia arriba).
+	
+	\item[-] El control principal, la instalación de partituras y la configuración se harán remotamente.
+	
+	\item[-] Se proveerá un control local reducido de los accionadores con fines de puesta en marcha y mantenimiento.
+	
+	\item[-] Asímismo se facilitará el control remoto desde un mando a distancia.
+	
+	\item[-] El diseño debe ser flexible y extensible para distintos órganos.
+	
+	\item[-] Se debe de poder instalar y desinstalar fácilmente.
+	
 \end{itemize}
 
-\section{Requisitos \textit{firmware}}
-A nivel \textit{firmware} debemos realizar un programa que contenga todas las rutinas que harán que nuestro horno funcione correctamente y la configuración de todos los dispositivos conectados a la \acrshort{PCB}. Además, deberemos realizar una interfaz gráfica en Matlab que sea capaz de comunicarse con nuestro microcontrolador, de manera que sea capaz de mandar y recibir datos.
+\section{Requisitos \textit{software}}
 
+Teniendo en cuenta los requisitos \textit{hardware} y el perfil del usuario final, planteamos los siguientes requisitos para el software a diseñar:
 
+\begin{itemize}
+
+	\item[-] Se ofrecerá control remoto para todos los casos de uso a nivel de usuario.
+	
+	\item[-] La interfaz permitirá controlar la reproducción: iniciar una pieza, pausarla, reanudarla y detenerla. La reproducción por defecto será en modo bucle.
+	
+	\item[-] Facilitará la subida y gestión de partituras. En dicho gestor se mostrará la duración de cada pieza.
+	
+	\item[-] Los archivos a procesar son de formato MIDI estándar, sin perjuicio de que una partitura pueda estar adaptada espefícicamente al sistema.
+	
+	\item[-] Las piezas musicales se clasificarán en listas de reproducción.
+	
+	\item[-] La interfaz de usuario permitirá asignar dichas listas a ciertos botones del mando arriba mencionado.
+	
+	\item[-] El mando tendrá capacidad para reproducir una serie de listas preprogramadas, así como pausar y detener la reproducción.
+	
+	\item[-] El \textit{software} dará soporte al testeo de los accionadores de forma local.
+	
+	\item[-] El controlador debe ser extensible para órganos con más o menos teclas, distinto número de teclados o diferente configuración de registros.
+	
+	\item[-] La aplicación para el usuario debe ser lo más sencilla e intuitiva posible.
+	
+	\item[-] Se busca obtener una aplicación de control multiplataforma.
+	
+	\item[-] La interfaz de usuario se presentará en varios idiomas.
+	
+	\item[-] Ya que el control es remoto, se hará hincapié en la seguridad, tanto autentificación de acceso como aspectos de programación, tales como inyección de código.
+
+\end{itemize}
 
 \section{Fases del proyecto}
 
-A continuación expondremos las fases constitutivas del transcurso del proyecto, describiendo su contenido de manera generalizada.
-
-Una vez expuestas las fases, se considerarán fechas iniciales y finales para cada tarea, a fin de contemplar que alcance temporal que implica el desarrollo del proyecto al completo. Las fechas marcarán el transcurso del trabajo.
-
-\smallskip	
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.8]{capitulo2/requerimientos_3}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:requerimientos_3} Principales fases de un proyecto \cite{WIKIPED}.}
-\end{figure}
-
-
-Las diferentes fases son:
+Tal como hemos introducido anteriormente, vamos a dividir este proyecto en cuatro fases, cada una de las cuales servirá para obtener los requisitos necesarios para continuar la siguiente. Vamos a trabajar de la siguiente forma:
 
 \begin{enumerate}
- \item[-] \textbf{FASE I- Especificaciones del sistema:} realizaremos un estudio detallado de los requerimientos del sistema de caracterización. 
-
- \item[-] \textbf{FASE II- Análisis y Diseño:} en esta fase se agrupan todos los requerimientos y especificaciones de la fase anterior y se trata de concebir la composición del sistema. Consideraremos todos aquellos elementos \textit{hardware}, \textit{software} y estructurales necesarios. Analizaremos las funcionalidades de cada equipo electrónico y/o mecánico utilizado, determinando su utilidad dentro del sistema. Diseñaremos y simularemos, mediante un \textit{software} específico.
-
- \item[-] \textbf{FASE III- Desarrollo e Implementación:} se fabrica todo el componente hardware diseñado en la fase II y se le incorporan los distintos dispositivos y componentes. Una vez terminado se procede a la programación del algoritmo \glsname{PID} y, ayudándonos de algunas librerías, configuraremos los devices para su correcto funcionamiento. 
-
- \item[-] \textbf{FASE IV- Testeo y Validación:} una vez se ha concluido el proceso de fabricación e implementación, solo queda validar el funcionamiento global del conjunto, resolviendo defectos y anomalías \textit{hardware} y también depurando fallos \textit{software} y aportando algunas mejoras puntuales. Tras esto, la obtención de datos y resultados.
+	\item[-] \textbf{FASE I - Análisis:} Vamos a estudiar todos los componentes a los que tenemos acceso, desde el órgano hasta la placa de circuito y el computador a utilizar, pasando por la especificación del formato MIDI.
+	
+	\item[-] \textbf{FASE II - Diseño:} En esta fase reunimos las especificaciones del sistema y los requisitos propuestos para definir el sistema que vamos a concebir, desde la interfaz al usuario hasta la interacción con el hardware.
+	
+	\item[-] \textbf{FASE III - Implementación:} Es la etapa en la que se programa el \textit{software} a partir del diseño de la fase precedente, y prestaremos atención a los detalles de bajo nivel que se nos presentarán, desde llamadas al sistema y acceso a los periféricos hasta control de concurrencia.
+	
+	\item[-] \textbf{FASE IV - Verificación y validación:} Una vez terminada la fase de implementación, pondremos en funcionamiento el sistema para verificar que tanto el \textit{hardware} como el \textit{software} se integran correctamente y cumplen con los requisitos propuestos.
+	
 \end{enumerate}
-
-
-\smallskip	
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.5]{capitulo2/requerimientos_2}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:fases_proy_step} Analogía de fases.}
-\end{figure}
-
 
 \clearpage{\cleardoublepage}
 \clearpage{\pagestyle{empty}\cleardoublepage}
-
