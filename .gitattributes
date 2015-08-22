@@ -1,0 +1,5 @@
+installer/* eol=lf
+manager/**/*.php eol=lf
+manager/scripts/*.js eol=lf
+manager/styles/*.css eol=lf
+manager/translations/*.xml eol=lf
