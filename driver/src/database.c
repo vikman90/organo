@@ -8,12 +8,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <mysql/mysql.h>
-
-static const char DB_HOST[] = "localhost";
-static const char DB_USER[] = "organo";
-static const char DB_PASS[] = "ugr2015";
-static const char DB_NAME[] = "organo";
-static const char SCORE_HOME[] = "/home/pi/midis/";
+#include "values.h"
 
 static MYSQL *conn;
 

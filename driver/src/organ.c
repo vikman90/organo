@@ -13,16 +13,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include "values.h"
 
-#define BUFFER_LENGTH 256
-
-static const char SOCKET_PATH[] = "/run/organd.sock";
 static const char SYNTAX_FMT[] = "Sintaxis: %s play[loop] <archivo> | pause | resume | stop | status\n";
 
 int main(int argc, char **argv) {
-	int sock, n;
+	int sock, n, fd;
 	struct sockaddr_un addr;
 	char buffer[BUFFER_LENGTH];
+	char path[BUFFER_LENGTH];
 
 	if (argc < 2) {
 		fprintf(stderr, SYNTAX_FMT, *argv);
@@ -45,9 +44,6 @@ int main(int argc, char **argv) {
 	}
 
 	if (!strncmp(argv[1], "play", 4)) {
-		int fd;
-		char path[BUFFER_LENGTH];
-
 		if (argc < 3) {
 			fprintf(stderr, SYNTAX_FMT, *argv);
 			return EXIT_FAILURE;

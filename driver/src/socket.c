@@ -15,11 +15,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "player.h"
-
-#define BUFFER_LENGTH 4096	// Length of receiving buffer
-#define BACKLOG 5			// Listening queue length
-
-static const char SOCKET_PATH[] = "/run/organd.sock";	// Path for socket file
+#include "values.h"
 
 static int sock = -1;
 static char buffer[BUFFER_LENGTH];
@@ -58,7 +54,7 @@ int socket_init(int uid, int gid) {
 		return -1;
 	}
 
-	if (listen(sock, BACKLOG)) {
+	if (listen(sock, SOCKET_BACKLOG)) {
 		syslog(LOG_ERR, "listen(): %m");
 		return -1;
 	}

@@ -17,12 +17,7 @@
 #include <stdio.h>
 #include "player.h"
 #include "database.h"
-
-#define BAUD_RATE B9600
-#define BUFFER_MAX 10
-#define BUFFER_MIN 10
-
-static const char UART_PATH[] = "/dev/ttyAMA0";
+#include "values.h"
 
 static struct termios oldtio;
 static int tty = -1;
@@ -51,8 +46,8 @@ int uart_init() {
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
 	termios.c_cflag = CS8 | CLOCAL | CREAD;
-	termios.c_cc[VMIN] = BUFFER_MIN;
-	cfsetispeed(&termios, BAUD_RATE);
+	termios.c_cc[VMIN] = UART_BUFFER_MIN;
+	cfsetispeed(&termios, UART_BAUDRATE);
 	tcsetattr(tty, TCSANOW, &termios);
 	tcflush(tty, TCIFLUSH);
 
@@ -76,10 +71,10 @@ int uart_loop() {
 // Thread entry point
 
 void* uart_run(void __attribute__((unused)) *arg) {
-	char buffer[BUFFER_MAX + 1] = { 0 };
+	char buffer[UART_BUFFER_MAX];
 
 	while (1) {
-		int n = read(tty, buffer, BUFFER_MAX);
+		int n = read(tty, buffer, UART_BUFFER_MAX);
 
 		if (n < 0) {
 			syslog(LOG_ERR, "read(): %m");

@@ -12,22 +12,7 @@
 #include <semaphore.h>
 #include "player.h"
 #include "gpio.h"
-
-#define LCD_ROWS 4
-#define LCD_COLS 20
-#define LCD_RS 20
-#define LCD_ES 16
-#define LCD_D4 12
-#define LCD_D5 7
-#define LCD_D6 8
-#define LCD_D7 25
-
-#define ROT_CH_A 18	// Channel A
-#define ROT_CH_B 24	// Channel B
-#define ROT_PUSH 23	// Pulsation
-
-#define TIMEOUT 1.0			// Waiting time to force LCD updating
-#define BUFFER_LENGTH 256	// Buffer to receive file path from player
+#include "values.h"
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
 typedef enum periph_state_t { ENGINEER_OFF, MENU, ENGINEER_ON } periph_state_t;
@@ -256,8 +241,8 @@ void* periph_run(void __attribute__((unused)) *arg) {
 		// Wait one second
 
 		clock_gettime(CLOCK_REALTIME, &timeout);
-		timeout.tv_sec += (int)TIMEOUT;
-		timeout.tv_nsec += (int)((TIMEOUT - (int)TIMEOUT) * 1000000000);
+		timeout.tv_sec += (int)LCD_TIMEOUT;
+		timeout.tv_nsec += (int)((LCD_TIMEOUT - (int)LCD_TIMEOUT) * 1000000000);
 		sem_timedwait(&semaphore, &timeout);
 	}
 	
