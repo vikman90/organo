@@ -9,21 +9,21 @@ Para especificar el diseño de este proyecto hemos propuesto una serie de requis
 
 \begin{itemize}
 	
-	\item[-] Un juego de mecanismos accionará las teclas, otro moverá los pedales y otro desplazará los registros de timbres.
+	\item Un juego de mecanismos accionará las teclas, otro moverá los pedales y otro desplazará los registros de timbres.
 	
-	\item[-] El sistema no podrá acceder a la mecánica interna del instrumento, ni modificarlo de ninguna forma.
+	\item El sistema no podrá acceder a la mecánica interna del instrumento, ni modificarlo de ninguna forma.
 	
-	\item[-] No podrá apoyarse demasiado peso sobre el órgano, ni hacerse contraapoyo (hacia arriba).
+	\item No podrá apoyarse demasiado peso sobre el órgano, ni hacerse contraapoyo (hacia arriba).
 	
-	\item[-] El control principal, la instalación de partituras y la configuración se harán remotamente.
+	\item El control principal, la instalación de partituras y la configuración se harán remotamente.
 	
-	\item[-] Se proveerá un control local reducido de los accionadores con fines de puesta en marcha y mantenimiento.
+	\item Se proveerá un control local reducido de los accionadores con fines de puesta en marcha y mantenimiento.
 	
-	\item[-] Asímismo se facilitará el control remoto desde un mando a distancia.
+	\item Asímismo se facilitará el control remoto desde un mando a distancia.
 	
-	\item[-] El diseño debe ser flexible y extensible para distintos órganos.
+	\item El diseño debe ser flexible y extensible para distintos órganos.
 	
-	\item[-] Se debe de poder instalar y desinstalar fácilmente.
+	\item Se debe de poder instalar y desinstalar fácilmente.
 	
 \end{itemize}
 
@@ -33,31 +33,31 @@ Teniendo en cuenta los requisitos \textit{hardware} y el perfil del usuario fina
 
 \begin{itemize}
 
-	\item[-] Se ofrecerá control remoto para todos los casos de uso a nivel de usuario.
+	\item Se ofrecerá control remoto para todos los casos de uso a nivel de usuario.
 	
-	\item[-] La interfaz permitirá controlar la reproducción: iniciar una pieza, pausarla, reanudarla y detenerla. La reproducción por defecto será en modo bucle.
+	\item La interfaz permitirá controlar la reproducción: iniciar una pieza, pausarla, reanudarla y detenerla. La reproducción por defecto será en modo bucle.
 	
-	\item[-] Facilitará la subida y gestión de partituras. En dicho gestor se mostrará la duración de cada pieza.
+	\item Facilitará la subida y gestión de partituras. En dicho gestor se mostrará la duración de cada pieza.
 	
-	\item[-] Los archivos a procesar son de formato MIDI estándar, sin perjuicio de que una partitura pueda estar adaptada espefícicamente al sistema.
+	\item Los archivos a procesar son de formato MIDI estándar, sin perjuicio de que una partitura pueda estar adaptada espefícicamente al sistema.
 	
-	\item[-] Las piezas musicales se clasificarán en listas de reproducción.
+	\item Las piezas musicales se clasificarán en listas de reproducción.
 	
-	\item[-] La interfaz de usuario permitirá asignar dichas listas a ciertos botones del mando arriba mencionado.
+	\item La interfaz de usuario permitirá asignar dichas listas a ciertos botones del mando arriba mencionado.
 	
-	\item[-] El mando tendrá capacidad para reproducir una serie de listas preprogramadas, así como pausar y detener la reproducción.
+	\item El mando tendrá capacidad para reproducir una serie de listas preprogramadas, así como pausar y detener la reproducción.
 	
-	\item[-] El \textit{software} dará soporte al testeo de los accionadores de forma local.
+	\item El \textit{software} dará soporte al testeo de los accionadores de forma local.
 	
-	\item[-] El controlador debe ser extensible para órganos con más o menos teclas, distinto número de teclados o diferente configuración de registros.
+	\item El controlador debe ser extensible para órganos con más o menos teclas, distinto número de teclados o diferente configuración de registros.
 	
-	\item[-] La aplicación para el usuario debe ser lo más sencilla e intuitiva posible.
+	\item La aplicación para el usuario debe ser lo más sencilla e intuitiva posible.
 	
-	\item[-] Se busca obtener una aplicación de control multiplataforma.
+	\item Se busca obtener una aplicación de control multiplataforma.
 	
-	\item[-] La interfaz de usuario se presentará en varios idiomas.
+	\item La interfaz de usuario se presentará en varios idiomas.
 	
-	\item[-] Ya que el control es remoto, se hará hincapié en la seguridad, tanto autentificación de acceso como aspectos de programación, tales como inyección de código.
+	\item Ya que el control es remoto, se hará hincapié en la seguridad, tanto autentificación de acceso como aspectos de programación, tales como inyección de código.
 
 \end{itemize}
 
@@ -66,13 +66,13 @@ Teniendo en cuenta los requisitos \textit{hardware} y el perfil del usuario fina
 Tal como hemos introducido anteriormente, vamos a dividir este proyecto en cuatro fases, cada una de las cuales servirá para obtener los requisitos necesarios para continuar la siguiente. Vamos a trabajar de la siguiente forma:
 
 \begin{enumerate}
-	\item[-] \textbf{FASE I - Análisis:} Vamos a estudiar todos los componentes a los que tenemos acceso, desde el órgano hasta la placa de circuito y el computador a utilizar, pasando por la especificación del formato MIDI.
+	\item \textbf{FASE I \textemdash Análisis:} Vamos a estudiar todos los componentes a los que tenemos acceso, desde el órgano hasta la placa de circuito y el computador a utilizar, pasando por la especificación del formato MIDI.
 	
-	\item[-] \textbf{FASE II - Diseño:} En esta fase reunimos las especificaciones del sistema y los requisitos propuestos para definir el sistema que vamos a concebir, desde la interfaz al usuario hasta la interacción con el hardware.
+	\item \textbf{FASE II \textemdash Diseño:} En esta fase reunimos las especificaciones del sistema y los requisitos propuestos para definir el sistema que vamos a concebir, desde la interfaz al usuario hasta la interacción con el hardware.
 	
-	\item[-] \textbf{FASE III - Implementación:} Es la etapa en la que se programa el \textit{software} a partir del diseño de la fase precedente, y prestaremos atención a los detalles de bajo nivel que se nos presentarán, desde llamadas al sistema y acceso a los periféricos hasta control de concurrencia.
+	\item \textbf{FASE III \textemdash Implementación:} Es la etapa en la que se programa el \textit{software} a partir del diseño de la fase precedente, y prestaremos atención a los detalles de bajo nivel que se nos presentarán, desde llamadas al sistema y acceso a los periféricos hasta control de concurrencia.
 	
-	\item[-] \textbf{FASE IV - Verificación y validación:} Una vez terminada la fase de implementación, pondremos en funcionamiento el sistema para verificar que tanto el \textit{hardware} como el \textit{software} se integran correctamente y cumplen con los requisitos propuestos.
+	\item \textbf{FASE IV \textemdash Verificación y validación:} Una vez terminada la fase de implementación, pondremos en funcionamiento el sistema para verificar que tanto el \textit{hardware} como el \textit{software} se integran correctamente y cumplen con los requisitos propuestos.
 	
 \end{enumerate}
 

@@ -16,7 +16,7 @@ report/*.ilg
 report/*.ind
 report/*.lof
 report/*.lot
-report/*.pdf
+report/pfc_amroldan.pdf
 report/*.alg
 report/*.tps
 report/*.ist
