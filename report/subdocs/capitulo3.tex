@@ -1,108 +1,252 @@
 
 \chapter{Análisis del sistema.}
 \label{cap:capitulo_3}
-En este capítulo se detallará la fase de análisis del proyecto, partiendo de los requisitos técnicos explicados en el capítulo \ref{cap:capitulo_2}. Se detallarán las distintas opciones de diseño y los problemas y soluciones que han ido apareciendo a lo largo del proyecto.
 
-\section{Análisis del horno}
-La figura XXXXX muestra el diagrama de nuestro horno con los elementos más importantes. EL horno está controlado principalmente por el termostato que se encargará de encender/apagar el relé que permite el paso de corriente hacia las resistencias que calientan el horno. 
-A continuación se dará una explicación más detallada de los distintos componentes.
+En este capítulo vamos a detallar el funcionamiento todos los elementos analizados y utilizados para la elaboración del proyecto.
 
-\subsection{Termostato}
+\section{Órgano de la Parroquia de la Encarnación}
 
-Un termostato es un componente de un sistema de control que comprueba la temperatura de un sistema de manera que mantiene la temperatura de dicho sistema cercana a una consigna. El termostato consigue esto mediante el calentamiento o enfriamiento de dispositivos en on o off. En nuestro caso, mediante el calentamiento de unas resistencias que cederán calor al interior del horno. 
+El instrumento instalado en la Parroquia de la Encarnación de Santa Fe es en realidad un doble órgano artesanal construido en dos fases: un órgano barroco, al que se agregó una extensión romántica con un segundo teclado y nuevos sonidos, pero todo el mecanismo es independiente del primer órgano.
 
-\smallskip	
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.1]{capitulo3/termostato}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:termostato} Termostato.}
-\end{figure}
+Para funcionar, el órgano se alimenta de aire. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien follando mientras el organista tocaba. Hoy día el fuelle ha sido sustituído por una bomba eléctrica.
 
+Los entresijos del órgano barroco, el más grande, está construidos en dos plantas: en la parte más baja, a la altura de la consola, encontramos los juegos de palancas, de las cuales aquellas pertenecientes al órgano barroco suben a la planta superior. A sendos laterales encontramos el corazón del órgano romántico, más pequeño.
 
-\subsection{Termistor}
-Un termistor es un dispositivo que cambia su impedancia dependiendo de la temperatura.
+En la planta de arriba se encuentra la esencia del instrumento: alrededor de 600 tubos de diferentes timbres y alturas sonoras, incluyendo el \textit{bajo de contrast}, que se hace sonar con el \textit{pedalier}. Solo los diapasones ---los flautados de 13' fundamentales y las cornetas--- son visibles desde el exterior. 
 
-La impedancia del termistor es leída por un sistema de control, usualmente basado en un microcontrolador, que es programado para realizar diferentes operaciones a determinadas temperaturas.
-Dicha temperatura la veremos reflejada en un termómetro de mercurio situado en la parte frontal del horno.
+La parte más importante del órgano es el llamado \textit{secreto}, una galería a la que entra el aire procedente de la cámara de almacenamiento y se distribuye en cientos de conductos que llevan a las válvulas y los tubos. En tiempos en los que no existían los manguitos de goma, los conductos están tallados artesanalmente dentro de bloques de madera.
 
-\hfill
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.3]{capitulo3/termistor}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:termistor} Termistor.}
-\end{figure}
+La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y diseñar el modelo en 3D con el software SolidWorks.
+
+\subsection{Teclados}
+
+Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondiente al órgano barroco, y otro más abajo, que sobresale del primero, para el órgano romántico, de la misma extensión. 
+
+Tanto las medidas de cada tecla como su calado (diferencia entre la posición del borde de una tecla pulsada y sin pulsar) son estándar y coincidentes con las del piano. De la misma forma, la tecla \textit{Do} del centro hace sonar la nota \textit{Do-4} \footnotemark.
+
+\footnotetext{En España se utilizan dos índices de notación musical: el franco-belga, que asigna el nombre \textit{La-3} a la nota cuya frecuencia fundamental vibra a 440 \textit{Hz}, y el índice científico, que asigna \textit{La-4} a la misma nota. En este proyecto utilizaremos el índice científico, ya que es el utilizado para el sistema MIDI.}
+
+Los datos más relevantes son los siguientes:
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Número de teclas & 49 / teclado \\
+		\hline Extensión & \textit{Do-2} -- \textit{Do-6} \\
+		\hline Profundidad de calado (blancas) & 10 \textit{mm} \\
+		\hline Profundidad de calado (negras) & 8 \textit{mm} \\
+		\hline Presión máxima & 2,70 \textit{N} \\
+		\hline
+	\end{tabular}
+\end{center}
+
+Cabe destacar que, a diferencia del piano, la intensidad del sonido no viene dada por la fuerza con la que se pulse una tecla, y no es necesario pulsarla hasta el tope de calado para que suene, basta con hacerla bajar tan solo unos milímetros, lo necesario para vencer la válvula.
+
+\subsection{Pedales}
+
+Este órgano cuenta con un \textit{pedalier} con un registro fijo: el \textit{bajo de contrast}. Los pedales están dispuestos en forma de escala diatónica, igual que las teclas. Cada pedal tiene aproximadamente la misma anchura que una tecla aunque, obviamente, están más separados unos de otros. 
+
+Es importante saber que el peso necesario para mover un pedal es mucho mayor que para una tecla, asimismo, tanto la naturaleza artesanal como el deterioro crean mucha disparidad entre el tacto de cada pedal.
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Número de pedales & 12 \\ 
+		\hline Extensión & \textit{Do-1} -- \textit{Si-1} \\ 
+		\hline Profundidad de calado (diatónicas) & 14,5 \textit{mm} \\ 
+		\hline Profundidad de calado (cromáticas) & 19,8 \textit{mm} \\
+		\hline Presión máxima & 30,54 \textit{N} \\
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsection{Registros}
+
+Los registros son las diferentes familias de tubos con el mismo timbre y la misma tesitura. Se pueden abrir o cerrar desde la consola a través de una serie de palancas, de las que se tira para hacer sonar el registro o se empuja para silenciarlo.
+
+Estos controles están dispuestos a ambos lados de los teclados y son exclusivos para un teclado u otro. En este órgano existen registros parciales, esto es, se aplican solo a una mitad del teclado, bien de \textit{Do-2} a \textit{Si-3}, o bien de \textit{Do-4} a \textit{Do-6}.
+
+Dado que el punto interno de equilibro de cada palanca está en lugares diferentes, existe una notable disparidad en la medida en que sobresalen cuando se abren. Además, tenemos una palanca especial, el \textit{tremolo}, que sirve para activar un mecanismo que produce un efecto de fluctuación en el sonido.
+
+A continuación mostramos las medidas de longitud y fuerza tomadas durante el análisis.
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{2}{|c|}{\textbf{A la izquierda}} \\	
+		\hline & Bajoncillo (142 \textit{mm}) \\ 
+		\hline & Flautado de 13' sordina (160 \textit{mm}) \\ 
+		\hline & Flautado de 13' (175 \textit{mm})\\ 
+		\hline & Octava (161 \textit{mm}) \\ 
+		\hline & Quincena (161 \textit{mm}) \\ 
+		\hline Trémolo (67 \textit{mm}) & Decimonovena (165 \textit{mm}) \\ 
+		\hline Bajón-oboe (103 \textit{mm}) & Lleno (140 \textit{mm})  \\ 
+		\hline Flauta armenia (1106 \textit{mm}) & Clarín (160 \textit{mm}) \\ 
+		\hline  Violón (100 \textit{mm}) & Trompeta real (144 \textit{mm})  \\ 
+		\hline
+	\end{tabular}
 	
- 
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{2}{|c|}{\textbf{A la derecha}} \\
+		\hline Clarín (170 \textit{mm}) &  \\ 
+		\hline Corneta (141 \textit{mm}) &  \\ 
+		\hline Flautado de 13' sordina (137 \textit{mm}) &  \\ 
+		\hline Flautado de 13' (134 \textit{mm}) &  \\ 
+		\hline Octava & (142 \textit{mm}) \\ 
+		\hline Docena & (142 \textit{mm}) \\ 
+		\hline Quincena & (168 \textit{mm}) \\ 
+		\hline Lleno (156 \textit{mm}) & Voz humana (110 \textit{mm}) \\ 
+		\hline Clarín (142 \textit{mm}) & Voz celeste (116 \textit{mm}) \\ 
+		\hline Trompeta real (135 \textit{mm}) & Gamba (102 \textit{mm}) \\ 
+		\hline 
+	\end{tabular}
+\end{center}
 
-
-\subsection{Relé}
-Un relé es un dispositivo electromecánico que mediante una bobina y un electroimán acciona uno o varios contactos que permitirán la apertura o el cierre de otros circuitos eléctricos independientes. En nuestro caso, permitirá el paso de la corriente que calentará por efecto Joule las resistencias que cederán energía en forma de calor al horno.
-
-\smallskip	
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.8]{capitulo3/rele}
-\par\end{centering}
 \smallskip
-\caption{\label{fig:rele} Relé multi9 CT.}
-\end{figure}
 
-Este rele tiene un voltaje de operación de 250 V AC y 25 A. Y su esquemático lo podemos ver a continuación en la figura \ref{fig:esquema_rele}\cite{multi9}.
+\section{PCB de control}
 
-\smallskip	
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.8]{capitulo3/esquema_rele}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:esquema_rele}Esquema relé de dos puertas.}
-\end{figure}
+La placa de circuito impreso es la solución a los requisitos hardware aportada por el proyecto de D. Mikel Aguayo Fernández. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un prototipo de la placa con un número limitado de salidas.
 
-\subsection{Fusibles}
-Los fusibles son pequeños dispositivos que permiten el paso constante de la corriente eléctrica hasta que ésta supera el valor máximo permitido. Cuando aquello sucede, entonces el fusible, inmediatamente, cortará el paso de la corriente eléctrica a fin de evitar algún tipo de accidente, protegiendo los aparatos eléctricos de "quemarse" o estropearse..
+Una de las partes más importantes de este proyecto será desarrollar el \textit{software} controlador para esta PCB. A continuación detallamos aquellos componentes con los que tendremos que interactuar.
 
-El mecanismo que posee el fusible para cortar el paso de la electricidad consta básicamente en que, una vez superado el valor establecido de corriente permitido, el dispositivo se derrite, abriendo el circuito, lo que permite el corte de la electricidad. De no existir este mecanismo, o debido a su mal funcionamiento, el sistema se recalentaría a tal grado que podría causar, incluso, un incendio.
+\subsection{Registros de desplazamiento SN74HC595}
 
-						
-\begin{figure}[H]%here
-\noindent \begin{centering}
-\includegraphics[scale=0.2]{capitulo3/fusible}
-\par\end{centering}
-\smallskip
-\caption{\label{fig:fusible} Fusible.}
-\end{figure}
+Los registros de desplazamiento son circuitos lógicos que almacenan una serie de bits y permiten desplazarlos de una celda a otra. Este modelo tiene una capacidad de 8 bits, soporta entrada en serie y salida en paralelo con registro de almacenamiento. Así, solo necesitamos un pin para enviar toda la información, y la salida no se ve alterada durante el desplazamiento, sino que damos un pulso de reloj para indicar que hemos terminado de enviar los datos.
 
-El fusible incorporado en el horno tiene las siguientes características: 
+\begin{center}
+		\begin{tabular}{|l|l|}
+		\hline Capacidad & 8 \textit{bits} / canal \\ 
+		\hline Canales & 4 \\ 
+		\hline Ancho de pulso & 100 ns \\ 
+		\hline 
+	\end{tabular}
+\end{center}
+
+Basándonos en el órgano de la Parroquia de Santa Fe, tendremos cuatro registros de desplazamiento, uno para cada canal:
 
 \begin{itemize}
-\item Soplado de acción rápida.
-\item Capacidad de ruptura de intensidad AC de 100 kA.
-\item Intensidad de 6 A.
-\item Tensión nominanl de 600V.
+	\item Canal 1: teclado barroco.
+	\item Canal 2: teclado romántico.
+	\item Canal 3: registros.
+	\item Canal 4: pedalier.
 \end{itemize}
 
+A pesar de que la capacidad de cada canal es de 8 bits, solo utilizaremos 7 de ellos.
 
+\subsection{Receptor de mando a distancia HIRK-433A}
 
-\section{Modificaciones del horno}
-En primer lugar empezaremos analizando que módificaciones serán necesarias en el horno. 
-
-Ya hemos visto cómo funciona, y vimos que el control del encendido y apagado para el calentamiento lo lleva a cabo el termostato. Nosotros queremos controlar todo desde una \acrshort{PCB} controlada por un microcontrolador, por lo que tendremos que quitar el termostato de manera que desde la \acrshort{PCB} podamos seguir controlando el horno. La solución que se llevó a cabo fue la de realizar un \textit{bypass} al termostato de manera que no tenga ningún control sobre nuestro horno.
-
-El termostato controla un relé que es el que hace que se circule o no la corriente hacia las resistencias que calientan el horno. Al usar un control \glsname{PID}, controlaremos el horno con una señal \acrshort{PWM}. 
-
-Las señales \acrshort{PWM} cambian de alta a baja en periodos de tiempo muy pequeños. Al ser el relé un elemento de conmutación mecánica, el cambio de estado tan rápido a la larga hara que se rompa. Por lo que se opta por quitarlo y hacer ese cambio de estado ON/OFF mediante un optotriac que irá incorporado en la \acrshort{PCB}.
-
-\section{Localización de la \acrshort{PCB}}
-Disponemos de varias opciones donde colocar la \acrshort{PCB}, aunque no se tomará ninguna decisión hasta que no tengamos la \acrshort{PCB} fabricada.
+El receptor de mando a distancia es un detector de radio con decodificador a interfaz RS-232. Nos da la información del número de serie del mando y qué botones han disparado el evento. Es flexible para mandos con distinto número de botones y los indica como un campo de bits basados en la letra A. Si el carácter corresponde a una minúscula, nos avisa de que el mando tiene poca batería. Por ejemplo:
 
 \begin{itemize}
-\item Parte superior del horno.
-\item Lateral del horno.
-\item Interior del horno abriendo agujeros para que sean accesibles los dispositivos de comunicación hombre-máquina.
+	\item \textbf{A}: Botón 1.
+	\item \textbf{B}: Botón 2.
+	\item \textbf{C}: Botones 1 y 2.
+	\item \textbf{d}: Botón 3 (batería baja).
+	\item \textbf{H}: Botón 4.
 \end{itemize}
 
+La siguiente tabla muestra los datos de nuestro interés:
 
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Interfaz & RS-232 \\
+		\hline Velocidad & 9600 \textit{baudios} \\ 
+		\hline Longitud de trama & 10 \textit{bytes} \\ 
+		\hline Sintaxis & <Nº serie (7 \textit{bytes})> <Botón (1 \textit{byte})> <CRLF> \\ 
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsection{Pantalla LCD FDCC2004B}
+
+Esta pantalla es un LCD genérico basado en el Hitachi HD44780, considerado un estándar \textit{de facto} para este tipo de dispositivos. Tiene una pequeña memoria para almacenar el estado (no hay que enviar continuamente la información), tiene los caracteres ASCII predefinidos y tiene capacidad para configurar hasta 8 caracteres especiales.
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Tipo & LCD retroiluminado \\ 
+		\hline Filas & 4 \\ 
+		\hline Columnas & 20 \\ 
+		\hline Dimensión de celda & 5 x 8 \textit{pixels} \\ 
+		\hline Caracteres especiales & 8 \\ 
+		\hline 
+	\end{tabular} 
+\end{center} 
+
+\subsection{Codificador rotatorio EC11J}
+
+Este modelo de codificador contiene un botón giratorio y pulsable. La información nos viene dada por tres canales: uno para el pulsador y dos para la rotación. A medida que rotamos el botón, A y B oscilan produciendo una señal cuadrada que viene desfasada 90\textdegree. 
+
+Los puntos de equilibro ---\textit{detent stability points}--- coinciden con los saltos del canal B, de forma que a la mitad del recorrido de un giro cambiará el canal A. Todo lo que tenemos que hacer entonces es detectar un cambio en A y comparar el valor de A y B: si son iguales, significa que se ha rotado en sentido antihorario; si son distintos, entendemos que se ha girado en sentido horario.
+
+\section{SBC Rasberry Pi B+}
+
+El \textit{Raspberry Pi} es un ordenador de placa única ---SBC (\textit{single board computer})---, más potente que un microcontrolador y con sistema operativo basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \textit{SSH}. 
+
+El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que integra microprocesador, memoria y periféricos principales. El modelo escogido, \textit{B+}, posee numerosos pines de entrada y salida de propósito general (\textit{GPIO}), que utilizaremos para interactuar con la \textit{PCB} y para ser alimentado por ésta.
+
+\subsection{Especificaciones técnicas}
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Modelo & Raspberry Pi B+ v1.2 \\
+		\hline SoC & Broadcom BCM2835 \\
+		\hline Procesador & ARM 1176JZF-S @ 700 \textit{MHz} \\
+		\hline Repertorio de instrucciones & ARMv6 (\textit{RISC} 32-\textit{bit}) \\
+		\hline Memoria & 512 \textit{MB} @ 400 \textit{MHz} \\
+		\hline Procesador gráfico & Broadcom VideoCore IV \\ 		
+		\hline Almacenamiento & \textit{MicroSD} 8 \textit{GB} \textit{class 10} \\
+		\hline Salida de vídeo & \textit{HDMI} \\
+		\hline Salida de audio & \textit{Jack} 3.5 \textit{mm}, \textit{HDMI} \\
+		\hline Conectividad USB & 4 x \textit{USB 2.0} \\
+		\hline Conectividad de red & \textit{Ethernet} 100 \textit{Mbit/s} \\
+		\hline Periféricos & 28x\textit{GPIO}, \textit{UART}, \textit{I\textsuperscript{2}C}, \textit{SPI} \\ 
+		\hline Alimentación & 5V \textit{Micro-USB} o \textit{GPIO} \\
+		\hline Consumo máximo & 1.8 \textit{A} (9 \textit{W}) \\ 
+		\hline Sistema operativo & Raspbian (Linux 3.8) \\
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsection{Pines de E/S}
+
+Como hemos adelantado, la \textit{PCB} se conectará al \textit{Raspberry} a través de los conectores \textit{GPIO}. Todos ellos se utilizarán de forma genérica, excepto el receptor del mando a distancia, que se comunica con la interfaz \textit{RS-232} y debe conectarse al \textit{UART} mediante el pin dedicado a tal periférico.
+
+La asignación de pines es la que sigue:
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{2}{|c|}{\textbf{Registros de desplazamiento}} \\
+		\hline S1 (teclado barroco) & GPIO 02 \\ 
+		\hline S2 (teclado romántico) & GPIO 03 \\ 
+		\hline S3 (registros) & GPIO 04 \\ 
+		\hline S4 (\textit{pedalier}) & GPIO 17 \\ 
+		\hline RCLK (almacenamiento) & GPIO 27 \\ 
+		\hline SRCLK (desplazamiento) & GPIO 22 \\ 
+		\hline \multicolumn{2}{|c|}{\textbf{Receptor de radio}} \\
+		\hline O/P-AF (datos) & GPIO 15 (RDX) \\ 
+		\hline \multicolumn{2}{|c|}{\textbf{Pantalla LCD}} \\
+		\hline DB4 (línea 4 del bus) & GPIO 12 \\ 
+		\hline DB5 (línea 5 del bus) & GPIO 07 \\ 
+		\hline DB6 (línea 6 del bus) & GPIO 08 \\ 
+		\hline DB7 (línea 7 del bus) & GPIO 25 \\
+		\hline RS (selección de registro) & GPIO 20 \\ 
+		\hline ES (habilitación de señal) & GPIO 16 \\ 
+		\hline \multicolumn{2}{|c|}{\textbf{Codificador rotatorio}} \\
+		\hline Canal A (rotación) & GPIO 18 \\ 
+		\hline Canal B (rotación) & GPIO 24 \\ 
+		\hline Pulsación & GPIO 23 \\ 
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsection{Sistema operativo}
+
+A pesar de su reducido tamaño, \textit{Raspberry Pi} no es un microcontrolador, sino un microcomputador, con una cantidad notable de recursos \textit{hardware} y potencia de cálculo suficiente para albergar múltiples procesos funcionando concurrentemente. Esto hace necesario el uso de un sistema operativo.
+
+Podemos encontrar varios sistemas operativos compatibles con este computador, pero nosotros vamos a utilizar el sistema oficial, \textit{Raspbian}, una distribución basada en \textit{Debian}, que incorpora el núcleo \textit{GNU/Linux} para la plataforma \textit{ARMv6}.
+
+La introducción de un sistema operativo flexibiliza enormemente la gestión de los recursos hardware de un ordenador y garantiza la convivencia equitativa de todos los procesos. Por contra, esto significa que ninguna aplicación podrá utilizar la \textit{CPU} a tiempo completo, ni se garantiza tiempo-real.
+
+El \textit{BCM2835} posee un temporizador de 1 \textit{MHz}. Naturalmente, es inviable ofrecer una granularidad temporal tan fina al planificador; así, éste es llamado cada 10.000 \textit{ticks}, es decir, cada 10 \textit{ms}. Esto garantiza un uso adecuado de los recursos \textit{software} al tiempo que hace imposible realizar comunicaciones síncronas a alta velocidad mediante programación.
+
+Además, la versión utilizada del núcleo \textit{Linux} es apropiativa ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
+
+En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
