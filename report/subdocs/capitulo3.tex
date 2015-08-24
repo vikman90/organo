@@ -176,7 +176,7 @@ Este modelo de codificador contiene un botón giratorio y pulsable. La informaci
 
 Los puntos de equilibro ---\textit{detent stability points}--- coinciden con los saltos del canal B, de forma que a la mitad del recorrido de un giro cambiará el canal A. Todo lo que tenemos que hacer entonces es detectar un cambio en A y comparar el valor de A y B: si son iguales, significa que se ha rotado en sentido antihorario; si son distintos, entendemos que se ha girado en sentido horario.
 
-\section{SBC Rasberry Pi B+}
+\section{SBC Rasberry Pi}
 
 El \textit{Raspberry Pi} es un ordenador de placa única ---SBC (\textit{single board computer})---, más potente que un microcontrolador y con sistema operativo basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \textit{SSH}. 
 
@@ -250,3 +250,131 @@ El \textit{BCM2835} posee un temporizador de 1 \textit{MHz}. Naturalmente, es in
 Además, la versión utilizada del núcleo \textit{Linux} es apropiativa ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
 
 En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
+
+\section{Formato de archivo MIDI}
+
+El estándar \textit{MIDI} es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales.
+
+Los datos de entrada a nuestro sistema consisten en archivos \textit{MIDI}, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de bloques ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textit{big-endian}, detalle a tener en cuenta, ya que tanto la arquitectura \textit{x86} como \textit{ARM} trabajan en \textit{little-endian}.
+
+\subsection{Bloque de cabecera}
+
+El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e incluye la siguiente información:
+
+\begin{center}
+	\begin{tabular}{|l|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
+		\hline 4 bytes & Firma & "MThd" \\ 
+		\hline 4 bytes & Tamaño & 6 \\ 
+		\hline 2 bytes & Formato & 0--2 \\ 
+		\hline 2 bytes & Número de pistas & 1--65535 \\ 
+		\hline 2 bytes & División de tiempo &  \\ 
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\begin{description}
+	\item[Formato] Es la forma en que se organizan las pistas. Puede ser:
+	\begin{description}
+		\item[0] Una sola pista.
+		\item[1] Varias pistas, simultáneas.
+		\item[2] Varias pistas, independientes.
+	\end{description}
+	
+	\item[Número de pistas] Indica de cuántas pistas se compone el archivo. Obviamente, si el formato es 0, el valor de este campo será 1.
+	
+	\item[División de tiempo] Nos indica el significado de cada \textit{tick} de reloj del protocolo como divisiones de una negra (\quarternote). Valores típicos son 96, 120, 180, 192, 240, 360, 384, 480, 640, 720, 768 y 960 \textit{ticks}/\quarternote. Si el valor es negativo, el número indica en su lugar el número de \textit{ticks/fotograma}, habitualmente utilizado en realización de vídeo.
+\end{description}
+
+\subsection{Bloque de pista}
+
+Una pista consta de una cabecera y de una lista de eventos, que termina con el meta-evento \textit{fin de pista}.
+
+\begin{center}
+	\begin{tabular}{|l|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
+		\hline 4 bytes & Firma & "MTrk" \\ 
+		\hline 4 bytes & Tamaño & 0-65535 \\  
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsection{Eventos MIDI}
+
+Cada evento está formado por los siguientes campos:
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
+		\hline Variable & $\Delta$ \\ 
+		\hline 1 byte & Tipo de evento y canal \\ 
+		\hline 1 byte & Parámetro 1 \\ 
+		\hline 1 byte & Parámetro 2 \\ 
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\begin{description}
+	\item[$\Delta$] Indica el número de \textit{ticks} que separan al evento actual del precedente.
+	\item[Tipo de evento y canal] Los cuatro \textit{bits} más significativos corresponden al tipo de evento. Los otros cuatro marcan el canal \textit{MIDI}.
+\end{description}
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \multicolumn{4}{|c|}{\textbf{Tipos de evento}} \\
+		\hline \multicolumn{1}{|c|}{\textbf{Valor}} & \multicolumn{1}{c|}{\textbf{Nombre}} & \multicolumn{1}{c|}{\textbf{Parámero 1}} & \multicolumn{1}{c|}{\textbf{Parámetro 2}} \\
+		\hline 0x80 & NOTE-OFF & Nota & Velocidad \\
+		\hline 0x90 & NOTE-ON & Nota & Velocidad \\
+		\hline 0xA0 & NOTE-AFTERTOUCH & Nota & Velocidad \\
+		\hline 0xB0 & CONTROLLER & Controlador & Valor \\
+		\hline 0xC0 & PROGRAM-CHANGE & Programa &  \\
+		\hline 0xD0 & CHANNEL-AFTERTOUCH & Velocidad &  \\
+		\hline 0xE0 & PITCH-BEND & \multicolumn{2}{c|}{Valor} \\
+		\hline 0xF0 & SYSTEM-EXCLUSIVE & \multicolumn{2}{c|}{} \\
+		\hline 0xFF & Meta-evento & \multicolumn{2}{c|}{} \\
+		\hline 
+	\end{tabular} 
+\end{center}
+
+\subsubsection{Meta-eventos}
+
+Los metaeventos son mensajes de control que extienden la semántica de los eventos normales. Tienen la siguiente estructura:
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
+		\hline Variable & $\Delta$ \\ 
+		\hline 1 byte & 0xFF \\
+		\hline 1 byte & Tipo de metaevento \\
+		\hline Variable & Longitud del argumento \\ 
+		\hline (Longitud) & Valor del argumento \\ 
+		\hline
+	\end{tabular} 
+\end{center}
+
+Los tipos de meta-evento estándar son los siguientes:
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{2}{|c|}{\textbf{Tipos de meta-evento}} \\
+		\hline \multicolumn{1}{|c|}{\textbf{Valor}} & \multicolumn{1}{c|}{\textbf{Nombre}} \\
+		\hline 0x00 & Número de secuencia \\
+		\hline 0x01 & Texto \\
+		\hline 0x02 & Noticia de \textit{copyright} \\
+		\hline 0x03 & Nombre de la secuencia \\
+		\hline 0x04 & Nombre del instrumento \\
+		\hline 0x05 & Letra de la canción \\
+		\hline 0x06 & Marca \\
+		\hline 0x07 & Punto de corte \\
+		\hline 0x08 & Nombre del programa \\
+		\hline 0x09 & Nombre del dispositivo \\
+		\hline 0x20 & Prefijo del canal \\
+		\hline 0x2F & Fin de pista \\
+		\hline 0x51 & \textit{Tempo} ($\mu s/\quarternote$) \\
+		\hline 0x54 & Desplazamiento temporal \\
+		\hline 0x58 & Indicación de compás \\
+		\hline 0x59 & Indicación de tonalidad \\
+		\hline 0x7F & Reservado para el secuenciador \\
+		\hline 
+	\end{tabular} 
+\end{center}
