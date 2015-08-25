@@ -35,19 +35,19 @@ Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web
 
 En último lugar, necesitamos almacenar información de los archivos \textit{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una base de datos nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
 
-\section{Demonio}
+\section{Demonio del reproductor}
 
 Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con otros procesos a través de herramientas proporcionadas por el sistema operativo.
 
 Este programa será el núcleo de nuestro sistema, y ofrecerá las siguientes vías para comunicarse:
 
-\begin{itemize}
+\begin{enumerate}
 	\item Un \textit{socket} local de \textit{Linux}. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
 	
 	\item El puerto en serie (\textit{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
 	
-	\item Los pines del \textit{GPIO} correspondientes al codificador rotatorio, para la interfaz reducida.
-\end{itemize}
+	\item Los pines del \textit{GPIO} correspondientes al codificador rotatorio y el \textit{LCD}, para la interfaz reducida.
+\end{enumerate}
 
 Así, el esquema de uso de los distintos componentes queda así:
 
@@ -58,7 +58,7 @@ Así, el esquema de uso de los distintos componentes queda así:
 		\includegraphics[width=\linewidth/2]{capitulo4/figura4_2}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_2} Estructura del demonio.}
+	\caption{\label{fig:figura4_2} Diagrama de uso entre los componentes del reproductor.}
 \end{figure} 
 
 \smallskip
@@ -313,6 +313,9 @@ La interfaz que el planificador ofrece es la que sigue:
 	\item[player\_stop () : \textit{dword}]
 	Detiene completamente la reproducción, si estaba activa o pausada. Si estaba parado, no hace nada. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
+	\item[player\_wait () : \textit{dword}]
+	Espera a que el reproductor se detenga. Solo tiene sentido llamarla en caso de no estar reproduciendo en bucle. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
 	\item[player\_state (file) : \textit{enum}]
 	Indica el estado actual del planificador. Tales estados se detallan en el apartado siguiente.
 	
@@ -321,6 +324,12 @@ La interfaz que el planificador ofrece es la que sigue:
 	\end{description}
 	
 	Devuelve el estado actual del reproductor, a saber entre los estados contemplados en la máquina.
+	
+	\item[player\_engineer\_enter () : \textit{dword}]
+	Detiene el reproductor, bloquea el planificador y entra en modo Ingeniería. Devuelve 0 en caso de éxito o -1 en caso de error, como estar ya dentro del modo Ingeniería.
+	
+	\item[player\_engineer\_exit () : \textit{dword}]
+	Sale del modo Ingeniería y debloquea el planificador. Devuelve 0 en caso de éxito o -1 en caso de error, como no estar dentro del modo Ingeniería.
 	
 \end{description}
 
@@ -335,7 +344,7 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 		\includegraphics[width=\linewidth/2]{capitulo4/figura4_3}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_2} Diagrama de estados del planificador.}
+	\caption{\label{fig:figura4_3} Diagrama de estados del planificador.}
 \end{figure} 
 
 \smallskip
@@ -356,16 +365,17 @@ Para que todas las pistas se ejecuten simultáneamente, el planificador recorre 
 		\STATE $mindelta \gets \infty$
 		\STATE $i\gets 0$
 		\WHILE {$i < n_{tracks}$}
-			\WHILE {$(event_i.delta = 0)\AND \NOT ((event_i.type = METAEVENT) \AND (event_i.metaevent.type = END\_OF\_TRACK))$}
+			\WHILE {$event_i.delta = 0$ \AND \NOT ($event_i.type = METAEVENT$ \AND \\ $event_i.metaevent.type = END\_OF\_TRACK$)}
 				\IF {$event_i.type = NOTE\_ON$}
-					\STATE output\_noteon($i, event_i.param1$)
+					\STATE $output\_noteon(i, event_i.param1)$
 				\ELSE 
 					\IF {$event_i.type = NOTE\_OFF$}
-						\STATE output\_noteoff($i, event_i.param1$)
+						\STATE $output\_noteoff (i, event_i.param1)$
 					\ENDIF
 				\ENDIF
+				\STATE $event_i \gets event_i.next$
 			\ENDWHILE
-			\IF {$(event_i.delta > 0)\AND (event_i.delta < mindelta)$}
+			\IF {$event_i.delta > 0$ \AND $event_i.delta < mindelta$}
 				\STATE $mindelta \gets event_i.delta$
 			\ENDIF
 		\ENDWHILE
@@ -374,17 +384,111 @@ Para que todas las pistas se ejecuten simultáneamente, el planificador recorre 
 		\WHILE {$i < n_{tracks}$}
 			\STATE $event_i.delta \gets event_i.delta - min$
 		\ENDWHILE
-		\STATE sleep($mindelta$)
+		\STATE $sleep (mindelta)$
 	\ENDLOOP
 \end{algorithmic}
 
 \subsection{Salida hacia la PCB}
 
+El reproductor delega en el módulo de salida las siguientes funciones:
+
+\begin{enumerate}
+	\item Dirigir las pistas de \textit{MIDI} al canal de salida correspondiente.
+	\item Almacenar el estado de salida (notas pulsadas y no pulsadas).
+	\item Volcar la información en el \textit{GPIO}.
+\end{enumerate}
+
+Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de aislar la salida también nos da flexibilidad para sustituir la interfaz \textit{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
+
+Las siguientes funciones conforman la interfaz del módulo:
+
+\begin{description}[style=nextline]
+	\item[output\_init () : \textit{dword}]
+	Inicializa los componentes de la salida. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[output\_destroy ()]
+	Cierra el módulo de salida y libera la memoria ocupada.
+	
+	\item[output\_noteon (track, note)]
+	Marcar una nota para activar en el sistema.
+	
+	\begin{description}
+		\item[track : \textit{dword}] Índice de la pista \textit{MIDI}.
+		\item[note : \textit{dword}] Número de nota \textit{MIDI}.
+	\end{description}
+	
+	\item[output\_noteon (track, note)]
+	Marcar una nota para apagarla en el sistema.
+	
+	\begin{description}
+		\item[track : \textit{dword}] Índice de la pista \textit{MIDI}.
+		\item[note : \textit{dword}] Número de nota \textit{MIDI}.
+	\end{description}
+	
+	\item[output\_update ()]
+	Vuelca el estado en la salida.
+	
+	\item[output\_panic ()]
+	Vuelve al estado inicial (silenciar todas las notas), y lo vuelca en la salida.
+	
+	\item[output\_silence ()]
+	Silencia todas las notas en la salida, pero mantiene el estado. Útil para pausar la reproducción.
+	
+\end{description}
+
 \subsubsection{Mapeo de pistas y canales}
+
+Nuestra especificación deja abierta la estructura que pueda tener un archivo MIDI. A pesar de que el sistema podrá descodificar \textit{MIDI} estándar, para lograr una óptima ejecución, la pieza deberá adaptarse a cada órgano concreto.
+
+El módulo de salida permitirá asignar cada pista \textit{MIDI}, que normalmente corresponde a un pentagrama de la partitura, a un canal de salida diferente. La asignación por defecto, para el órgano estudiado, será la siguiente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/3]{capitulo4/figura4_4}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_4} Asignación de pistas \textit{MIDI} y canales de salida.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Modo Ingeniería}
 
+El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \textit{LCD}.
+
+El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \textit{GPIO}.
+
+Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
+
+Este diagrama muestra las transiciones entre los estados:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_5}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_5} Máquina de estados de la interfaz reducida.}
+\end{figure} 
+
+\smallskip
+
+\begin{description}
+	\item[OFF] Estado inicial, modo Ingeniería apagado. Mostrará el estado del reproductor.
+	\item[MENU] Ofrece la opción de entrar en el modo Ingeniería.
+	\item[ON] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales
+\end{description}
+
 \subsection{Seguridad}
+
+A pesar de que el acceso al sistema se hará siempre con autentificación de usuario, nos interesa controlar que no todos los usuarios, o no todas las aplicaciones, se conecten al \textit{socket}. La seguridad de \textit{Linux} recae en gran parte sobre su sistema de archivos y permisos. Se creará un nombre de usuario de sistema para ser utilizado exclusivamente por el \textit{socket}, que tendrá permisos de lectura y escritura para dicho usuario y su grupo.
+
+Para autorizar a un usuario a acceder al \textit{socket}, simplemente hay que añadirlo al grupo del usuario propietario.
+
+Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es inseguro mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, reduciremos los permisos después de inicializar el proceso, como medida adicional para evitar problemas
 
 \section{Base de datos}
 
