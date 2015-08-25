@@ -22,16 +22,16 @@ La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, toma
 
 Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondiente al órgano barroco, y otro más abajo, que sobresale del primero, para el órgano romántico, de la misma extensión. 
 
-Tanto las medidas de cada tecla como su calado (diferencia entre la posición del borde de una tecla pulsada y sin pulsar) son estándar y coincidentes con las del piano. De la misma forma, la tecla \textit{Do} del centro hace sonar la nota \textit{Do-4} \footnotemark.
+Tanto las medidas de cada tecla como su calado (diferencia entre la posición del borde de una tecla pulsada y sin pulsar) son estándar y coincidentes con las del piano. De la misma forma, la tecla \textit{Do} del centro hace sonar la nota \textit{Do 4} \footnotemark.
 
-\footnotetext{En España se utilizan dos índices de notación musical: el franco-belga, que asigna el nombre \textit{La-3} a la nota cuya frecuencia fundamental vibra a 440 \textit{Hz}, y el índice científico, que asigna \textit{La-4} a la misma nota. En este proyecto utilizaremos el índice científico, ya que es el utilizado para el sistema MIDI.}
+\footnotetext{En España se utilizan dos índices de notación musical: el franco-belga, que asigna el nombre \textit{La 3} a la nota cuya frecuencia fundamental vibra a 440 \textit{Hz}, y el índice científico, que asigna \textit{La 4} a la misma nota. En este proyecto utilizaremos el índice científico, ya que es el utilizado para el sistema MIDI.}
 
 Los datos más relevantes son los siguientes:
 
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Número de teclas & 49 / teclado \\
-		\hline Extensión & \textit{Do-2} -- \textit{Do-6} \\
+		\hline Extensión & \textit{Do 2} -- \textit{Do 6} \\
 		\hline Profundidad de calado (blancas) & 10 \textit{mm} \\
 		\hline Profundidad de calado (negras) & 8 \textit{mm} \\
 		\hline Presión máxima & 2,70 \textit{N} \\
@@ -50,7 +50,7 @@ Es importante saber que el peso necesario para mover un pedal es mucho mayor que
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Número de pedales & 12 \\ 
-		\hline Extensión & \textit{Do-1} -- \textit{Si-1} \\ 
+		\hline Extensión & \textit{Do 1} -- \textit{Si 1} \\ 
 		\hline Profundidad de calado (diatónicas) & 14,5 \textit{mm} \\ 
 		\hline Profundidad de calado (cromáticas) & 19,8 \textit{mm} \\
 		\hline Presión máxima & 30,54 \textit{N} \\
@@ -62,7 +62,7 @@ Es importante saber que el peso necesario para mover un pedal es mucho mayor que
 
 Los registros son las diferentes familias de tubos con el mismo timbre y la misma tesitura. Se pueden abrir o cerrar desde la consola a través de una serie de palancas, de las que se tira para hacer sonar el registro o se empuja para silenciarlo.
 
-Estos controles están dispuestos a ambos lados de los teclados y son exclusivos para un teclado u otro. En este órgano existen registros parciales, esto es, se aplican solo a una mitad del teclado, bien de \textit{Do-2} a \textit{Si-3}, o bien de \textit{Do-4} a \textit{Do-6}.
+Estos controles están dispuestos a ambos lados de los teclados y son exclusivos para un teclado u otro. En este órgano existen registros parciales, esto es, se aplican solo a una mitad del teclado, bien de \textit{Do 2} a \textit{Si 3}, o bien de \textit{Do 4} a \textit{Do 6}.
 
 Dado que el punto interno de equilibro de cada palanca está en lugares diferentes, existe una notable disparidad en la medida en que sobresalen cuando se abren. Además, tenemos una palanca especial, el \textit{tremolo}, que sirve para activar un mecanismo que produce un efecto de fluctuación en el sonido.
 
@@ -378,6 +378,10 @@ Los tipos de meta-evento estándar son los siguientes:
 		\hline 
 	\end{tabular} 
 \end{center}
+
+\subsubsection{Notas}
+
+Las notas en \textit{MIDI} se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
 
 \clearpage{\cleardoublepage}
 \clearpage{\pagestyle{empty}\cleardoublepage}
