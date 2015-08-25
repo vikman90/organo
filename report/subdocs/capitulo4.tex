@@ -1,4 +1,422 @@
 \chapter{Diseño del sistema.}
 \label{cap: capitulo_4}
 
-\section{Windows}
+En este capítulo vamos a detallar cómo hemos concebido la solución a los requisitos \textit{software}, teniendo en cuenta los correspondientes al \textit{hardware} y a partir de los elementos que hemos detallado en el capítulo anterior.
+
+\section{Planteamiento}
+
+Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un reproductor de archivos \textit{MIDI}, que recibe el fichero y lo envía a la \textit{PCB} a través del \textit{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_1}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_1} Planteamiento inicial.}
+\end{figure} 
+
+\smallskip
+
+Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de control, se requiere varias formas de acceder al sistema:
+
+\begin{enumerate}
+	\item Un \textit{software} controlador principal, que cubra todos los casos de uso, y sea fácil de instalar y utilizar, con preferencia de que sea multiplataforma.
+	
+	\item Un mando a distancia, que altere la reproducción.
+	
+	\item Un control reducido empotrado en la \textit{PCB}.
+\end{enumerate}
+
+Atendiendo a los requisitos del primer controlador y a las prestaciones del \textit{Raspberry Pi}, y con objeto de eliminar la necesidad de instalar y mantener aplicaciones en otro sistema, decidimos enfocar la solución como una interfaz \textit{web} con un servidor alojado en el \textit{Raspberry Pi}. De esta forma podemos llegar fácilmente a cualquier sistema operativo de escritorio, incluso es fácilmente adaptable a dispositivos móviles.
+
+Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textit{demonio} de \textit{Linux}, junto con sus módulos auxiliares.
+
+En último lugar, necesitamos almacenar información de los archivos \textit{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una base de datos nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+
+\section{Demonio}
+
+Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con otros procesos a través de herramientas proporcionadas por el sistema operativo.
+
+Este programa será el núcleo de nuestro sistema, y ofrecerá las siguientes vías para comunicarse:
+
+\begin{itemize}
+	\item Un \textit{socket} local de \textit{Linux}. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
+	
+	\item El puerto en serie (\textit{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
+	
+	\item Los pines del \textit{GPIO} correspondientes al codificador rotatorio, para la interfaz reducida.
+\end{itemize}
+
+Así, el esquema de uso de los distintos componentes queda así:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_2}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_2} Estructura del demonio.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Descodificador de MIDI}
+
+Como hemos detallado más arriba, el formato \textit{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
+
+Concebimos la estructura de datos como un conjunto de listas enlazadas de eventos. El tamaño de los eventos normales es constante, sin embargo, los meta-eventos extienden la semántica con una cadena de datos.
+
+\subsubsection{Estructura \textit{midifile\_t}}
+
+Define un archivo \textit{MIDI}. Sus campos son:
+
+\begin{description}
+	\item[format : \textit{enum}] Formato del archivo. Puede tener los siguientes valores enumerados:
+	
+	\begin{description}
+		\item[SINGLE\_TRACK] Una sola pista.
+		\item[MULTIPLE\_SIMULTANEOUS] Varias pistas, simultáneas.
+		\item[MULTIPLE\_INDEPENDENT] Varias pistas, independientes.
+	\end{description}
+	
+	\item[ntracks : \textit{word}] Número de pistas.
+	
+	\item[division : \textit{enum}] Unidad de medida de la división de tiempo:
+	
+	\begin{description}
+		\item[TICKS\ PER\ BEAT] La división se especifica en \textit{ticks}/\quarternote.
+		\item[FRAMES\_PER\_SECOND] La división se especifica en \textit{ticks/fotograma}.
+	\end{description}
+	
+	\item[tracks : \textit{array(midievent\_t)}] Conjunto de listas de eventos; cada lista corresponde a una pista.
+
+\end{description}
+
+\subsubsection{Estructura midievent\_t}
+
+Define un evento MIDI.
+
+\begin{description}
+	\item[delta : \textit{dword}] Separación temporal respecto al evento anterior.
+	\item[type : \textit{enum}] Tipo de evento. Se enumeran en el capítulo anterior.
+	\item[param1 : \textit{byte}] Valor del primer parámetro, dependiendo del tipo de evento.
+	\item[param2 : \textit{byte}] Valor del segundo parámetro, dependiendo del tipo de evento.
+	\item[metaevent : \textit{metaevent\_t}] Información del metaevento, si procede.
+	\item[next : \textit{midievent\_t}] Evento siguiente, si procede.
+\end{description}
+
+\subsubsection{Estructura \textit{metaevent\_t}}
+
+Define un meta-evento.
+
+\begin{description}
+	\item[type : \textit{emum}] Tipo de metaevento. Se enumeran en el capítulo anterior.
+	\item[length : \textit{dword}] Longitud de la cadena de datos, en \textit{bytes}.
+	\item[data : \textit{string}] Cadena de datos correspondientes al meta-evento.
+\end{description}
+
+\subsubsection{Funciones}
+
+\begin{description}[style=nextline]
+	\item[midifile\_init (score, path) : \textit{int}] 
+	Lee un archivo MIDI e inicializa la estructura recibida. 
+	
+	\begin{description}
+		\item[score : \textit{midifile\_t}] Archivo \textit{MIDI} sin inicializar.
+		\item[path : \textit{string}] Ruta del fichero a leer.
+	\end{description}
+	
+	Devuelve 0 en caso de éxito, o -1 en caso de error.
+	
+	\item[midifile\_destroy (file)] 
+	Elimina una estructura y libera su memoria.
+	
+	\begin{description}
+		\item[file : \textit{midifile\_t}] Archivo \textit{MIDI}.
+	\end{description}
+	
+	\item[midifile\_duration (file) : \textit{dword}] 
+	Obtener la duración de una pieza.
+	
+	\begin{description}
+		\item[file : \textit{midifile\_t}] Archivo \textit{MIDI}.
+	\end{description}
+	
+	Devuelve la duración de la pieza, en \textit{segundos}.
+	
+	\item[metaevent\_tempo (event) : \textit{dword}] 
+	Obtener el \textit{tempo} de la pieza.
+	
+	\begin{description}
+		\item[event : \textit{metaevent\_t}] Meta-vento.
+	\end{description}
+	
+	Devuelve el \textit{tempo} de la pieza en \textit{$\mu s$/\quarternote}.
+	
+\end{description}
+
+\subsection{Control por socket}
+
+Un \textit{socket} un mecanismo de comunicación inter-proceso ---\textit{IPC (inter-process communication)} que proporciona \textit{Linux} y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
+
+Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de \textit{Linux}, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos a continuación.
+
+Las funciones diseñadas son las siguientes:
+
+\begin{description}[style=nextline]
+	\item[socket\_init (uid, gid) : \textit{dword}]
+	Inicializar el \textit{socket} con el ID de usuario y grupo indicados.
+	
+	\begin{description}
+		\item[uid : \textit{dword}] ID de usuario en Linux.
+		\item[gid : \textit{dword}] ID de grupo en Linux.
+	\end{description}
+	
+	Devuelve 0 en caso de éxito y -1 en caso de error.
+	
+	\item[socket\_destroy ()]
+	Cierra el \textit{socket}.
+	
+	\item[socket\_loop ()]
+	Despliega una hebra con un bucle de escucha y atiende las peticiones.
+	
+\end{description}
+
+\subsubsection{Lenguaje de la interfaz}
+
+El \textit{socket} reconocerá y ejecutará una serie de órdenes, emitiendo siempre una respuesta:
+
+\begin{description}
+	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[PLAYLOOP <archivo> [ <archivo>*]] Reproducir en bucle una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[PAUSE] Pausar la reproducción. Silencia las notas pero manteniendo el estado. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error, como estar detenido, o en modo Ingeniería.
+	\end{description}
+	
+	\item[RESUME] Reanuda la reproducción en el punto en que se pausó. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error, como no estar pausado, o en modo Ingeniería.
+	\end{description}
+	
+	\item[STOP] Detiene completamente la reproducción y libera la lista de reproducción. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[STATUS] Consulta el estado del reproductor. Respuesta:
+	
+	\begin{description}
+		\item[PLAYING <archivo>] Reproduciendo el archivo cuya ruta absoluta se especifica.
+		\item[PAUSED <archivo>] Pausado en un punto del archivo cuya ruta se indica.
+		\item[STOPPED] Detenido. Es el estado inicial.
+		\item[ENGINEER] En modo Ingeniería. No se puede reproducir nada hasta desbloquearse.
+	\end{description}
+	
+\end{description}
+
+\subsection{Control del mando}
+
+Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \textit{UART} ---\textit{Universal Asynchronus Receiver-Transmiter}---, que controla los puertos serie.
+
+Este módulo tiene una topología análoga al control por \textit{socket}, tan solo cambia el origen y la forma de entrada de los datos. Establecerá una comunicación con el puerto serie e iniciará un bucle de escucha. La sintaxis del mensaje, como ya sabemos, es:
+
+\begin{center}
+	<Nº serie (7 \textit{bytes})> <Botón (1 \textit{byte})> <CRLF>
+\end{center}
+
+De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la orden correspondiente.
+
+Las funciones correspondientes a este módulo son las siguientes:
+
+\begin{description}[style=nextline]
+	\item[uart\_init () : \textit{dword}]
+	Establece comunicación con el puerto serie.
+	
+	Devuelve 0 en caso de éxito y -1 en caso de error.
+	
+	\item[uart\_destroy ()]
+	Cierra la comunicación.
+	
+	\item[uart\_loop ()]
+	Despliega una hebra con un bucle de escucha y ejecuta las órdenes.
+	
+\end{description}
+
+\subsubsection{Comunicación con la base de datos}
+
+La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos próximamente. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, mediante las siguientes funciones:
+
+\begin{description}[style=nextline]
+	\item[db\_init () : \textit{dword}]
+	Inicia la comunicación con el gestor de bases de datos. Devuelve 0 en caso de éxito y -1 en caso de error.
+	
+	\item[db\_destroy ()]
+	Cierra la comunicación.
+	
+	\item[db\_query (scores, idshortcut) : \textit{dword}]
+	Realiza la consulta mencionada, asignando a \textit{scores} la lista de piezas a reproducir.
+	
+	\begin{description}
+		\item[scores : \textit{array(string)}] Lista de rutas a las piezas.
+		\item[idshortcut : \textit{dword}] ID del botón que se ha pulsado en el mando.
+	\end{description}
+	
+	Devuelve el número de piezas asignadas (pudiendo ser 0), o -1 en caso de error.
+	
+\end{description}
+
+\subsection{Planificador}
+
+El planificador es la pieza principal del reproductor. Recibe las órdenes de los controladores y la lista de partituras a ejecutar. Una a una las lee con ayuda del módulo \textit{MIDI} y planifica los eventos de todas las pistas para lanzarlos a la salida en el momento necesario.
+
+Al igual que otros módulos, utiliza una hebra para reproducir los archivos, pero en este caso es una hebra dinámica, que podrá ser iniciada, pausada y detenida por el resto de procesos, por lo que hay que tener en cuenta los problemas de concurrencia para garantizar la consistencia del sistema.
+
+La interfaz que el planificador ofrece es la que sigue:
+
+\begin{description}[style=nextline]
+	\item[player\_start (playlist, n, loop) : \textit{dword}]
+	Inicia la reproducción de una lista de archivos. Si ya estaba reproduciendo una lista, primero detiene la reproducción y elimina la lista antigua.
+	
+	\begin{description}
+		\item[playlist : \textit{array(string)}] Lista de rutas absolutas a los archivos que queremos reproducir.
+		\item[n : \textit{dword}] Número de piezas que se han transmitido en el parámetro anterior.
+		\item[loop : \textit{bool}] Utilizar (1) o no (0) reproducción en bucle.
+	\end{description}
+	
+	Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[player\_pause () : \textit{dword}]
+	Pausa la reproducción, si estaba activa. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[player\_stop () : \textit{dword}]
+	Detiene completamente la reproducción, si estaba activa o pausada. Si estaba parado, no hace nada. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[player\_state (file) : \textit{enum}]
+	Indica el estado actual del planificador. Tales estados se detallan en el apartado siguiente.
+	
+	\begin{description}
+		\item[file : \textit{array(string)}] Es un parámetro de salida, sobre él se escribe el nombre del archivo que se estaba reproduciendo. Solo es válido si el reproductor está activo o en pausa.
+	\end{description}
+	
+	Devuelve el estado actual del reproductor, a saber entre los estados contemplados en la máquina.
+	
+\end{description}
+
+\subsubsection{Máquina de estados}
+
+Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad de estados, que mostramos a continuación:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_3}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_2} Diagrama de estados del planificador.}
+\end{figure} 
+
+\smallskip
+
+\begin{description}
+	\item[PLAYING] En funcionamiento, reproduciendo activamente una partitura.
+	\item[PAUSED] En pausa, manteniendo el estado del órgano en el módulo de salida.
+	\item[STOPPED] Detenido. Es el estado inicial.
+	\item[ENGINEER] Bloqueado, en modo Ingeniería. Ha cedido el control del módulo de salida.
+\end{description}
+
+\subsubsection{Algoritmo básico}
+
+Para que todas las pistas se ejecuten simultáneamente, el planificador recorre en cada ciclo todas las listas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el menor valor y se resta a todos los \textit{deltas}. A continuación, se solicita al sistema operativo la espera correspondiente al tiempo restado, y se repite el ciclo. El algoritmo termina cuando todas las pistas han llegado al final.
+
+\begin{algorithmic}
+	\LOOP
+		\STATE $mindelta \gets \infty$
+		\STATE $i\gets 0$
+		\WHILE {$i < n_{tracks}$}
+			\WHILE {$(event_i.delta = 0)\AND \NOT ((event_i.type = METAEVENT) \AND (event_i.metaevent.type = END\_OF\_TRACK))$}
+				\IF {$event_i.type = NOTE\_ON$}
+					\STATE output\_noteon($i, event_i.param1$)
+				\ELSE 
+					\IF {$event_i.type = NOTE\_OFF$}
+						\STATE output\_noteoff($i, event_i.param1$)
+					\ENDIF
+				\ENDIF
+			\ENDWHILE
+			\IF {$(event_i.delta > 0)\AND (event_i.delta < mindelta)$}
+				\STATE $mindelta \gets event_i.delta$
+			\ENDIF
+		\ENDWHILE
+		\STATE $i \gets 0$
+		
+		\WHILE {$i < n_{tracks}$}
+			\STATE $event_i.delta \gets event_i.delta - min$
+		\ENDWHILE
+		\STATE sleep($mindelta$)
+	\ENDLOOP
+\end{algorithmic}
+
+\subsection{Salida hacia la PCB}
+
+\subsubsection{Mapeo de pistas y canales}
+
+\subsection{Modo Ingeniería}
+
+\subsection{Seguridad}
+
+\section{Base de datos}
+
+\subsection{Tablas}
+
+\section{Control remoto}
+
+\subsection{Reproductor}
+
+\subsection{Listas de reproducción}
+
+\subsection{Asignación del mando a listas}
+	
+\subsection{Control del usuario}
+
+\subsection{Comunicación con el demonio}
+
+\subsection{Comunicación con la base de datos}
+
+\subsection{Autentificación}
+
+\subsection{Control de energía}
+
+\subsection{Soporte de idiomas}
+
+\section{Aplicaciones auxiliares}
+
+\subsection{Información de archivo MIDI}
+
+\subsection{Comprobación de contraseña}
+
+\subsection{Control de reproducción}
+
+\clearpage{\cleardoublepage}
+\clearpage{\pagestyle{empty}\cleardoublepage}
