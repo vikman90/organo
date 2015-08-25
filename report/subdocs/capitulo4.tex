@@ -11,10 +11,10 @@ Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_1}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_idea}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_1} Planteamiento inicial.}
+	\caption{\label{fig:figura4_idea} Planteamiento inicial.}
 \end{figure} 
 
 \smallskip
@@ -55,10 +55,10 @@ Así, el esquema de uso de los distintos componentes queda así:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_2}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_daemon}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_2} Diagrama de uso entre los componentes del reproductor.}
+	\caption{\label{fig:figura4_daemon} Diagrama de uso entre los componentes del reproductor.}
 \end{figure} 
 
 \smallskip
@@ -341,19 +341,19 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_3}
+		\includegraphics[width=\linewidth/2]{capitulo4/figura4_sched}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_3} Diagrama de estados del planificador.}
+	\caption{\label{fig:figura4_sched} Diagrama de estados del planificador.}
 \end{figure} 
 
 \smallskip
 
 \begin{description}
-	\item[PLAYING] En funcionamiento, reproduciendo activamente una partitura.
-	\item[PAUSED] En pausa, manteniendo el estado del órgano en el módulo de salida.
-	\item[STOPPED] Detenido. Es el estado inicial.
-	\item[ENGINEER] Bloqueado, en modo Ingeniería. Ha cedido el control del módulo de salida.
+	\item[Activo] En funcionamiento, reproduciendo activamente una partitura.
+	\item[Pausado] No reproduce, mantiene el estado del órgano en el módulo de salida.
+	\item[Parado] En espera. Es el estado inicial.
+	\item[Ingeniero] Bloqueado, en modo Ingeniería. Ha cedido el control del módulo de salida.
 \end{description}
 
 \subsubsection{Algoritmo básico}
@@ -446,10 +446,10 @@ El módulo de salida permitirá asignar cada pista \textit{MIDI}, que normalment
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/3]{capitulo4/figura4_4}
+		\includegraphics[width=\linewidth/3]{capitulo4/figura4_map}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_4} Asignación de pistas \textit{MIDI} y canales de salida.}
+	\caption{\label{fig:figura4_map} Asignación de pistas \textit{MIDI} y canales de salida.}
 \end{figure} 
 
 \smallskip
@@ -468,10 +468,10 @@ Este diagrama muestra las transiciones entre los estados:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_5}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_engineer}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_5} Máquina de estados de la interfaz reducida.}
+	\caption{\label{fig:figura4_engineer} Máquina de estados de la interfaz reducida.}
 \end{figure} 
 
 \smallskip
@@ -488,20 +488,88 @@ A pesar de que el acceso al sistema se hará siempre con autentificación de usu
 
 Para autorizar a un usuario a acceder al \textit{socket}, simplemente hay que añadirlo al grupo del usuario propietario.
 
-Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es inseguro mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, reduciremos los permisos después de inicializar el proceso, como medida adicional para evitar problemas
+Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es inseguro mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, reduciremos los permisos después de inicializar el proceso, como medida adicional para evitar problemas.
 
 \section{Base de datos}
 
-\subsection{Tablas}
+La información que queremos almacenar funciona de la siguiente forma:
+
+\begin{enumerate}
+	\item Las partituras se guardan en un archivo, cuyo nombre no tiene que coincidir con el título de la partitura.
+	\item De una partitura podremos conocer su duración.
+	\item Una lista de reproducción es una colección de partituras, y le asignaremos un nombre.
+	\item Cada partitura pertenecerá a una lista de reproducción, y solo a una.
+	\item Un botón se distingue por su código, y se le asigna a una lista de reproducción, sin perjuicio de que una lista esté asignada a varios botones. Naturalmente, puede haber listas que no estén asignadas a ningún botón.
+\end{enumerate}
+
+\subsection{Modelo entidad-relación}
+
+Atendiendo a los requisitos propuestos, modelamos nuestros datos según el siguiente diagrama:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_bd_er}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_bd_er} Modelo entidad-relación.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Modelo relacional}
+
+Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\textit{DBMS (database management system)}--- que vayamos a utilizar. En nuestro caso, utilizaremos un \textit{DBMS} relacional.
+
+\begin{enumerate}
+	\item Convertimos en relaciones (tablas) todas las entidades y las relaciones del modelo entidad-relación.
+	\item Los atributos de las entidades pasan a ser atributos de las relaciones correspondientes.
+	\item Buscamos llaves candidatas y escogemos una como llave primaria. En el caso de Pieza y Lista, no tenemos llave candidata, así que añadimos un ID a cada relación.
+	\item Las relaciones Contiene y Asigna tienen cardinalidad N-1, de forma que comparten la clave primaria. Fusionamos Contiene en Pieza y Asigna en Botón.
+\end{enumerate}
+
+Una vez hecho esto, el modelo resultante es el siguiente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true, trim=390 340 390 340, width=\linewidth*3/4]{capitulo4/figura4_bd_rel}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:figura4_bd_rel} Modelo relacional.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Consistencia}
+
+Para garantizar que la base de datos mantendrá la información coherente y sin anomalías, estudiamos las relaciones para normalizarlas. Podemos verificar que nuestro modelo relacional está en 5ª forma normal, atendiendo a las siguientes condiciones:
+
+\begin{description}
+	\item[1FN] El \textit{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas.
+	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la llave primaria, por tanto, está en segunda forma normal.
+	\item[3FN] No existen atributos secundarios que dependan transitivamente de la llave primaria, entonces, está en tercera forma normal.
+	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las claves candidatas. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN.
+	\item[4FN] La cuarta forma normal extiende la FNBC exigiendo que no existan dependencias multivaluadas no triviales. Este modelo no tiene dependencias multivaluadas, de forma que está en 4FN.
+	\item[5FN] Por último, la quinta forma normal especifica que, además de todo lo anterior, cada dependencia de unión sea implicada por claves candidatas. Esto se cumple en nuestro modelo, ya que toda llave externa se vincula a la llave primaria de otra relación.
+\end{description}
+
+Nuestro modelo relacional cumple todas las exigencias de las formas normales tenidas en cuenta, con lo que podemos garantizar que el modelo es consistente.
 
 \section{Control remoto}
+
+\subsection{Estilo de la interfaz}
+
+\subsection{Portada}
 
 \subsection{Reproductor}
 
 \subsection{Listas de reproducción}
 
 \subsection{Asignación del mando a listas}
-	
+
 \subsection{Control del usuario}
 
 \subsection{Comunicación con el demonio}
