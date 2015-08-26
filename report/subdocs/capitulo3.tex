@@ -283,6 +283,62 @@ Basándonos en el órgano de la Parroquia de Santa Fe, tendremos cuatro registro
 
 A pesar de que la capacidad de cada canal es de 8 bits, solo utilizaremos 7 de ellos.
 
+\subsection{Conexión a la mecánica}
+
+Los registros de desplazamiento están diseñados para albergar el estado lógico de cada una de las piezas del órgano con las que vamos a interactuar, y se han dispuesto cuidadosamente para que, clasificados por canales, cada uno se dedique a una zona de la consola del instrumento, manteniendo una interfaz lógica similar con objeto de homogeneizar la interfaz de cara al \textit{software}.
+
+\subsubsection{Teclados}
+
+Los dos primeros canales de control están asignados a los teclados. Un \textit{driver} de potencia interno aumentará la tensión a la salida de cada registro para llevarlo a la mecánica que pulsará las teclas. La siguiente figura ilustra este funcionamiento:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_teclado}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_teclado} Interfaz entre la \textit{PCB} y el teclado barroco.}
+\end{figure} 
+
+\smallskip
+
+Los dos teclados se comportan de la misma forma, aunque al de abajo le corresponderá un canal diferente.
+
+\subsubsection{Pedalier}
+
+El \textit{pedalier} representa una escala musical, con los pedales bajos similares a las teclas blancas, diatónicas, mientras que los pedales altos emulan a las teclas negras, cromáticas. Por tanto, el esquema de funcionamiento es similar al de los teclados, aunque con menos extensión.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_pedalier}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_pedalier} Interfaz entre la \textit{PCB} y el pedalier.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Registros de timbres}
+
+Como podemos ver, los registros no se corresponden con teclas musicales y no tienen el mismo significado. Sin embargo, sí que tienen la misma estructura lógica, al contemplarse dos posiciones: abierto (hacia afuera) y cerrado (hacia dentro).
+
+La mecánica a utilizar será diferente y, probablemente, algo más compleja, pero la interfaz para manejarlos se asemejará a del resto de controles:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_registros}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_registros} Interfaz entre la \textit{PCB} y las palancas de registros.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Receptor de mando a distancia HIRK-433A}
 
 El receptor de mando a distancia es un detector de radio con decodificador a interfaz RS-232. Nos da la información del número de serie del mando y qué botones han disparado el evento. 
@@ -291,7 +347,7 @@ El receptor de mando a distancia es un detector de radio con decodificador a int
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=0 200 0 200, width=\linewidth*2/3]{capitulo3/HIRK-433A}
+		\includegraphics[clip=true,trim=0 200 0 200, width=\linewidth/2]{capitulo3/HIRK-433A}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:HIRK-433A} Receptor de radio HIRK-433A.}
@@ -384,6 +440,20 @@ La información nos viene dada por tres canales: uno para el pulsador y dos para
 
 Los puntos de equilibro ---\textit{detent stability points}--- coinciden con los saltos del canal B, de forma que a la mitad del recorrido de un giro cambiará el canal A. Todo lo que tenemos que hacer entonces es detectar un cambio en A y comparar el valor de A y B: si son iguales, significa que se ha rotado en sentido antihorario; si son distintos, entendemos que se ha girado en sentido horario.
 
+\subsection{Conexión entre la PCb y los periféricos}
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_perifericos}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_perifericos} Interfaz entre la \textit{PCB} y los periféricos.}
+\end{figure} 
+
+\smallskip
+
 \section{SBC Rasberry Pi}
 
 El \textit{Raspberry Pi} es un ordenador de placa única ---SBC (\textit{single board computer})---, más potente que un microcontrolador y con sistema operativo basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \textit{SSH}. 
@@ -394,7 +464,7 @@ El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/raspberry}
+		\includegraphics[width=\linewidth/2]{capitulo3/raspberry}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:raspberry} Placa computadora \textit{Raspberry Pi}.}
@@ -431,6 +501,18 @@ Como hemos adelantado, la \textit{PCB} se conectará al \textit{Raspberry} a tra
 
 La asignación de pines es la que sigue:
 
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_gpio}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_gpio} Pines de conexión de la \textit{PCB} con el \textit{Raspberry}.}
+\end{figure} 
+
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline \multicolumn{2}{|c|}{\textbf{Registros de desplazamiento}} \\
@@ -456,18 +538,6 @@ La asignación de pines es la que sigue:
 		\hline 
 	\end{tabular} 
 \end{center}
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo3/pcb_schem}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:pcb_schem} Pines de conexión de la \textit{PCB} con el \textit{Raspberry}.}
-\end{figure} 
-
-\smallskip
 
 \subsection{Sistema operativo}
 
