@@ -11,10 +11,10 @@ Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_idea}
+		\includegraphics[width=\linewidth/2]{capitulo4/idea}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_idea} Planteamiento inicial.}
+	\caption{\label{fig:idea} Planteamiento inicial.}
 \end{figure} 
 
 \smallskip
@@ -55,10 +55,10 @@ Así, el esquema de uso de los distintos componentes queda así:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_daemon}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_daemon} Diagrama de uso entre los componentes del reproductor.}
+	\caption{\label{fig:daemon} Diagrama de uso entre los componentes del reproductor.}
 \end{figure} 
 
 \smallskip
@@ -158,6 +158,22 @@ Define un meta-evento.
 	
 \end{description}
 
+\subsubsection{Diagrama de uso}
+
+El módulo \textit{MIDI} solo se usa directamente a través del planificador. Éste se encarga de gestionar las partituras, y ordenar su eliminación cuando sea necesario.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_midi}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_midi} Diagrama de uso del módulo MIDI.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Control por socket}
 
 Un \textit{socket} un mecanismo de comunicación inter-proceso ---\textit{IPC (inter-process communication)} que proporciona \textit{Linux} y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
@@ -184,6 +200,22 @@ Las funciones diseñadas son las siguientes:
 	Despliega una hebra con un bucle de escucha y atiende las peticiones.
 	
 \end{description}
+
+\subsubsection{Diagrama de uso}
+
+El módulo correspondiente al \textit{socket} solamente interacciona internamente con el planificador, al que transmite adecuadamente las órdenes recibidas.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_socket}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_socket} Diagrama de uso del servidor \textit{socket}.}
+\end{figure} 
+
+\smallskip
 
 \subsubsection{Lenguaje de la interfaz}
 
@@ -248,6 +280,8 @@ Este módulo tiene una topología análoga al control por \textit{socket}, tan s
 
 De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la orden correspondiente.
 
+Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos más adelante, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
+
 Las funciones correspondientes a este módulo son las siguientes:
 
 \begin{description}[style=nextline]
@@ -264,9 +298,25 @@ Las funciones correspondientes a este módulo son las siguientes:
 	
 \end{description}
 
-\subsubsection{Comunicación con la base de datos}
+\subsubsection{Diagrama de uso}
 
-La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos próximamente. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, mediante las siguientes funciones:
+Este bloque interacciona con el planificador en unos términos similares al \textit{socket}, y utiliza la interfaz de la base de datos.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_uart}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_uart} Diagrama de uso del receptor de radio.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Comunicación con la base de datos}
+
+La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos próximamente. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos, mediante las siguientes funciones:
 
 \begin{description}[style=nextline]
 	\item[db\_init () : \textit{dword}]
@@ -286,6 +336,22 @@ La información relativa a la lista de reproducción asignada a un botón, así 
 	Devuelve el número de piezas asignadas (pudiendo ser 0), o -1 en caso de error.
 	
 \end{description}
+
+\subsubsection{Diagrama de uso}
+
+La interfaz de la base de datos es utilizada exclusivamente por el servidor del receptor de radio, sin perjuicio de que en un futuro podamos extender su funcionalidad, por lo que la hemos separado lógicamente del módulo \textit{UART}. El diagrama de uso es el siguiente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_bd}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_bd} Diagrama de uso de la interfaz de base de datos.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Planificador}
 
@@ -320,7 +386,7 @@ La interfaz que el planificador ofrece es la que sigue:
 	Indica el estado actual del planificador. Tales estados se detallan en el apartado siguiente.
 	
 	\begin{description}
-		\item[file : \textit{array(string)}] Es un parámetro de salida, sobre él se escribe el nombre del archivo que se estaba reproduciendo. Solo es válido si el reproductor está activo o en pausa.
+		\item[file : \textit{string}] Es un parámetro de salida, sobre él se escribe el nombre del archivo que se estaba reproduciendo. Solo es válido si el reproductor está activo o en pausa.
 	\end{description}
 	
 	Devuelve el estado actual del reproductor, a saber entre los estados contemplados en la máquina.
@@ -341,10 +407,10 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/figura4_sched}
+		\includegraphics[width=\linewidth/2]{capitulo4/sched}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_sched} Diagrama de estados del planificador.}
+	\caption{\label{fig:sched} Diagrama de estados del planificador.}
 \end{figure} 
 
 \smallskip
@@ -387,6 +453,72 @@ Para que todas las pistas se ejecuten simultáneamente, el planificador recorre 
 		\STATE $sleep (mindelta)$
 	\ENDLOOP
 \end{algorithmic}
+
+\subsubsection{Diagrama de uso}
+
+Como parte central del programa, y al contrario que el resto de componentes, el planificador está conectado con la mayoría de módulos, actuando como mediador y coordinador entre aquellos que reciben órdenes y los que facilitan la salida de información.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_scheduler}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_scheduler} Diagrama de uso del planificador.}
+\end{figure} 
+
+\smallskip
+
+\begin{itemize}
+	\item Los servidores de \textit{socket} y de \textit{UART}, y el control de interfaz reducida, envían las órdenes de control.
+	\item El módulo \textit{MIDI} es utilizado para descodificar los archivos de entrada.
+	\item La información extraída se dirige al módulo de salida (\textit{GPIO}) para llegar a la \textit{PCB}.
+\end{itemize}
+
+\subsection{Modo Ingeniería}
+
+El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \textit{LCD}.
+
+El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \textit{GPIO}.
+
+Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
+
+Este diagrama muestra las transiciones entre los estados:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/engineer}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:engineer} Máquina de estados de la interfaz reducida.}
+\end{figure} 
+
+\smallskip
+
+\begin{description}
+	\item[OFF] Estado inicial, modo Ingeniería apagado. Mostrará el estado del reproductor.
+	\item[MENU] Ofrece la opción de entrar en el modo Ingeniería.
+	\item[ON] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+El módulo que controla el modo Ingeniería interacciona con el planificador, para detenerlo y aislarlo del \textit{GPIO}, y con el módulo de salida, que maneja el propio \textit{GPIO}, para manipular el estado.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_engineer}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_engineer} Diagrama de uso del modo Ingeniería.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Salida hacia la PCB}
 
@@ -446,41 +578,29 @@ El módulo de salida permitirá asignar cada pista \textit{MIDI}, que normalment
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/3]{capitulo4/figura4_map}
+		\includegraphics[width=\linewidth/3]{capitulo4/map}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_map} Asignación de pistas \textit{MIDI} y canales de salida.}
+	\caption{\label{fig:map} Asignación de pistas \textit{MIDI} y canales de salida.}
 \end{figure} 
 
 \smallskip
 
-\subsection{Modo Ingeniería}
+\subsubsection{Diagrama de uso}
 
-El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \textit{LCD}.
-
-El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \textit{GPIO}.
-
-Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
-
-Este diagrama muestra las transiciones entre los estados:
+La interfaz de salida es utilizada principalmente por el planificador y, solo cuando éste entra en modo Ingeniería, es accedida por el módulo del mismo nombre, para poner a prueba la mecánica del sistema.
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_engineer}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_gpio}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_engineer} Máquina de estados de la interfaz reducida.}
+	\caption{\label{fig:daemon_gpio} Diagrama de uso del módulo de salida.}
 \end{figure} 
 
 \smallskip
-
-\begin{description}
-	\item[OFF] Estado inicial, modo Ingeniería apagado. Mostrará el estado del reproductor.
-	\item[MENU] Ofrece la opción de entrar en el modo Ingeniería.
-	\item[ON] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales
-\end{description}
 
 \subsection{Seguridad}
 
@@ -510,10 +630,10 @@ Atendiendo a los requisitos propuestos, modelamos nuestros datos según el sigui
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo4/figura4_bd_er}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/bd_er}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_bd_er} Modelo entidad-relación.}
+	\caption{\label{fig:bd_er} Modelo entidad-relación.}
 \end{figure} 
 
 \smallskip
@@ -535,10 +655,10 @@ Una vez hecho esto, el modelo resultante es el siguiente:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true, trim=390 340 390 340, width=\linewidth*3/4]{capitulo4/figura4_bd_rel}
+		\includegraphics[clip=true, trim=390 340 390 340, width=\linewidth*3/4]{capitulo4/bd_rel}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:figura4_bd_rel} Modelo relacional.}
+	\caption{\label{fig:bd_rel} Modelo relacional.}
 \end{figure} 
 
 \smallskip
@@ -560,13 +680,17 @@ Nuestro modelo relacional cumple todas las exigencias de las formas normales ten
 
 \section{Control remoto}
 
+\subsection{Modelo-vista-controlador}
+
 \subsection{Estilo de la interfaz}
 
 \subsection{Portada}
 
 \subsection{Reproductor}
 
-\subsection{Listas de reproducción}
+\subsection{Gestión de listas de reproducción}
+
+\subsection{Gestión de partituras}
 
 \subsection{Asignación del mando a listas}
 
@@ -581,6 +705,8 @@ Nuestro modelo relacional cumple todas las exigencias de las formas normales ten
 \subsection{Control de energía}
 
 \subsection{Soporte de idiomas}
+
+\section{Protocolo entre el control y el demonio}
 
 \section{Aplicaciones auxiliares}
 
