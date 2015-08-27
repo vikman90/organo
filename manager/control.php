@@ -8,6 +8,7 @@
 
 namespace manager;
 
+require_once 'lib/templates.php';
 require_once 'lib/database.php';
 require_once 'lib/driver.php';
 
@@ -70,7 +71,7 @@ function language() {
 
     foreach ($translators as $t) {
         if ($t->code == $_GET['code']) {
-            $_SESSION['lang'] = $t->code;
+            set_language($t->code);
             html_redirect(last_page());
         }
     }

@@ -8,6 +8,7 @@
 namespace manager;
 require_once 'lib/database.php';
 require_once 'lib/driver.php';
+require_once 'lib/templates.php';
 
 global $tr;
 

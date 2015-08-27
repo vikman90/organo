@@ -13,7 +13,7 @@ require_once __DIR__ . '/values.php';
 
 global $translators;
 
-$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE;
+$lang = get_language();
 $tr = $translators[$lang]->strings;
 
 function html_open($id, $refresh = null) {

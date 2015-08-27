@@ -25,7 +25,7 @@ EOT;
     html_footer();
     html_close();
 } else {
-    if (isset($_SESSION['auth']))
+    if (get_auth())
         html_redirect('player.php');
 
     html_open('login');
