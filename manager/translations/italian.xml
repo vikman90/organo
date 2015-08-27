@@ -8,7 +8,7 @@
     <string name="shutdown">Spegnere</string>
     <string name="reboot">Riavviare</string>
     <string name="language">Linguaggio</string>
-    <string name="footer">Università di Granada.</string>
+    <string name="footer">Victor Manuel Fernandez-Castro. Università di Granada.</string>
     <string name="error">Errore</string>
     <string name="error_args">Errore nei argomenti.</string>
     <string name="error_lang_not_found">Linguaggio non trovato.</string>

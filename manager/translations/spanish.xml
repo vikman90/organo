@@ -8,7 +8,7 @@
     <string name="shutdown">Apagar</string>
     <string name="reboot">Reiniciar</string>
     <string name="language">Idioma</string>
-    <string name="footer">Universidad de Granada.</string>
+    <string name="footer">Víctor Manuel Fernández Castro - Universidad de Granada.</string>
     <string name="error">Error</string>
     <string name="error_args">Error en los argumentos.</string>
     <string name="error_lang_not_found">Código de lenguaje no encontrado.</string>
@@ -32,7 +32,7 @@
     <string name="playlist_empty">Vacía</string>
     <string name="score">pieza</string>
     <string name="scores">piezas</string>
-    <string name="accept">Acceptar</string>
+    <string name="accept">Aceptar</string>
     <string name="cancel">Cancelar</string>
     <string name="name">Nombre</string>
     <string name="add_score">Nueva pieza</string>
