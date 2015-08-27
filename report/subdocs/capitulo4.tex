@@ -175,10 +175,13 @@ El módulo \textit{MIDI} solo se usa directamente a través del planificador. É
 \smallskip
 
 \subsection{Control por socket}
+\label{subsec:daemon}
 
 Un \textit{socket} un mecanismo de comunicación inter-proceso ---\textit{IPC (inter-process communication)} que proporciona \textit{Linux} y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
 
-Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de \textit{Linux}, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos a continuación.
+Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de \textit{Linux}, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
+
+\subsection{Funciones}
 
 Las funciones diseñadas son las siguientes:
 
@@ -217,58 +220,8 @@ El módulo correspondiente al \textit{socket} solamente interacciona internament
 
 \smallskip
 
-\subsubsection{Lenguaje de la interfaz}
-
-El \textit{socket} reconocerá y ejecutará una serie de órdenes, emitiendo siempre una respuesta:
-
-\begin{description}
-	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
-	
-	\begin{description}
-		\item[OK] en caso de éxito.
-		\item[ERROR] en caso de error o estar en modo Ingeniería.
-	\end{description}
-	
-	\item[PLAYLOOP <archivo> [ <archivo>*]] Reproducir en bucle una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
-	
-	\begin{description}
-		\item[OK] en caso de éxito.
-		\item[ERROR] en caso de error o estar en modo Ingeniería.
-	\end{description}
-	
-	\item[PAUSE] Pausar la reproducción. Silencia las notas pero manteniendo el estado. Respuesta:
-	
-	\begin{description}
-		\item[OK] en caso de éxito.
-		\item[ERROR] en caso de error, como estar detenido, o en modo Ingeniería.
-	\end{description}
-	
-	\item[RESUME] Reanuda la reproducción en el punto en que se pausó. Respuesta:
-	
-	\begin{description}
-		\item[OK] en caso de éxito.
-		\item[ERROR] en caso de error, como no estar pausado, o en modo Ingeniería.
-	\end{description}
-	
-	\item[STOP] Detiene completamente la reproducción y libera la lista de reproducción. Respuesta:
-	
-	\begin{description}
-		\item[OK] en caso de éxito.
-		\item[ERROR] en caso de error o estar en modo Ingeniería.
-	\end{description}
-	
-	\item[STATUS] Consulta el estado del reproductor. Respuesta:
-	
-	\begin{description}
-		\item[PLAYING <archivo>] Reproduciendo el archivo cuya ruta absoluta se especifica.
-		\item[PAUSED <archivo>] Pausado en un punto del archivo cuya ruta se indica.
-		\item[STOPPED] Detenido. Es el estado inicial.
-		\item[ENGINEER] En modo Ingeniería. No se puede reproducir nada hasta desbloquearse.
-	\end{description}
-	
-\end{description}
-
 \subsection{Control del mando}
+\label{subsec:daemon_mando}
 
 Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \textit{UART} ---\textit{Universal Asynchronus Receiver-Transmiter}---, que controla los puertos serie.
 
@@ -280,7 +233,7 @@ Este módulo tiene una topología análoga al control por \textit{socket}, tan s
 
 De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la orden correspondiente.
 
-Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos más adelante, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
+Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos en la sección \ref{sec:database}, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
 
 Las funciones correspondientes a este módulo son las siguientes:
 
@@ -316,7 +269,7 @@ Este bloque interacciona con el planificador en unos términos similares al \tex
 
 \subsection{Comunicación con la base de datos}
 
-La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos próximamente. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos, mediante las siguientes funciones:
+La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos en la sección \ref{sec:database}. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos, mediante las siguientes funciones:
 
 \begin{description}[style=nextline]
 	\item[db\_init () : \textit{dword}]
@@ -354,10 +307,13 @@ La interfaz de la base de datos es utilizada exclusivamente por el servidor del 
 \smallskip
 
 \subsection{Planificador}
+\label{subsec:planificador}
 
 El planificador es la pieza principal del reproductor. Recibe las órdenes de los controladores y la lista de partituras a ejecutar. Una a una las lee con ayuda del módulo \textit{MIDI} y planifica los eventos de todas las pistas para lanzarlos a la salida en el momento necesario.
 
 Al igual que otros módulos, utiliza una hebra para reproducir los archivos, pero en este caso es una hebra dinámica, que podrá ser iniciada, pausada y detenida por el resto de procesos, por lo que hay que tener en cuenta los problemas de concurrencia para garantizar la consistencia del sistema.
+
+\subsubsection{Funciones}
 
 La interfaz que el planificador ofrece es la que sigue:
 
@@ -375,6 +331,9 @@ La interfaz que el planificador ofrece es la que sigue:
 	
 	\item[player\_pause () : \textit{dword}]
 	Pausa la reproducción, si estaba activa. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[player\_resume () : \textit{dword}]
+	Reanuda la reproducción, si estaba pausada. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
 	\item[player\_stop () : \textit{dword}]
 	Detiene completamente la reproducción, si estaba activa o pausada. Si estaba parado, no hace nada. Devuelve 0 en caso de éxito o -1 en caso de error.
@@ -611,6 +570,7 @@ Para autorizar a un usuario a acceder al \textit{socket}, simplemente hay que a�
 Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es inseguro mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, reduciremos los permisos después de inicializar el proceso, como medida adicional para evitar problemas.
 
 \section{Base de datos}
+\label{sec:database}
 
 La información que queremos almacenar funciona de la siguiente forma:
 
@@ -836,15 +796,32 @@ La portada es la vista principal y va a cumplir dos funciones:
 	\item Introducir una contraseña para acceder al sistema.
 \end{enumerate}
 
-La vista proporcionará un fondo dinámico, con varias imágenes temáticas, y un cuadro para introducir la contraseña. Al hacerlo, se enviará al controlador, que se ocupará de verificar que la clave es correcta y concederá el acceso al reproductor.
-
 \subsubsection{Autentificación}
 
 El módulo de autentificación recibe la contraseña introducida por el usuario, y utiliza la interfaz del modelo para validarla.
 
-La contraseña será la de un usuario (a especificar) del sistema Linux, que provee una forma segura de almacenar contraseñas cifradas y gestionar usuarios. La verificación no se hará directamente, sino que llamaremos a un programa externo, que describiremos más abajo, para que haga tal trabajo.
+La contraseña será la de un usuario (a especificar) del sistema Linux, que provee una forma segura de almacenar contraseñas cifradas y gestionar usuarios. La verificación no se hará directamente, sino que llamaremos a un programa externo, que describiremos más abajo, en la sección \ref{subsec:applogin}, para que haga tal trabajo.
 
 El resto de vistas y controladores de la interfaz deberán consultar si se ha iniciado sesión antes de proceder a realizar la petición correspondiente. Cuando un usuario accede al sistema con una contraseña válida, se guardará una marca en su sesión para no tener que introducirla en cada vista.
+
+
+\subsubsection{Maqueta}
+
+La vista proporcionará un fondo dinámico, con varias imágenes temáticas, y un cuadro para introducir la contraseña. Al hacerlo, se enviará al controlador, que se ocupará de verificar que la clave es correcta y concederá el acceso al reproductor.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/cap_portada}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_portada} Maqueta de la portada.}
+\end{figure}
+
+\smallskip
+
+\subsubsection{Funciones}
 
 Definiremos las siguientes funciones:
 
@@ -862,6 +839,8 @@ Definiremos las siguientes funciones:
 	Cierra la sesión retirando la marca de autorización de la sesión. Redirige a la portada.
 	
 \end{description}
+
+\subsubsection{Diagrama de uso}
 
 A continuación mostramos el diagrama de uso de la vista de portada y el módulo de acceso:
 
@@ -900,6 +879,24 @@ Hay que tener en cuenta que el protocolo de comunicación establece que el repro
 
 Esto se hace así para evitar mantener un estado común entre el demonio y la interfaz, que podría provocar incoherencias si el cliente se desconecta repentinamente o si hay varios usuarios conectados al mismo tiempo.
 
+\subsubsection{Maqueta}
+
+Guiados por la lista de controles requeridos y la filosofía de \textit{Material Design}, proponemos la siguiente interfaz visual:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/cap_reproductor}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_reproductor} Maqueta del reproductor.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Funciones}
+
 Se definirán las siguientes funciones:
 
 \begin{description}[style=nextline]
@@ -923,6 +920,8 @@ Se definirán las siguientes funciones:
 	Detiene completamente la reproducción en el demonio.
 	
 \end{description}
+
+\subsubsection{Diagrama de uso}
 
 El reproductor interacciona con el resto de la interfaz según este esquema:
 
@@ -958,6 +957,24 @@ El gestor se presentará con los siguientes controles:
 	
 \end{enumerate}
 
+\subsubsection{Maqueta}
+
+Hemos diseñado la vista de este módulo con el siguiente aspecto:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/cap_listas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_listas} Maqueta del gestor de listas de reproducción.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Funciones}
+
 El controlador tendrá las siguientes funciones:
 
 \begin{description}[style=nextline]
@@ -991,6 +1008,8 @@ El controlador tendrá las siguientes funciones:
 	
 \end{description}
 
+\subsubsection{Diagrama de uso}
+
 Los componentes implicados en la gestión de listas se relacionan de la siguiente forma:
 
 \smallskip
@@ -1007,33 +1026,603 @@ Los componentes implicados en la gestión de listas se relacionan de la siguient
 
 \subsection{Gestión de partituras}
 
+El gestor de partituras está estrechamente relacionado con el de listas de reproducción, en tanto que realmente es el gestor de una lista concreta. Desde aquí podremos conocer el contenido de cada lista, así como renombrarla y eliminarla. Al mismo tiempo, servirá para añadir partituras, cambiar su título y borrarlas, de una forma similar a las propias listas.
 
+Los controles de la interfaz serán los siguientes:
 
+\begin{enumerate}
+	\item Editar el nombre de la lista que se está mostrando.
+	\item Eliminar completamente la lista.
+	\item Añadir una pieza a la lista.
+	\item Control oculto para añadir una pieza arrastrando un fichero sobre la vista (\textit{drag \& drop}).
+	\item Lista de partituras que contiene la lista, con el siguiente contenido:
+	
+	\begin{enumerate}
+		\item Nombre de la pieza.
+		\item Duración de la obra.
+		\item Vínculo para reproducirla.
+		\item Vínculo para descargarla en el cliente.
+		\item Control para renombrar la partitura.
+		\item Control para eliminar la pieza.
+	\end{enumerate}
+\end{enumerate}
 
+\subsubsection{Maqueta}
+
+Todos los controles se dispondrán de la siguiente forma:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/cap_piezas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_piezas} Maqueta del gestor de piezas musicales.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Funciones}
+
+Para hacer funcionar este módulo son necesarios los siguientes procedimientos:
+
+\begin{description}[style=nextline]
+	\item[new\_score (idplaylist, name, score)]
+	Inserta una pieza en la lista de reproducción y guarda el archivo en el almacenamiento interno. Para conocer la duración de una partitura, hace una llamada a lun aplicación que diseñaremos para extraer información de archivos \textit{MIDI} (véase la sección \ref{subsec:midinfo}).
+	
+	\begin{description}
+		\item[idplaylist] ID de la lista de reproducción que contendrá la partitura.
+		\item[name] Nombre que identificará a la nueva obra.
+		\item[score] Fichero de formato \textit{MIDI} que contiene la pieza.
+	\end{description}
+	
+	Redirige al administrador de la lista contenedora.
+	
+	\item[rename\_score (idscore, name)]
+	Cambia el nombre de una pieza existente.
+	
+	\begin{description}
+		\item[idscore] ID de la partitura en la base de datos.
+		\item[name] Nuevo nombre a asignar a la pieza.
+	\end{description}
+	
+	Redirige al administrador de la lista que contiene la partitura.
+	
+	\item[delete\_score (idscore)]
+	Elimina una partitura de la base de datos y del almacenamiento.
+	
+	\begin{description}
+		\item[idscore] ID de la pieza en la base de datos.
+	\end{description}
+	
+	Redirige al gestor partituras que contenía a la pieza eliminada.
+	
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+La interacción entre los componentes implicados es la siguiente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/mvc_piezas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:mvc_piezas} Módulos implicados en el gestor de partituras.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Asignación del mando a listas}
 
+Como ya sabemos, en base al diseño general, dispondremos de un mando a distancia que permitirá iniciar la reproducción de listas de partituras según una asignación que podrá realizar el usuario.
+
+La adición o sustracción de botones compete al administrador del sistema, pero la asignación puede ser modificada por cualquier usuario. La interfaz es sencilla: se mostrará una lista de todos los botones disponibles, junto a un menú desplegable que presentará todas las listas existente, dando opción a escoger una de ellas, o ninguna.
+
+Recordar que esta interfaz normalmente mostrará menos botones de los que tiene el mando, ya que se debe reservar al menos dos para pausar y detener la reproducción.
+
+\subsubsection{Maqueta}
+
+Esta es la vista de este componente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/cap_mando}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_mando} Maqueta del gestor de botones del mando.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Funciones}
+
+El controlador utilizará la siguiente función:
+
+\begin{description}[style=nextline]
+	\item[set\_shortcut (idshortcut, idplaylist)]
+	Asignar una lista de reproducción a un botón del mando.
+	
+	\begin{description}
+		\item[idshortcut] ID del botón del mando en la base de datos.
+		\item[idplaylist] ID de la lista de partituras escogida. Puede ser un valor nulo.
+	\end{description}
+	
+	Redirige a la vista del asignaciones del mando.
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+El gestor de botones del mando relaciona sus componentes de la siguiente manera:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/mvc_mando}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:mvc_mando} Módulos implicados en el gestor del mando.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Control de energía}
+
+Hemos contemplado proveer la posibilidad de apagar o reiniciar el sistema remotamente. Para ello, ofreceremos un menú en la cabecera de la pantalla, que será común a todas las vistas, excepto la portada, con el siguiente contenido:
+
+\begin{enumerate}
+	\item Apagar el sistema.
+	\item Reiniciar el sistema.
+\end{enumerate}
+
+El control de energía es una operación de control, no de vista. El menú presentado se muestra en la figura \ref{fig:maqueta}.
+
+\subsubsection{Funciones}
+
+Tendremos dos funciones de control, que ejecutarán la orden correspondiente a la gestión de energía en el sistema operativo subyacente.
+
+\begin{description}[style=nextline]
+	\item[shutdown ()]
+	Solicita el apagado del sistema. Muestra un mensaje de confirmación.
+	
+	\item[reboot ()]
+	Solicita el reinicio del sistema. Muestra un mensaje de confirmación y programa una recarga de página.
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+El diagrama de uso es más sencillo que en los casos anteriores, porque en este caso no tenemos una vista, solamente el controlador que ejecuta una orden en el sistema operativo.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/mvc_energia}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:mvc_energia} Módulos implicados en el control de energía.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Soporte de idiomas}
 
+Uno de los requisitos especificados es que la interfaz soporte varios idiomas. Modelaremos la solución para que sea fácil tanto escoger un idioma como agregar nuevas lenguas.
+
+Para ello, utilizaremos archivos de traducción independientes que el sistema detectará automáticamente, permitiendo que añadir un idioma sea tan sencillo como agregar un fichero nuevo.
+
+Al igual que el control de energía, el selector de idioma aparecerá como un menú desplegable en la cabecera de la aplicación, pero a diferencia de aquél, también se mostrará en la portada.
+
+\subsubsection{Formato del archivo de traducción}
+
+El sistema de traducción estará basado en pares \textit{clave-contenido}. El lenguaje de los ficheros derivará del \textit{XML ---eXtensible Markup Language---} y tendrá la siguiente estructura:
+
+\begin{description}[style=nextline]
+	\item[translation]
+	Elemento raíz. Define la traducción completa a un idioma. Sus atributos son:
+	
+	\begin{description}
+		\item[code] Código estándar del idioma, como "es" (español) o "en" (inglés).
+		\item[language] Nombre de la lengua, escrito en el propio idioma.
+	\end{description}
+	
+	Contendrá como hijos tantos elementos \textit{string} como sea necesario.
+	
+	\item[string]
+	Significado de una cadena clave. Tiene un atributo:
+	
+	\begin{description}
+		\item[name] Clave de traducción.
+	\end{description}
+	
+	Su nodo hijo será la cadena de texto que se mostrará en la interfaz.
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+De la misma forma que ocurría con el gestor de energía, no existe una vista propia de este componente. Con lo cual solo tenemos elementos de modelo y de controlador:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/mvc_idioma}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:mvc_idioma} Módulos implicados en el control de energía.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Funciones}
+
+El módulo de traducción consta de los siguientes elementos:
+
+\begin{description}[style=nextline]
+	\item[Estructura \textit{Translator}]
+	Representa un traductor, con los siguientes campos:
+	
+	\begin{description}
+		\item[code] Código estándar del idioma.
+		\item[language] Nombre de la lengua.
+		\item[strings : \textit{array(string)}] Lista de cadenas de traducción.
+	\end{description}
+	
+	\item[language (code)]
+	Selecciona una lengua para la interfaz y almacena el código en la sesión.
+	
+	\begin{description}
+		\item[code] Código del lenguaje, tal como aparece en el archivo de traducción.
+	\end{description}
+	
+	Redirige a la vista que ha llamado al controlador.
+	
+	\item[translator ()]
+	Pertenece al modelo. Busca y carga todos los archivos de traducción.
+	
+	\item[get\_translator (code)]
+	Pertenece al modelo. Busca y obtiene un objeto traductor.
+	
+	\begin{description}
+		\item[code] Código estándar del idioma.
+	\end{description}
+	
+	Devuelve el objeto traductor indicado por el código.
+\end{description}
+
 \subsection{Navegación}
+
+Como hemos visto en las maquetas, tendremos un menú lateral que nos permitirá acceder a las vistas principales de la interfaz. Aparte quedan la portada, a la que no se podrá volver ---a menos que se cierre la sesión, lo que reiniciaría la navegación--- y el gestor de piezas de una lista, al que se accederá a través del gestor general de listas.
+
+El siguiente diagrama ilustra las principales posibilidades de navegación:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/navegacion}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:navegacion} Diagrama de navegabilidad entre vistas.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Sesión}
 
+La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \textit{HTTP} (\textit{hyper-text transfer protocol}), un modelo de conexión sin estado ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
+
+Para solventar este problema, almacenaremos en el servidor una pequeña cantidad de información relativa al cliente, tal como la que sigue:
+
+\begin{enumerate}
+	\item Marca de autentificación.
+	\item Lenguaje que ha seleccionado para la interfaz.
+	\item Última vista ejecutada, útil para ciertos controladores.
+\end{enumerate}
+
+En aras de promover un diseño limpio y extensible, aislaremos esta pequeña funcionalidad en un módulo aparte en el modelo, y que sea independiente del lenguaje de implementación.
+
+\subsubsection{Funciones}
+
+Las funciones del modelo dedicadas a manipular la sesión son las siguientes:
+
+\begin{description}[style=nextline]
+	\item[test\_auth ()]
+	Comprueba si existe marca de autentificación. Si no la hay, redirige a la portada.
+	
+	\item[get\_auth () : \textit{boolean}]
+	Devuelve si existe (\textit{true}) o no (\textit{false}) la marca de autentificación.
+	
+	\item[set\_auth ()]
+	Establece la marca de autentificación. El usuario se acaba de identificar.
+	
+	\item[unset\_auth ()]
+	Quita la marca de autentificación. El usuario acaba de cerrar la sesión.
+	
+	\item[set\_page (file)]
+	Guarda el nombre de una página como la última vista ejecutada.
+	
+	\begin{description}
+		\item[file] Nombre de la página.
+	\end{description}
+	
+	\item[last\_page ()]
+	Devuelve el nombre de la última página almacenada.
+	
+	\item[set\_language (code)]
+	Establece el código de idioma como seleccionado por el usuario.
+	
+	 \begin{description}
+	 	\item[code] Código estándar del idioma escogido.
+	 \end{description}
+	 
+	 \item[get\_language ()]
+	 Devuelve el código de lengua escogido por el usuario o, en su defecto, el código del idioma por defecto.
+	
+\end{description}
+
 \subsection{Comunicación con el demonio}
+
+Especificamos ahora el módulo que hará de modelo del servicio de reproducción, ofreciendo procedimientos para realizar las operaciones elementales sobre el reproductor. Se comunicará con el demonio a través del \textit{socket} local que implementa para tal efecto (véase el apartado \ref{subsec:daemon}), y utilizando el protocolo que describiremos en la sección \ref{sec:protocolo}.
+
+\subsubsection{Funciones}
+
+Como podremos ver, la interfaz de este componente actúa como tocón hacia las funciones que implementa el planificador, descrito en la sección \ref{subsec:planificador}.
+
+\begin{description}[style=nextline]
+	\item[driver\_play (playlist, ifirst) : \textit{boolean}]
+	Reproduce una lista de piezas en bucle.
+	
+	\begin{description}
+		\item[playlist : \textit{array(string))}] Lista de nombres de archivo MIDI a reproducir.
+		\item[ifirst] Índice del primer archivo a ejecutar, que se pondrá a la cabeza de la lista.
+	\end{description}
+	
+	Devuelve \textit{true} en caso de éxito o \textit{false} en caso de error.
+	
+	\item[driver\_pause () : \textit{boolean}]
+	Pausa la reproducción, si estaba activa. Devuelve \textit{true} en caso de éxito o \textit{false} en caso de error.
+	
+	\item[driver\_resume () : \textit{boolean}]
+	Reanuda la ejecución, si estaba pausada. Devuelve \textit{true} en caso de éxito o \textit{false} en caso de error.
+	
+	\item[driver\_stop () : \textit{boolean}]
+	Detiene completamente la reproducción. Devuelve \textit{true} en caso de éxito o \textit{false} en caso de error.
+	
+	\item[driver\_status () : \textit{array}]
+	Consulta el estado de reproducción, y si corresponde, el nombre de archivo que se está reproduciendo. Devuelve un \textit{array} de uno o dos elementos, dependiendo del estado:
+	
+	\begin{description}
+		\item[PLAYING, <archivo>] Reproduciendo el archivo que indica (ruta absoluta).
+		\item[PAUSED, <archivo>] Pausado sobre el archivo espeficicado (ruta absoluta).
+		\item[STOPPED] Detenido.
+		\item[ENGINEER] En modo Ingeniería. Cualquier orden será rechazada mientras se mantenga en este estado.
+	\end{description}
+	
+\end{description}
 
 \subsection{Comunicación con la base de datos}
 
+La base de datos, diseñada en la sección \ref{sec:database}, es el principal nexo de unión entre el controlador y la vista. Aparte de las operaciones obvias, como insertar, modificar y eliminar partituras y listas, será utilizada al recibir el nombre de archivo que se está reproduciendo para inferir el título de la obra y la lista a la que pertenece.
+
+Por otro lado, el controlador del mando realiza asignaciones de botones a listas, y esta información es recogida por el demonio, en el componente descrito en la sección \ref{subsec:daemon_mando}.
+
+\subsubsection{Funciones}
+
+La interfaz del modelo de la base de datos es la que sigue:
+
+\begin{description}[style=nextline]
+	\item[Estructura \textit{playlist}]
+	Representa una lista de reproducción. Sus campos son:
+	
+	\begin{description}
+		\item[id] Identificador único.
+		\item[name] Nombre de la lista.
+		\item[scores : \textit{array(score)}] Lista de partituras incluidas.
+	\end{description}
+	
+	\item[Estructura \textit{score}]
+	Representa una partitura musical. Incluye los siguientes atributos:
+	
+	\begin{description}
+		\item[id] Identificador único.
+		\item[name] Nombre de la lista.
+		\item[duration] Duración de la pieza, en segundos.
+		\item[source] Ruta del archivo asociado.
+		\item[playlist] ID de la lista contenedora.
+	\end{description}
+	
+	\item[Estructura \textit{shortcut}]
+	Representa una asignación de botón a una lista. Sus campos son:
+	
+	\begin{description}
+		\item[id] Identificador único del botón.
+		\item[playlist] Identificador de la lista de reproducción.
+	\end{description}
+	
+	\item[database ()]
+	Inicializa el módulo, se debe llamar a esta función antes que cualquier otra de esta interfaz. En caso de error, emite un mensaje.
+	
+	\item[db\_get\_playlists () : \textit{array(playlist)}]
+	Devuelve una lista de todas las listas existentes en la base de datos.
+	
+	\item[db\_insert\_playlist (name) : \textit{integer}]
+	Inserta una nueva lista de reproducción.
+	
+	\begin{description}
+		\item[name] Nombre asignado a la lista.
+	\end{description}
+	
+	Devuelve el ID de la nueva lista.
+	
+	\item[db\_get\_playlist (idplaylist) : \textit{playlist}]
+	Busca una lista por ID.
+	
+	\begin{description}
+		\item[idplaylist] Identificador único de lista.
+	\end{description}
+	
+	Devuelve la lista de reproducción, o un valor nulo si no se encuentra.
+	
+	\item[db\_rename\_playlist (idplaylist, name)]
+	Cambia el nombre de una lista.
+	
+	\begin{description}
+		\item[idplaylist] Identificador único de lista.
+		\item[name] Nuevo nombre de la lista.
+	\end{description}
+	
+	\item[db\_delete\_playlist (idplaylist)]
+	Borra una lista de la base de datos.
+	
+	\begin{description}
+		\item[idplaylist] Identificador único de lista.
+	\end{description}
+	
+	\item[db\_insert\_score (idplaylist, name) : \textit{integer}]
+	Inserta una nueva partitura en la base de datos, dentro de una lista de reproducción
+	
+	\begin{description}
+		\item[idplaylist] Identificador único de la lista que contendrá a la pieza.
+		\item[name] Título de la obra insertada.
+	\end{description}
+	
+	Devuelve el ID de la pieza insertada.
+	
+	\item[db\_get\_score (idscore) : \textit{score}]
+	Obtiene una partitura por ID.
+	
+	\begin{description}
+		\item[idscore] Identificador único de pieza.
+	\end{description}
+	
+	Devuelve la estructura \textit{score} correspondiente, o un valor nulo si no se encuentra.
+	
+	\item[db\_set\_score\_duration (idscore, duration)]
+	Establece la duración de una pieza.
+	
+	\begin{description}
+		\item[idscore] Identificador único de partitura.
+		\item[duration] Duración de la pieza, en segundos.
+	\end{description}
+	
+	\item[db\_find\_score (source) ]
+	Busca una partitura por el nombre de archivo.
+	
+	\begin{description}
+		\item[source] Nombre del archivo \textit{MIDI} como criterio de búsqueda.
+	\end{description}
+	
+	Devuelve el objeto \textit{score} de la partitura, o un valor nulo si no se encuentra.
+	
+	\item[db\_rename\_score (idscore, name)]
+	Cambia el nombre de una partitura.
+	
+	\begin{description}
+		\item[idscore] Identificador único de pieza.
+		\item[name] Nuevo título de la obra.
+	\end{description}
+	
+	\item[db\_delete\_score (idscore)]
+	Elimina la tupla correspondiente a una pieza.
+	
+	\begin{description}
+		\item[idscore] Identificador único de partitura.
+	\end{description}
+	
+	\item[db\_get\_shortcuts () : \textit{array(shortcut)}]
+	Obtiene una lista con todas las asignaciones del mando a distancia.
+	
+	\item[db\_set\_shortcut (idshortcut, idplaylist)]
+	Establece una asignación de un botón del mando a una lista de reproducción.
+
+	\begin{description}
+		\item[idshortcut] Identificador único del botón.
+		\item[idplaylist] Identificador único de la lista.
+	\end{description}
+\end{description}
+
 \section{Protocolo entre el control y el demonio}
+\label{sec:protocolo}
+
+Como hemos visto, la interfaz de usuario y el servicio en segundo plano se comunican a través de un socket que hace de puente entre el reproductor de la interfaz y el planificador del demonio.
+
+La interfaz estará basada en lenguaje natural, su diseño debe ser sencillo y debe maximizar la coherencia entre ambos subsistemas, evitando inconsistencias en supuestos como los siguientes:
+
+\begin{enumerate}
+	\item El usuario hace una petición de reproducción e inmediatamente después se desconecta.
+	\item Se elimina la lista de reproducción que se está ejecutando.
+	\item Varios usuarios controlan simultáneamente la interfaz
+\end{enumerate}
+
+Para obtener una comunicación consistente, el demonio no guardará más estado que el del planificador, y no será consciente de la organización en listas de reproducción de la base de datos. Por su parte, la interfaz gráfica se referirá a las partituras con rutas absolutas a los archivos correspondientes a las partituras.
+
+Las peticiones que describen el protocolo resultante, así como las posibles respuestas, se enumeran de la siguiente forma:
+
+\begin{description}
+	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[PLAYLOOP <archivo> [ <archivo>* ]] Reproducir en bucle una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[PAUSE] Pausar la reproducción. Silencia las notas pero manteniendo el estado. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error, como estar detenido, o en modo Ingeniería.
+	\end{description}
+	
+	\item[RESUME] Reanuda la reproducción en el punto en que se pausó. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error, como no estar pausado, o en modo Ingeniería.
+	\end{description}
+	
+	\item[STOP] Detiene completamente la reproducción y libera la lista de reproducción. Respuesta:
+	
+	\begin{description}
+		\item[OK] en caso de éxito.
+		\item[ERROR] en caso de error o estar en modo Ingeniería.
+	\end{description}
+	
+	\item[STATUS] Consulta el estado del reproductor. Respuesta:
+	
+	\begin{description}
+		\item[PLAYING <archivo>] Reproduciendo el archivo cuya ruta absoluta se especifica.
+		\item[PAUSED <archivo>] Pausado en un punto del archivo cuya ruta se indica.
+		\item[STOPPED] Detenido. Es el estado inicial.
+		\item[ENGINEER] En modo Ingeniería. No se puede reproducir nada hasta desbloquearse.
+	\end{description}
+	
+\end{description}
 
 \section{Aplicaciones auxiliares}
 
 \subsection{Terminal del reproductor}
 
 \subsection{Información de archivo MIDI}
+\label{subsec:midinfo}
 
 \subsection{Comprobación de contraseña}
+\label{subsec:applogin}
+
+\subsection{Simulador de reproducción}
 
 \clearpage{\cleardoublepage}
 \clearpage{\pagestyle{empty}\cleardoublepage}
