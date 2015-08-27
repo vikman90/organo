@@ -14,7 +14,7 @@
     <string name="error_lang_not_found">Linguaggio non trovato.</string>
     <string name="shutting_down">Spegnendo...</string>
     <string name="rebooting">Riavviando...</string>
-    <string name="error_shutting_down">Non è stato possibilie di spegnere il computer.</string>
+    <string name="error_shutting_down">Non è stato possibile di spegnere il computer.</string>
     <string name="shutdown_confirm">Sei sicuro di volere spegnere il computer?</string>
     <string name="reboot_confirm">Sei sicuro di volere riavviare il computer?</string>
     <string name="login">Accesso</string>
@@ -43,11 +43,11 @@
     <string name="delete">Cancella</string>
     <string name="rename_playlist">Rinominare playlist</string>
     <string name="delete_playlist">Cancellare playlist</string>
-    <string name="confirm_delete_playlist">È sicuro? Ogni brano incluso nella playlist verrà anche eliminato.</string>
+    <string name="confirm_delete_playlist">Sei sicuro? Ogni brano incluso nel playlist verrà anche eliminato.</string>
     <string name="logout">Uscire</string>
     <string name="rename_score">Rinominare brano</string>
     <string name="delete_score">Cancellare brano</string>
-    <string name="confirm_delete_score">É sicuro?</string>
+    <string name="confirm_delete_score">Sei sicuro?</string>
     <string name="error_socket">Non è stato possibile collegare al socket.</string>
     <string name="error_driver">Error nel driver.</string>
     <string name="unknown">Sconosciuto</string>
