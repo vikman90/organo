@@ -430,7 +430,7 @@ La información nos viene dada por tres canales: uno para el pulsador y dos para
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo3/rotary}
+		\includegraphics[width=\linewidth/3]{capitulo3/rotary}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:rotary} Código de señales utilizado por el ECJ11.}
@@ -440,7 +440,7 @@ La información nos viene dada por tres canales: uno para el pulsador y dos para
 
 Los puntos de equilibro ---\textit{detent stability points}--- coinciden con los saltos del canal B, de forma que a la mitad del recorrido de un giro cambiará el canal A. Todo lo que tenemos que hacer entonces es detectar un cambio en A y comparar el valor de A y B: si son iguales, significa que se ha rotado en sentido antihorario; si son distintos, entendemos que se ha girado en sentido horario.
 
-\subsection{Conexión entre la PCb y los periféricos}
+\subsection{Conexión entre la PCB y los periféricos}
 
 \smallskip
 
@@ -684,6 +684,28 @@ Los tipos de meta-evento estándar son los siguientes:
 \subsubsection{Notas}
 
 Las notas en \textit{MIDI} se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
+
+\section{Esquema de interconexión general}
+
+Todos los elementos que hemos descrito conformarán la parte \textit{hardware} del sistema y establecerán una conexión cuyos extremos son el computador \textit{Raspberry Pi} y los mecanismos que interactuarán con la consola del órgano.
+
+A continuación presentamos un diagrama que describe a \textit{grosso modo} la conexión lógica entre todos los elementos \textit{hardware}:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/hardware}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:hardware} Conexión lógica entre los elementos \textit{hardware}.}
+\end{figure} 
+
+\smallskip
+
+La \textit{PCB} incorpora una fuente de alimentación para el \textit{Raspberry}, que está conectada mediante la interfaz \textit{GPIO}. Todas las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
+
+El resto de periféricos nos serán de utilidad para desarrollar un sistema que cumplirá todos los requisitos contemplados en el capítulo \ref{cap:capitulo_2}.
 
 \clearpage{\cleardoublepage}
 \clearpage{\pagestyle{empty}\cleardoublepage}
