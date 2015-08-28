@@ -64,6 +64,7 @@ Así, el esquema de uso de los distintos componentes queda así:
 \smallskip
 
 \subsection{Descodificador de MIDI}
+\label{subsec:daemon_midi}
 
 Como hemos detallado más arriba, el formato \textit{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
 
@@ -181,7 +182,7 @@ Un \textit{socket} un mecanismo de comunicación inter-proceso ---\textit{IPC (i
 
 Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de \textit{Linux}, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
 
-\subsection{Funciones}
+\subsubsection{Funciones}
 
 Las funciones diseñadas son las siguientes:
 
@@ -235,6 +236,8 @@ De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la
 
 Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos en la sección \ref{sec:database}, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
 
+\subsubsection{Funciones}
+
 Las funciones correspondientes a este módulo son las siguientes:
 
 \begin{description}[style=nextline]
@@ -269,7 +272,11 @@ Este bloque interacciona con el planificador en unos términos similares al \tex
 
 \subsection{Comunicación con la base de datos}
 
-La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos en la sección \ref{sec:database}. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos, mediante las siguientes funciones:
+La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos en la sección \ref{sec:database}. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos.
+
+\subsubsection{Funciones}
+
+El sistema se comunicará con la base de datos mediante las siguientes funciones:
 
 \begin{description}[style=nextline]
 	\item[db\_init () : \textit{dword}]
@@ -480,6 +487,7 @@ El módulo que controla el modo Ingeniería interacciona con el planificador, pa
 \smallskip
 
 \subsection{Salida hacia la PCB}
+\label{subsec:output}
 
 El reproductor delega en el módulo de salida las siguientes funciones:
 
@@ -490,6 +498,8 @@ El reproductor delega en el módulo de salida las siguientes funciones:
 \end{enumerate}
 
 Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de aislar la salida también nos da flexibilidad para sustituir la interfaz \textit{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
+
+\subsubsection{Funciones}
 
 Las siguientes funciones conforman la interfaz del módulo:
 
@@ -788,6 +798,7 @@ Una vez dibujados los primeros trazos, no es necesario maquetar completamente la
 \smallskip
 
 \subsection{Portada}
+\label{subsec:portada}
 
 La portada es la vista principal y va a cumplir dos funciones:
 
@@ -1025,6 +1036,7 @@ Los componentes implicados en la gestión de listas se relacionan de la siguient
 \smallskip
 
 \subsection{Gestión de partituras}
+\label{subsec:piezas}
 
 El gestor de partituras está estrechamente relacionado con el de listas de reproducción, en tanto que realmente es el gestor de una lista concreta. Desde aquí podremos conocer el contenido de cada lista, así como renombrarla y eliminarla. Al mismo tiempo, servirá para añadir partituras, cambiar su título y borrarlas, de una forma similar a las propias listas.
 
@@ -1376,12 +1388,15 @@ Especificamos ahora el módulo que hará de modelo del servicio de reproducción
 Como podremos ver, la interfaz de este componente actúa como tocón hacia las funciones que implementa el planificador, descrito en la sección \ref{subsec:planificador}.
 
 \begin{description}[style=nextline]
+	\item[driver ()]
+	Establece la comunicación con el \textit{socket}. En caso de error, muestra un mensaje.
+	
 	\item[driver\_play (playlist, ifirst) : \textit{boolean}]
 	Reproduce una lista de piezas en bucle.
 	
 	\begin{description}
-		\item[playlist : \textit{array(string))}] Lista de nombres de archivo MIDI a reproducir.
-		\item[ifirst] Índice del primer archivo a ejecutar, que se pondrá a la cabeza de la lista.
+		\item[playlist : \textit{array(string)}] Lista de nombres de archivo MIDI a reproducir.
+		\item[ifirst : \textit{integer}] Índice del primer archivo a ejecutar, que se pondrá a la cabeza de la lista.
 	\end{description}
 	
 	Devuelve \textit{true} en caso de éxito o \textit{false} en caso de error.
@@ -1607,22 +1622,182 @@ Las peticiones que describen el protocolo resultante, así como las posibles res
 		\item[PLAYING <archivo>] Reproduciendo el archivo cuya ruta absoluta se especifica.
 		\item[PAUSED <archivo>] Pausado en un punto del archivo cuya ruta se indica.
 		\item[STOPPED] Detenido. Es el estado inicial.
-		\item[ENGINEER] En modo Ingeniería. No se puede reproducir nada hasta desbloquearse.
+		\item[ENGINEER] En modo Ingeniería. No se podrá reproducir nada hasta desbloquearse.
 	\end{description}
 	
 \end{description}
 
 \section{Aplicaciones auxiliares}
 
-\subsection{Terminal del reproductor}
+De acuerdo con los requisitos, hemos concebido el sistema como la conjunción de tres grandes bloques: la base de datos, el demonio como \textit{back-end} y la interfaz \textit{web} como \textit{front-end}. Sin embargo, tal como están diseñados, existe una dependencia mutua total, contraproducente para la fase de implementación, donde será necesario realizar pequeñas pruebas sobre el código que vayamos construyendo.
+
+Para verificar el desarrollo, vamos a prever la necesidad de probar los módulos críticos del diseño, a saber:
+
+\begin{enumerate}
+	\item Descodificador de archivos \textit{MIDI}.
+	\item Planificador.
+	\item Interfaz de salida.
+	\item Servidor \textit{socket}.
+\end{enumerate}
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/daemon_critical}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:daemon_critical} Módulos críticos del \textit{back-end}.}
+\end{figure} 
+
+\smallskip
+
+En las secciones siguientes describiremos las soluciones que nos servirán para probar estos componentes.
+
+Por otro lado, el \textit{front-end} necesita dos aplicaciones externas para distintos fines:
+
+\begin{enumerate}
+	\item El gestor de piezas (sección \ref{subsec:piezas}) requiere conocer la duración de una partitura mediante un programa que analice archivos \textit{MIDI}.
+	\item El componente de autentificación (dentro de la sección \ref{subsec:portada}) necesita comprobar externamente la contraseña introducida por el usuario.
+\end{enumerate}
 
 \subsection{Información de archivo MIDI}
 \label{subsec:midinfo}
 
+Esta aplicación cumplirá dos fines:
+
+\begin{enumerate}
+	\item Validar el analizador de archivos \textit{MIDI}.
+	\item Servir al \textit{front-end} la duración de una partitura.
+\end{enumerate}
+
+Sencillamente, utilizará la interfaz creada por el descodificador \textit{MIDI} (visto en la sección \ref{subsec:daemon_midi}) para enviar el nombre de un fichero \textit{MIDI}, descodificarlo y mostrar en la salida estándar la información básica de una partitura:
+
+\begin{enumerate}
+	\item Organización de las pistas.
+	\item Número de pistas.
+	\item División de tiempo.
+	\item Duración de la obra.
+\end{enumerate}
+
+Esta información podrá ser aprovechada tanto desde el terminal como desde la interfaz gráfica.
+
+\subsubsection{Diagrama de uso}
+
+Al utilizar simplemente la interfaz del componente \textit{MIDI}, éste es el único elemento que habrá que implementar para validarlo.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/3]{capitulo4/midi_info}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:midi_info} Interacción del programa con el \textit{back-end}.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Simulador de reproducción}
+
+El siguiente bloque a construir será el planificador (véase la sección \ref{subsec:planificador}) y la interfaz de salida (explicada en la sección \ref{subsec:output}). Ésta es una parte fundamental del planificador pero, como ya explicamos, la colocamos en un componente aparte para permitir implementar la interfaz según nuestras necesidades, bien para movernos de un órgano a otro, o bien para definir otro tipo de salida.
+
+Vamos a hacer una pequeña aplicación que nos permita verificar el funcionamiento del planificador y la interfaz de salida, de la siguiente manera:
+
+\begin{enumerate}
+	\item Interactuará directamente con el planificador, de la misma forma que hará el \textit{socket} o el \textit{UART}.
+	\item Implementará la salida (diseñada para el \textit{GPIO}) sobre la salida estándar, suplantando a la \textit{PCB}.
+\end{enumerate}
+
+\subsubsection{Diagrama de uso}
+
+Este programa utilizará el planificador e implementará la interfaz de salida:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/midi_test}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:midi_test} Interacción del programa con el \textit{back-end}.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Terminal del reproductor}
+
+Una vez implementados los componentes críticos del demonio, crearemos un sencillo programa que haga las llamadas básicas del protocolo a través del \textit{socket}, como lo hará la interfaz gráfica. Esto nos permitirá comprobar que la estructura principal funciona correctamente, y manejar el reproductor sin la interfaz gráfica.
+
+La aplicación admitirá los siguientes argumentos:
+
+\begin{description}
+	\item[play <archivo>] Ejecutar un fichero \textit{MIDI}.
+	\item[playloop <archivo>] Reproducir en bucle un archivo..
+	\item[pause] Pausar la reproducción, si estaba funcionando.
+	\item[resume] Reanudar la ejecución, si estaba pausada.
+	\item[stop] Detener completamente la reproducción.
+	\item[status] Mostrar información del planificador.
+\end{description}
+
+\subsubsection{Diagrama de uso}
+
+Contando con una etapa madura del desarrollo, el terminal se comunicará con el \textit{back-end} a través del socket. Esto requerirá que ya esté funcionando como proceso demonio, y permitirá detectar posibles errores de implementación.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo4/terminal}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:terminal} Interacción del programa con el \textit{back-end}.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Comprobación de contraseña}
 \label{subsec:applogin}
 
-\subsection{Simulador de reproducción}
+Por último, concebiremos una aplicación minimalista para comprobar la contraseña del usuario. Dependiendo del grado de seguridad que implantemos, crearemos o no un usuario dedicado con permiso para utilizar la interfaz gráfica.
+
+La aplicación recibe los siguientes argumentos por consola:
+
+\begin{enumerate}
+	\item Nombre de usuario.
+	\item Contraseña introducida.
+\end{enumerate}
+
+Se verificará que la contraseña introducida corresponda a la del usuario en Linux con el nombre indicado, y el resultado se indicará como código de salida del proceso:
+
+\begin{description}
+	\item[0] Usuario y contraseña válidos.
+	\item[1] El nombre de usuario no existe, o bien la contraseña es incorrecta.
+\end{description}
+
+\section{Resultado del diseño}
+
+El desarrollo de este capítulo nos ha permitido afinar con un alto nivel de detalle el esbozo inicial (figura \ref{fig:idea}), hasta obtener los tres grandes bloques del diseño:
+
+\begin{enumerate}
+	\item Un demonio de \textit{Linux}, como \textit{back-end}.
+	\item Una base de datos, como sistema de almacenamiento persistente.
+	\item Una interfaz \textit{web}, como \textit{front-end}.
+\end{enumerate}
+
+En definitiva, hemos concebido un completo sistema de control para la \textit{PCB}, cuyo funcionamiento se resume en el siguiente diagrama:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth]{capitulo4/sistema}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:sistema} Resumen del diseño del sistema.}
+\end{figure} 
+
+\smallskip
 
 \clearpage{\cleardoublepage}
 \clearpage{\pagestyle{empty}\cleardoublepage}
