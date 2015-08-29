@@ -62,9 +62,9 @@ En la planta de arriba se encuentra la esencia del instrumento: alrededor de 600
 
 \smallskip
 
-La parte más importante del órgano es el llamado \textit{secreto}, una galería a la que entra el aire procedente de la cámara de almacenamiento y se distribuye en cientos de conductos que llevan a las válvulas y los tubos. Siendo éste el corazón de la obra, dentro de él se halla una partitura firmada por el constructor del órgano. En tiempos en los que no existían los manguitos de goma, los conductos están tallados artesanalmente dentro de bloques de madera.
+La parte más importante del órgano es el llamado \textbf{secreto}, una galería a la que entra el aire procedente de la cámara de almacenamiento y se distribuye en cientos de conductos que llevan a las válvulas y los tubos. Siendo éste el corazón de la obra, dentro de él se halla una partitura firmada por el constructor del órgano. En tiempos en los que no existían los manguitos de goma, los conductos están tallados artesanalmente dentro de bloques de madera.
 
-La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y diseñar el modelo en 3D con el software SolidWorks.
+La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y diseñar el modelo en 3D con el \textit{software} \textit{SolidWorks}.
 
 \subsection{Teclados}
 
@@ -84,7 +84,7 @@ Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondi
 
 Tanto las medidas de cada tecla como su calado (diferencia entre la posición del borde de una tecla pulsada y sin pulsar) son estándar y coincidentes con las del piano. De la misma forma, la tecla \textit{Do} del centro hace sonar la nota \textit{Do 4} \footnotemark.
 
-\footnotetext{En España se utilizan dos índices de notación musical: el franco-belga, que asigna el nombre \textit{La 3} a la nota cuya frecuencia fundamental vibra a 440 \textit{Hz}, y el índice científico, que asigna \textit{La 4} a la misma nota. En este proyecto utilizaremos el índice científico, ya que es el utilizado para el sistema MIDI.}
+\footnotetext{En España se utilizan dos índices de notación musical: el franco-belga, que asigna el nombre \textit{La 3} a la nota cuya frecuencia fundamental vibra a 440 \textit{Hz}, y el índice científico, que asigna \textit{La 4} a la misma nota. En este proyecto utilizaremos el índice científico, ya que es el utilizado para el sistema \acrshort{MIDI}.}
 
 Los datos más relevantes son los siguientes:
 
@@ -193,7 +193,7 @@ Por su parte, las cotas que definen el \textit{pedalier} son las siguientes:
 		\includegraphics[clip=true,trim=0 0 260 250, width=\linewidth*3/4]{capitulo3/pedalier_modelo}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pedalier_modelo} Medidas del \textit{pedalier}.}
+	\caption{\label{fig:pedalier_modelo} Medidas de los pedales.}
 \end{figure} 
 
 \smallskip
@@ -265,9 +265,9 @@ A continuación mostramos las medidas de longitud tomadas durante el análisis.
 
 \section{PCB de control}
 
-La placa de circuito impreso es la solución a los requisitos hardware aportada por el proyecto de D. Mikel Aguayo Fernández \cite{mikel}. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un prototipo de la placa con un número limitado de salidas.
+La placa de circuito impreso es la solución a los requisitos \textit{hardware} aportada por el proyecto de D. Mikel Aguayo Fernández \cite{mikel}. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un prototipo de la placa con un número limitado de salidas.
 
-Una de las partes más importantes de este proyecto será desarrollar el \textit{software} controlador para esta PCB. A continuación detallamos aquellos componentes con los que tendremos que interactuar.
+Una de las partes más importantes de este proyecto será desarrollar el \textit{software} controlador para esta \acrshort{PCB}. A continuación detallamos aquellos componentes con los que tendremos que interactuar.
 
 \subsection{Registros de desplazamiento SN74HC595}
 
@@ -330,7 +330,7 @@ Los dos primeros canales de control están asignados a los teclados. Un \textit{
 		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_teclado}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pcb_teclado} Interfaz entre la \textit{PCB} y el teclado barroco.}
+	\caption{\label{fig:pcb_teclado} Interfaz entre la \acrshort{PCB} y el teclado barroco.}
 \end{figure} 
 
 \smallskip
@@ -348,7 +348,7 @@ El \textit{pedalier} representa una escala musical, con los pedales bajos simila
 		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_pedalier}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pcb_pedalier} Interfaz entre la \textit{PCB} y el pedalier.}
+	\caption{\label{fig:pcb_pedalier} Interfaz entre la PCB y el pedalier.}
 \end{figure} 
 
 \smallskip
@@ -366,7 +366,7 @@ La mecánica a utilizar será diferente y, probablemente, algo más compleja, pe
 		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_registros}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pcb_registros} Interfaz entre la \textit{PCB} y las palancas de registros.}
+	\caption{\label{fig:pcb_registros} Interfaz entre la PCB y las palancas de registros.}
 \end{figure} 
 
 \smallskip
@@ -417,7 +417,7 @@ La siguiente tabla muestra los datos de nuestro interés:
 
 \subsection{Pantalla LCD FDCC2004B}
 
-Esta pantalla es un LCD genérico basado en el Hitachi HD44780, considerado un estándar \textit{de facto} para este tipo de dispositivos. Tiene una pequeña memoria para almacenar el estado (no hay que enviar continuamente la información), tiene los caracteres ASCII predefinidos y tiene capacidad para configurar hasta 8 caracteres especiales.
+Esta pantalla es un \acrshort{LCD} (\textit{\acrlong{LCD}}) genérico basado en el Hitachi HD44780, considerado un estándar \textit{de facto} para este tipo de dispositivos. Tiene una pequeña memoria para almacenar el estado (no hay que enviar continuamente la información), tiene los caracteres \acrshort{ASCII} predefinidos y tiene capacidad para configurar hasta 8 caracteres especiales.
 
 Esta pieza presenta el siguiente aspecto:
 
@@ -439,7 +439,7 @@ La siguiente tabla muestra sus características principales \cite{datasheet_lcd}
 
 \begin{center}
 	\begin{tabular}{|l|l|}
-		\hline Tipo & LCD retroiluminado \\ 
+		\hline Tipo & \acrshort{LCD} retroiluminado \\ 
 		\hline Filas & 4 \\ 
 		\hline Columnas & 20 \\ 
 		\hline Dimensión de celda & 5 x 8 \textit{pixels} \\ 
@@ -493,16 +493,16 @@ Los puntos de equilibro ---\textit{detent stability points}--- coinciden con los
 		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_perifericos}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pcb_perifericos} Interfaz entre la \textit{PCB} y los periféricos.}
+	\caption{\label{fig:pcb_perifericos} Interfaz entre la PCB y los periféricos.}
 \end{figure} 
 
 \smallskip
 
 \section{SBC Rasberry Pi}
 
-El \textit{Raspberry Pi} es un ordenador de placa única ---SBC (\textit{single board computer})---, más potente que un microcontrolador y con sistema operativo basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \textit{SSH}. 
+El \textit{Raspberry Pi} es un ordenador de placa única ---\acrshort{PCB} (\textit{\acrlong{SBC}})---, más potente que un microcontrolador y con sistema operativo basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \acrshort{SSH}. 
 
-El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que integra microprocesador, memoria y periféricos principales. El modelo escogido, \textit{B+}, posee numerosos pines de entrada y salida de propósito general (\textit{GPIO}), que utilizaremos para interactuar con la \textit{PCB} y para ser alimentado por ésta.
+El corazón de este computador es un \acrshort{SOCA} (\textit{\acrlong{SOCA}}), que integra microprocesador, memoria y periféricos principales. El modelo escogido, \textit{B+}, posee numerosos pines de entrada y salida de propósito general (\acrshort{GPIO}), que utilizaremos para interactuar con la \acrshort{PCB} y para ser alimentado por ésta.
 
 \smallskip
 
@@ -511,7 +511,7 @@ El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que
 		\includegraphics[width=\linewidth/2]{capitulo3/raspberry}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:raspberry} Placa computadora \textit{Raspberry Pi}.}
+	\caption{\label{fig:raspberry} Placa computadora Raspberry Pi.}
 \end{figure} 
 
 \smallskip
@@ -526,23 +526,23 @@ La siguiente tabla ilustra las principales características del \textit{Raspberr
 	\begin{tabular}{|l|l|}
 		\hline Modelo & Raspberry Pi B+ v1.2 \\
 		\hline SoC & Broadcom BCM2835 \\
-		\hline Procesador & ARM 1176JZF-S @ 700 \textit{MHz} \\
+		\hline Procesador &  1176JZF-S @ 700 \textit{MHz} \\
 		\hline Repertorio de instrucciones & ARMv6 (\textit{RISC} 32-\textit{bit}) \\
 		\hline Memoria & 512 \textit{MB} @ 400 \textit{MHz} \\
 		\hline Procesador gráfico & Broadcom VideoCore IV \\ 		
-		\hline Almacenamiento & \textit{MicroSD} 8 \textit{GB} \textit{class 10} \\
-		\hline Salida de vídeo & \textit{HDMI} \\
-		\hline Salida de audio & \textit{Jack} 3.5 \textit{mm}, \textit{HDMI} \\
-		\hline Conectividad USB & 4 x \textit{USB 2.0} \\
+		\hline Almacenamiento & Micro-\acrshort{SD} 8 \textit{GB} \textit{class 10} \\
+		\hline Salida de vídeo & \acrshort{HDMI} \\
+		\hline Salida de audio & \textit{Jack} 3.5 \textit{mm}, \acrshort{HDMI} \\
+		\hline Conectividad USB & 4 x \acrshort{USB} 2.0 \\
 		\hline Conectividad de red & \textit{Ethernet} 100 \textit{Mbit/s} \\
-		\hline Periféricos & 28x\textit{GPIO}, \textit{UART}, \textit{I\textsuperscript{2}C}, \textit{SPI} \\ 
-		\hline Alimentación & 5V \textit{Micro-USB} o \textit{GPIO} \\
+		\hline Periféricos & 28xGPIO, \acrshort{UART}, \acrshort{I2C}, \acrshort{SPI} \\ 
+		\hline Alimentación & 5V Micro-\acrshort{USB} o \acrshort{GPIO} \\
 		\hline Consumo máximo & 1.8 \textit{A} (9 \textit{W}) \\ 
 		\hline Sistema operativo & Raspbian (Linux 3.8) \\
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:rapberry} Especificaciones del \textit{Raspberry Pi}.}
+	\captionof{table}{\label{tab:rapberry} Especificaciones del Raspberry Pi.}
 
 \end{center}
 
@@ -550,7 +550,7 @@ La siguiente tabla ilustra las principales características del \textit{Raspberr
 
 \subsection{Pines de E/S}
 
-Como hemos adelantado, la \textit{PCB} se conectará al \textit{Raspberry} a través de los conectores \textit{GPIO}. Todos ellos se utilizarán de forma genérica, excepto el receptor del mando a distancia, que se comunica con la interfaz \textit{RS-232} y debe conectarse al \textit{UART} mediante el pin dedicado a tal periférico.
+Como hemos adelantado, la \acrshort{PCB} se conectará al \textit{Raspberry} a través de los conectores \acrshort{GPIO} (\textit{\acrlong{GPIO}}). Todos ellos se utilizarán de forma genérica, excepto el receptor del mando a distancia, que se comunica con la interfaz \textit{RS-232} y debe conectarse al \acrshort{UART} mediante el pin dedicado a tal periférico.
 
 La asignación de pines es la que sigue:
 
@@ -561,7 +561,7 @@ La asignación de pines es la que sigue:
 		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_gpio}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:pcb_gpio} Pines de conexión de la \textit{PCB} con el \textit{Raspberry}.}
+	\caption{\label{fig:pcb_gpio} Pines de conexión de la PCB con el Raspberry.}
 \end{figure} 
 
 \smallskip
@@ -569,25 +569,25 @@ La asignación de pines es la que sigue:
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline \multicolumn{2}{|c|}{\textbf{Registros de desplazamiento}} \\
-		\hline S1 (teclado barroco) & GPIO 02 \\ 
-		\hline S2 (teclado romántico) & GPIO 03 \\ 
-		\hline S3 (registros) & GPIO 04 \\ 
-		\hline S4 (\textit{pedalier}) & GPIO 17 \\ 
-		\hline RCLK (almacenamiento) & GPIO 27 \\ 
-		\hline SRCLK (desplazamiento) & GPIO 22 \\ 
+		\hline S1 (teclado barroco) & \acrshort{GPIO} 02 \\ 
+		\hline S2 (teclado romántico) & \acrshort{GPIO} 03 \\ 
+		\hline S3 (registros) & \acrshort{GPIO} 04 \\ 
+		\hline S4 (\textit{pedalier}) & \acrshort{GPIO} 17 \\ 
+		\hline RCLK (almacenamiento) & \acrshort{GPIO} 27 \\ 
+		\hline SRCLK (desplazamiento) & \acrshort{GPIO} 22 \\ 
 		\hline \multicolumn{2}{|c|}{\textbf{Receptor de radio}} \\
-		\hline O/P-AF (datos) & GPIO 15 (RDX) \\ 
-		\hline \multicolumn{2}{|c|}{\textbf{Pantalla LCD}} \\
-		\hline DB4 (línea 4 del bus) & GPIO 12 \\ 
-		\hline DB5 (línea 5 del bus) & GPIO 07 \\ 
-		\hline DB6 (línea 6 del bus) & GPIO 08 \\ 
-		\hline DB7 (línea 7 del bus) & GPIO 25 \\
-		\hline RS (selección de registro) & GPIO 20 \\ 
-		\hline ES (habilitación de señal) & GPIO 16 \\ 
+		\hline O/P-AF (datos) & \acrshort{GPIO} 15 (RDX) \\ 
+		\hline \multicolumn{2}{|c|}{\textbf{Pantalla \acrshort{LCD}}} \\
+		\hline DB4 (línea 4 del bus) & \acrshort{GPIO} 12 \\ 
+		\hline DB5 (línea 5 del bus) & \acrshort{GPIO} 07 \\ 
+		\hline DB6 (línea 6 del bus) & \acrshort{GPIO} 08 \\ 
+		\hline DB7 (línea 7 del bus) & \acrshort{GPIO} 25 \\
+		\hline RS (selección de registro) & \acrshort{GPIO} 20 \\ 
+		\hline ES (habilitación de señal) & \acrshort{GPIO} 16 \\ 
 		\hline \multicolumn{2}{|c|}{\textbf{Codificador rotatorio}} \\
-		\hline Canal A (rotación) & GPIO 18 \\ 
-		\hline Canal B (rotación) & GPIO 24 \\ 
-		\hline Pulsación & GPIO 23 \\ 
+		\hline Canal A (rotación) & \acrshort{GPIO} 18 \\ 
+		\hline Canal B (rotación) & \acrshort{GPIO} 24 \\ 
+		\hline Pulsación & \acrshort{GPIO} 23 \\ 
 		\hline 
 	\end{tabular}
 	\smallskip
@@ -602,19 +602,19 @@ A pesar de su reducido tamaño, \textit{Raspberry Pi} no es un microcontrolador,
 
 Podemos encontrar varios sistemas operativos compatibles con este computador, pero nosotros vamos a utilizar el sistema oficial, \textit{Raspbian}, una distribución basada en \textit{Debian}, que incorpora el núcleo \textit{GNU/Linux} para la plataforma \textit{ARMv6}.
 
-La introducción de un sistema operativo flexibiliza enormemente la gestión de los recursos hardware de un ordenador y garantiza la convivencia equitativa de todos los procesos. Por contra, esto significa que ninguna aplicación podrá utilizar la \textit{CPU} a tiempo completo, ni se garantiza tiempo-real.
+La introducción de un sistema operativo flexibiliza enormemente la gestión de los recursos \textit{hardware} de un ordenador y garantiza la convivencia equitativa de todos los procesos. Por contra, esto significa que ninguna aplicación podrá utilizar la \textit{CPU} a tiempo completo, ni se garantiza tiempo-real.
 
 El \textit{BCM2835} posee un temporizador de 1 \textit{MHz}. Naturalmente, es inviable ofrecer una granularidad temporal tan fina al planificador; así, éste es llamado cada 10.000 \textit{ticks}, es decir, cada 10 \textit{ms}. Esto garantiza un uso adecuado de los recursos \textit{software} al tiempo que hace imposible realizar comunicaciones síncronas a alta velocidad mediante programación.
 
-Además, la versión utilizada del núcleo \textit{Linux} es apropiativa ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
+Además, la versión utilizada del núcleo Linux es apropiativa ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
 
 En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
 
 \section{Formato de archivo MIDI}
 
-El estándar \textit{MIDI} es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales. \cite{wiki_midi}
+El estándar \acrshort{MIDI} (\acrlong{MIDI}) es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales. \cite{wiki_midi}
 
-Los datos de entrada a nuestro sistema consisten en archivos \textit{MIDI}, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de bloques ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textit{big-endian}, detalle a tener en cuenta, ya que tanto la arquitectura \textit{x86} como \textit{ARM} trabajan en \textit{little-endian}. \cite{midi}
+Los datos de entrada a nuestro sistema consisten en archivos \acrshort{MIDI}, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de bloques ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textit{big-endian}, detalle a tener en cuenta, ya que tanto la arquitectura x86 como ARM trabajan en \textit{little-endian}. \cite{midi}
 
 \subsection{Bloque de cabecera}
 
@@ -633,7 +633,7 @@ El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e inclu
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_header} Contenido de la cabecera \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_header} Contenido de la cabecera MIDI.}
 \end{center}
 
 \smallskip
@@ -665,7 +665,7 @@ Una pista consta de una cabecera y de una lista de eventos, que termina con el m
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_track} Contenido de la cabecera de una pista \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_track} Contenido de la cabecera de una pista MIDI.}
 \end{center}
 
 \smallskip
@@ -686,14 +686,14 @@ Cada evento está formado por los siguientes campos:
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_evento} Especificación de un evento \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_evento} Especificación de un evento MIDI.}
 \end{center}
 
 \smallskip
 
 \begin{description}
 	\item[$\Delta$] Indica el número de \textit{ticks} que separan al evento actual del precedente.
-	\item[Tipo de evento y canal] Los cuatro \textit{bits} más significativos corresponden al tipo de evento. Los otros cuatro marcan el canal \textit{MIDI}.
+	\item[Tipo de evento y canal] Los cuatro \textit{bits} más significativos corresponden al tipo de evento. Los otros cuatro marcan el canal \acrshort{MIDI}.
 \end{description}
 
 \smallskip
@@ -714,7 +714,7 @@ Cada evento está formado por los siguientes campos:
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_eventos} Eventos \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_eventos} Eventos MIDI.}
 \end{center}
 
 \smallskip
@@ -736,7 +736,7 @@ Los metaeventos son mensajes de control que extienden la semántica de los event
 		\hline
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_mevaevento} Especificación de un meta-evento \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_mevaevento} Especificación de un meta-evento MIDI.}
 \end{center}
 
 \smallskip
@@ -769,14 +769,14 @@ Los tipos de meta-evento estándar son los siguientes:
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_mevaeventos} Meta-eventos \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_mevaeventos} Meta-eventos MIDI.}
 \end{center}
 
 \smallskip
 
 \subsubsection{Notas}
 
-Las notas en \textit{MIDI} se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
+Las notas en \acrshort{MIDI} se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
 
 \section{Esquema de interconexión general}
 
@@ -791,12 +791,12 @@ A continuación presentamos un diagrama que describe a \textit{grosso modo} la c
 		\includegraphics[width=\linewidth*2/3]{capitulo3/hardware}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:hardware} Conexión lógica entre los elementos \textit{hardware}.}
+	\caption{\label{fig:hardware} Conexión lógica entre los elementos hardware.}
 \end{figure} 
 
 \smallskip
 
-La \textit{PCB} incorpora una fuente de alimentación para el \textit{Raspberry}, que está conectada mediante la interfaz \textit{GPIO}. Todas las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
+La \acrshort{PCB} incorpora una fuente de alimentación para el \textit{Raspberry}, que está conectada mediante la interfaz \acrshort{GPIO}. Todas las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
 
 El resto de periféricos nos serán de utilidad para desarrollar un sistema que cumplirá todos los requisitos contemplados en el capítulo \ref{cap:capitulo_2}.
 

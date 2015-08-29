@@ -5,7 +5,7 @@ En este capítulo vamos a detallar cómo hemos concebido la solución a los requ
 
 \section{Planteamiento}
 
-Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un reproductor de archivos \textit{MIDI}, que recibe el fichero y lo envía a la \textit{PCB} a través del \textit{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
+Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un reproductor de archivos \acrshort{MIDI}, que recibe el fichero y lo envía a la \acrshort{PCB} a través del \acrshort{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
 
 \smallskip
 
@@ -26,14 +26,14 @@ Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de control,
 	
 	\item Un mando a distancia, que altere la reproducción.
 	
-	\item Un control reducido empotrado en la \textit{PCB}.
+	\item Un control reducido empotrado en la \acrshort{PCB}.
 \end{enumerate}
 
 Atendiendo a los requisitos del primer controlador y a las prestaciones del \textit{Raspberry Pi}, y con objeto de eliminar la necesidad de instalar y mantener aplicaciones en otro sistema, decidimos enfocar la solución como una interfaz \textit{web} con un servidor alojado en el \textit{Raspberry Pi}. De esta forma podemos llegar fácilmente a cualquier sistema operativo de escritorio, incluso es fácilmente adaptable a dispositivos móviles.
 
-Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textit{demonio} de \textit{Linux}, junto con sus módulos auxiliares.
+Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textit{demonio} de Linux, junto con sus módulos auxiliares.
 
-En último lugar, necesitamos almacenar información de los archivos \textit{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una base de datos nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+En último lugar, necesitamos almacenar información de los archivos \acrshort{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una base de datos nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
 
 \section{Demonio del reproductor}
 
@@ -42,11 +42,11 @@ Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano e
 Este programa será el núcleo de nuestro sistema, y ofrecerá las siguientes vías para comunicarse:
 
 \begin{enumerate}
-	\item Un \textit{socket} local de \textit{Linux}. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
+	\item Un \textit{socket} local de Linux. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
 	
-	\item El puerto en serie (\textit{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
+	\item El puerto en serie (\acrshort{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
 	
-	\item Los pines del \textit{GPIO} correspondientes al codificador rotatorio y el \textit{LCD}, para la interfaz reducida.
+	\item Los pines del \acrshort{GPIO} correspondientes al codificador rotatorio y el \acrshort{LCD}, para la interfaz reducida.
 \end{enumerate}
 
 Así, el esquema de uso de los distintos componentes queda así:
@@ -66,13 +66,13 @@ Así, el esquema de uso de los distintos componentes queda así:
 \subsection{Descodificador de MIDI}
 \label{subsec:daemon_midi}
 
-Como hemos detallado más arriba, el formato \textit{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
+Como hemos detallado más arriba, el formato \acrshort{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
 
 Concebimos la estructura de datos como un conjunto de listas enlazadas de eventos. El tamaño de los eventos normales es constante, sin embargo, los meta-eventos extienden la semántica con una cadena de datos.
 
-\subsubsection{Estructura \textit{midifile\_t}}
+\subsubsection{Estructura midifile\_t}
 
-Define un archivo \textit{MIDI}. Sus campos son:
+Define un archivo \acrshort{MIDI}. Sus campos son:
 
 \begin{description}
 	\item[format : \textit{enum}] Formato del archivo. Puede tener los siguientes valores enumerados:
@@ -98,7 +98,7 @@ Define un archivo \textit{MIDI}. Sus campos son:
 
 \subsubsection{Estructura midievent\_t}
 
-Define un evento MIDI.
+Define un evento \acrshort{MIDI}.
 
 \begin{description}
 	\item[delta : \textit{dword}] Separación temporal respecto al evento anterior.
@@ -109,7 +109,7 @@ Define un evento MIDI.
 	\item[next : \textit{midievent\_t}] Evento siguiente, si procede.
 \end{description}
 
-\subsubsection{Estructura \textit{metaevent\_t}}
+\subsubsection{Estructura metaevent\_t}
 
 Define un meta-evento.
 
@@ -123,10 +123,10 @@ Define un meta-evento.
 
 \begin{description}[style=nextline]
 	\item[midifile\_init (score, path) : \textit{int}] 
-	Lee un archivo MIDI e inicializa la estructura recibida. 
+	Lee un archivo \acrshort{MIDI} e inicializa la estructura recibida. 
 	
 	\begin{description}
-		\item[score : \textit{midifile\_t}] Archivo \textit{MIDI} sin inicializar.
+		\item[score : \textit{midifile\_t}] Archivo \acrshort{MIDI} sin inicializar.
 		\item[path : \textit{string}] Ruta del fichero a leer.
 	\end{description}
 	
@@ -136,14 +136,14 @@ Define un meta-evento.
 	Elimina una estructura y libera su memoria.
 	
 	\begin{description}
-		\item[file : \textit{midifile\_t}] Archivo \textit{MIDI}.
+		\item[file : \textit{midifile\_t}] Archivo \acrshort{MIDI}.
 	\end{description}
 	
 	\item[midifile\_duration (file) : \textit{dword}] 
 	Obtener la duración de una pieza.
 	
 	\begin{description}
-		\item[file : \textit{midifile\_t}] Archivo \textit{MIDI}.
+		\item[file : \textit{midifile\_t}] Archivo \acrshort{MIDI}.
 	\end{description}
 	
 	Devuelve la duración de la pieza, en \textit{segundos}.
@@ -161,7 +161,7 @@ Define un meta-evento.
 
 \subsubsection{Diagrama de uso}
 
-El módulo \textit{MIDI} solo se usa directamente a través del planificador. Éste se encarga de gestionar las partituras, y ordenar su eliminación cuando sea necesario.
+El módulo \acrshort{MIDI} solo se usa directamente a través del planificador. Éste se encarga de gestionar las partituras, y ordenar su eliminación cuando sea necesario.
 
 \smallskip
 
@@ -178,9 +178,9 @@ El módulo \textit{MIDI} solo se usa directamente a través del planificador. É
 \subsection{Control por socket}
 \label{subsec:daemon}
 
-Un \textit{socket} un mecanismo de comunicación inter-proceso ---\textit{IPC (inter-process communication)} que proporciona \textit{Linux} y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
+Un \textit{socket} un mecanismo de comunicación inter-proceso ---\acrshort{IPC} (\textit{\acrlong{IPC}})--- que proporciona Linux y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
 
-Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de \textit{Linux}, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
+Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
 
 \subsubsection{Funciones}
 
@@ -216,7 +216,7 @@ El módulo correspondiente al \textit{socket} solamente interacciona internament
 		\includegraphics[width=\linewidth/2]{capitulo4/daemon_socket}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:daemon_socket} Diagrama de uso del servidor \textit{socket}.}
+	\caption{\label{fig:daemon_socket} Diagrama de uso del servidor socket.}
 \end{figure} 
 
 \smallskip
@@ -224,7 +224,7 @@ El módulo correspondiente al \textit{socket} solamente interacciona internament
 \subsection{Control del mando}
 \label{subsec:daemon_mando}
 
-Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \textit{UART} ---\textit{Universal Asynchronus Receiver-Transmiter}---, que controla los puertos serie.
+Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \acrshort{UART} ---\textit{\acrlong{UART}}---, que controla los puertos serie. \cite{wiki_uart}
 
 Este módulo tiene una topología análoga al control por \textit{socket}, tan solo cambia el origen y la forma de entrada de los datos. Establecerá una comunicación con el puerto serie e iniciará un bucle de escucha. La sintaxis del mensaje, como ya sabemos, es:
 
@@ -299,7 +299,7 @@ El sistema se comunicará con la base de datos mediante las siguientes funciones
 
 \subsubsection{Diagrama de uso}
 
-La interfaz de la base de datos es utilizada exclusivamente por el servidor del receptor de radio, sin perjuicio de que en un futuro podamos extender su funcionalidad, por lo que la hemos separado lógicamente del módulo \textit{UART}. El diagrama de uso es el siguiente:
+La interfaz de la base de datos es utilizada exclusivamente por el servidor del receptor de radio, sin perjuicio de que en un futuro podamos extender su funcionalidad, por lo que la hemos separado lógicamente del módulo \acrshort{UART}. El diagrama de uso es el siguiente:
 
 \smallskip
 
@@ -316,7 +316,7 @@ La interfaz de la base de datos es utilizada exclusivamente por el servidor del 
 \subsection{Planificador}
 \label{subsec:planificador}
 
-El planificador es la pieza principal del reproductor. Recibe las órdenes de los controladores y la lista de partituras a ejecutar. Una a una las lee con ayuda del módulo \textit{MIDI} y planifica los eventos de todas las pistas para lanzarlos a la salida en el momento necesario.
+El planificador es la pieza principal del reproductor. Recibe las órdenes de los controladores y la lista de partituras a ejecutar. Una a una las lee con ayuda del módulo \acrshort{MIDI} y planifica los eventos de todas las pistas para lanzarlos a la salida en el momento necesario.
 
 Al igual que otros módulos, utiliza una hebra para reproducir los archivos, pero en este caso es una hebra dinámica, que podrá ser iniciada, pausada y detenida por el resto de procesos, por lo que hay que tener en cuenta los problemas de concurrencia para garantizar la consistencia del sistema.
 
@@ -441,16 +441,16 @@ Como parte central del programa, y al contrario que el resto de componentes, el 
 \smallskip
 
 \begin{itemize}
-	\item Los servidores de \textit{socket} y de \textit{UART}, y el control de interfaz reducida, envían las órdenes de control.
-	\item El módulo \textit{MIDI} es utilizado para descodificar los archivos de entrada.
-	\item La información extraída se dirige al módulo de salida (\textit{GPIO}) para llegar a la \textit{PCB}.
+	\item Los servidores de \textit{socket} y de \acrshort{UART}, y el control de interfaz reducida, envían las órdenes de control.
+	\item El módulo \acrshort{MIDI} es utilizado para descodificar los archivos de entrada.
+	\item La información extraída se dirige al módulo de salida (\acrshort{GPIO}) para llegar a la \acrshort{PCB}.
 \end{itemize}
 
 \subsection{Modo Ingeniería}
 
-El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \textit{LCD}.
+El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \acrshort{LCD}.
 
-El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \textit{GPIO}.
+El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \acrshort{GPIO}.
 
 Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
 
@@ -476,7 +476,7 @@ Este diagrama muestra las transiciones entre los estados:
 
 \subsubsection{Diagrama de uso}
 
-El módulo que controla el modo Ingeniería interacciona con el planificador, para detenerlo y aislarlo del \textit{GPIO}, y con el módulo de salida, que maneja el propio \textit{GPIO}, para manipular el estado.
+El módulo que controla el modo Ingeniería interacciona con el planificador, para detenerlo y aislarlo del \acrshort{GPIO}, y con el módulo de salida, que maneja el propio \acrshort{GPIO}, para manipular el estado.
 
 \smallskip
 
@@ -496,12 +496,12 @@ El módulo que controla el modo Ingeniería interacciona con el planificador, pa
 El reproductor delega en el módulo de salida las siguientes funciones:
 
 \begin{enumerate}
-	\item Dirigir las pistas de \textit{MIDI} al canal de salida correspondiente.
+	\item Dirigir las pistas de \acrshort{MIDI} al canal de salida correspondiente.
 	\item Almacenar el estado de salida (notas pulsadas y no pulsadas).
-	\item Volcar la información en el \textit{GPIO}.
+	\item Volcar la información en el \acrshort{GPIO}.
 \end{enumerate}
 
-Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de aislar la salida también nos da flexibilidad para sustituir la interfaz \textit{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
+Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de aislar la salida también nos da flexibilidad para sustituir la interfaz \acrshort{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
 
 \subsubsection{Funciones}
 
@@ -518,16 +518,16 @@ Las siguientes funciones conforman la interfaz del módulo:
 	Marcar una nota para activar en el sistema.
 	
 	\begin{description}
-		\item[track : \textit{dword}] Índice de la pista \textit{MIDI}.
-		\item[note : \textit{dword}] Número de nota \textit{MIDI}.
+		\item[track : \textit{dword}] Índice de la pista \acrshort{MIDI}.
+		\item[note : \textit{dword}] Número de nota \acrshort{MIDI}.
 	\end{description}
 	
 	\item[output\_noteon (track, note)]
 	Marcar una nota para apagarla en el sistema.
 	
 	\begin{description}
-		\item[track : \textit{dword}] Índice de la pista \textit{MIDI}.
-		\item[note : \textit{dword}] Número de nota \textit{MIDI}.
+		\item[track : \textit{dword}] Índice de la pista \acrshort{MIDI}.
+		\item[note : \textit{dword}] Número de nota \acrshort{MIDI}.
 	\end{description}
 	
 	\item[output\_update ()]
@@ -543,9 +543,9 @@ Las siguientes funciones conforman la interfaz del módulo:
 
 \subsubsection{Mapeo de pistas y canales}
 
-Nuestra especificación deja abierta la estructura que pueda tener un archivo MIDI. A pesar de que el sistema podrá descodificar \textit{MIDI} estándar, para lograr una óptima ejecución, la pieza deberá adaptarse a cada órgano concreto.
+Nuestra especificación deja abierta la estructura que pueda tener un archivo \acrshort{MIDI}. A pesar de que el sistema podrá descodificar \acrshort{MIDI} estándar, para lograr una óptima ejecución, la pieza deberá adaptarse a cada órgano concreto.
 
-El módulo de salida permitirá asignar cada pista \textit{MIDI}, que normalmente corresponde a un pentagrama de la partitura, a un canal de salida diferente. La asignación por defecto, para el órgano estudiado, será la siguiente:
+El módulo de salida permitirá asignar cada pista \acrshort{MIDI}, que normalmente corresponde a un pentagrama de la partitura, a un canal de salida diferente. La asignación por defecto, para el órgano estudiado, será la siguiente:
 
 \smallskip
 
@@ -554,7 +554,7 @@ El módulo de salida permitirá asignar cada pista \textit{MIDI}, que normalment
 		\includegraphics[width=\linewidth/3]{capitulo4/map}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:map} Asignación de pistas \textit{MIDI} y canales de salida.}
+	\caption{\label{fig:map} Asignación de pistas MIDI y canales de salida.}
 \end{figure} 
 
 \smallskip
@@ -577,7 +577,7 @@ La interfaz de salida es utilizada principalmente por el planificador y, solo cu
 
 \subsection{Seguridad}
 
-A pesar de que el acceso al sistema se hará siempre con autentificación de usuario, nos interesa controlar que no todos los usuarios, o no todas las aplicaciones, se conecten al \textit{socket}. La seguridad de \textit{Linux} recae en gran parte sobre su sistema de archivos y permisos. Se creará un nombre de usuario de sistema para ser utilizado exclusivamente por el \textit{socket}, que tendrá permisos de lectura y escritura para dicho usuario y su grupo.
+A pesar de que el acceso al sistema se hará siempre con autentificación de usuario, nos interesa controlar que no todos los usuarios, o no todas las aplicaciones, se conecten al \textit{socket}. La seguridad de Linux recae en gran parte sobre su sistema de archivos y permisos. Se creará un nombre de usuario de sistema para ser utilizado exclusivamente por el \textit{socket}, que tendrá permisos de lectura y escritura para dicho usuario y su grupo.
 
 Para autorizar a un usuario a acceder al \textit{socket}, simplemente hay que añadirlo al grupo del usuario propietario.
 
@@ -614,7 +614,7 @@ Atendiendo a los requisitos propuestos, modelamos nuestros datos según el sigui
 
 \subsection{Modelo relacional}
 
-Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\textit{DBMS (database management system)}--- que vayamos a utilizar. En nuestro caso, utilizaremos un \textit{DBMS} relacional \cite{bdrel}.
+Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\acrshort{DBMS} (\textit{\acrlong{DBMS}})--- que vayamos a utilizar. En nuestro caso, utilizaremos un \acrshort{DBMS} relacional \cite{bdrel}.
 
 \begin{enumerate}
 	\item Convertimos en relaciones (tablas) todas las entidades y las relaciones del modelo entidad-relación.
@@ -642,7 +642,7 @@ Una vez hecho esto, el modelo resultante es el siguiente:
 Para garantizar que la base de datos mantendrá la información coherente y sin anomalías, estudiamos las relaciones para normalizarlas. Podemos verificar que nuestro modelo relacional está en 5ª forma normal, atendiendo a las siguientes condiciones:
 
 \begin{description}
-	\item[1FN] El \textit{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas. \cite{wiki_1fn}
+	\item[1FN] El \acrshort{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas. \cite{wiki_1fn}
 	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la llave primaria, por tanto, está en segunda forma normal. \cite{wiki_2fn}
 	\item[3FN] No existen atributos secundarios que dependan transitivamente de la llave primaria, entonces, está en tercera forma normal. \cite{wiki_3fn}
 	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las claves candidatas. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN. \cite{wiki_fnbc}
@@ -666,7 +666,7 @@ Nuestro modelo relacional cumple todas las exigencias de las formas normales ten
 
 \section{Control remoto}
 
-Hasta ahora hemos diseñado el \textit{back-end} del sistema, con todas las características que darán funcionalidad a nuestra solución. Pero aún no tenemos una interfaz que permita al usuario interactuar con el sistema, más que el control del mando a distancia o desde la \textit{PCB}.
+Hasta ahora hemos diseñado el \textit{back-end} del sistema, con todas las características que darán funcionalidad a nuestra solución. Pero aún no tenemos una interfaz que permita al usuario interactuar con el sistema, más que el control del mando a distancia o desde la \acrshort{PCB}.
 
 El próximo paso es concebir el \textit{front-end} que, a tenor de los requisitos que propusimos al inicio, ofrezca al usuario la interfaz más completa posible. Frecuentemente la funcionalidad viene contrapuesta a la facilidad de uso; es nuestra tarea encontrar el mejor equilibrio posible.
 
@@ -679,7 +679,7 @@ Vamos a diseñar una solución enfocada al uso remoto con ayuda de un explorador
 		\includegraphics[width=\linewidth*2/3]{capitulo4/despliegue}
 		\par\end{centering}
 	\smallskip
-	\caption[Comunicación entre el cliente y el \textit{software} del sistema]{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema. \cite{svg_raspberry}}
+	\caption[Comunicación entre el cliente y el software del sistema]{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema. \cite{svg_raspberry}}
 \end{figure} 
 
 \smallskip
@@ -787,7 +787,7 @@ Por ello, vamos a fijarnos en la guía de estilo \textit{Material Design} de \te
 
 \textit{Material design} provee una gran cantidad de componentes de control y paletas de colores. De todos ellos, escogeremos listas, menús desplegables y botones flotantes. Nos decantamos por un color marrón, que evoca tranquilidad y estabilidad, dando idea de un \textit{software} intuitivo y robusto.
 
-Una vez dibujados los primeros trazos, no es necesario maquetar completamente la interfaz con una aplicación para manipular imágenes, pudiendo diseñar las vistas en \textit{HTML} y \textit{CSS}, aún sin código de programación. Pero es muy útil dibujar al menos una página que nos sirva de plantilla. La siguiente imagen es una primera versión de la maqueta, diseñada con \textit{Adobe Photoshop}:
+Una vez dibujados los primeros trazos, no es necesario maquetar completamente la interfaz con una aplicación para manipular imágenes, pudiendo diseñar las vistas en \acrshort{HTML} y \acrshort{CSS}, aún sin código de programación. Pero es muy útil dibujar al menos una página que nos sirva de plantilla. La siguiente imagen es una primera versión de la maqueta, diseñada con \textit{Adobe Photoshop}:
 
 \smallskip
 
@@ -1085,12 +1085,12 @@ Para hacer funcionar este módulo son necesarios los siguientes procedimientos:
 
 \begin{description}[style=nextline]
 	\item[new\_score (idplaylist, name, score)]
-	Inserta una pieza en la lista de reproducción y guarda el archivo en el almacenamiento interno. Para conocer la duración de una partitura, hace una llamada a lun aplicación que diseñaremos para extraer información de archivos \textit{MIDI} (véase la sección \ref{subsec:midinfo}).
+	Inserta una pieza en la lista de reproducción y guarda el archivo en el almacenamiento interno. Para conocer la duración de una partitura, hace una llamada a lun aplicación que diseñaremos para extraer información de archivos \acrshort{MIDI} (véase la sección \ref{subsec:midinfo}).
 	
 	\begin{description}
 		\item[idplaylist] ID de la lista de reproducción que contendrá la partitura.
 		\item[name] Nombre que identificará a la nueva obra.
-		\item[score] Fichero de formato \textit{MIDI} que contiene la pieza.
+		\item[score] Fichero de formato \acrshort{MIDI} que contiene la pieza.
 	\end{description}
 	
 	Redirige al administrador de la lista contenedora.
@@ -1237,7 +1237,7 @@ Al igual que el control de energía, el selector de idioma aparecerá como un me
 
 \subsubsection{Formato del archivo de traducción}
 
-El sistema de traducción estará basado en pares \textit{clave-contenido}. El lenguaje de los ficheros derivará del \textit{XML ---eXtensible Markup Language---} y tendrá la siguiente estructura:
+El sistema de traducción estará basado en pares \textit{clave-contenido}. El lenguaje de los ficheros derivará del \acrshort{XML} ---\textit{\acrlong{XML}}--- y tendrá la siguiente estructura:
 
 \begin{description}[style=nextline]
 	\item[translation]
@@ -1332,7 +1332,7 @@ El siguiente diagrama ilustra las principales posibilidades de navegación:
 
 \subsection{Sesión}
 
-La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \textit{HTTP} (\textit{hyper-text transfer protocol}), un modelo de conexión sin estado ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
+La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \acrshort{HTTP} (\textit{\acrlong{HTTP}}), un modelo de conexión sin estado ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
 
 Para solventar este problema, almacenaremos en el servidor una pequeña cantidad de información relativa al cliente, tal como la que sigue:
 
@@ -1399,7 +1399,7 @@ Como podremos ver, la interfaz de este componente actúa como tocón hacia las f
 	Reproduce una lista de piezas en bucle.
 	
 	\begin{description}
-		\item[playlist : \textit{array(string)}] Lista de nombres de archivo MIDI a reproducir.
+		\item[playlist : \textit{array(string)}] Lista de nombres de archivo \acrshort{MIDI} a reproducir.
 		\item[ifirst : \textit{integer}] Índice del primer archivo a ejecutar, que se pondrá a la cabeza de la lista.
 	\end{description}
 	
@@ -1535,7 +1535,7 @@ La interfaz del modelo de la base de datos es la que sigue:
 	Busca una partitura por el nombre de archivo.
 	
 	\begin{description}
-		\item[source] Nombre del archivo \textit{MIDI} como criterio de búsqueda.
+		\item[source] Nombre del archivo \acrshort{MIDI} como criterio de búsqueda.
 	\end{description}
 	
 	Devuelve el objeto \textit{score} de la partitura, o un valor nulo si no se encuentra.
@@ -1585,14 +1585,14 @@ Para obtener una comunicación consistente, el demonio no guardará más estado 
 Las peticiones que describen el protocolo resultante, así como las posibles respuestas, se enumeran de la siguiente forma:
 
 \begin{description}
-	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
 	
 	\begin{description}
 		\item[OK] en caso de éxito.
 		\item[ERROR] en caso de error o estar en modo Ingeniería.
 	\end{description}
 	
-	\item[PLAYLOOP <archivo> [ <archivo>* ]] Reproducir en bucle una lista de archivos MIDI, indicando las rutas completa, separadas por espacios. Respuesta:
+	\item[PLAYLOOP <archivo> [ <archivo>* ]] Reproducir en bucle una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
 	
 	\begin{description}
 		\item[OK] en caso de éxito.
@@ -1638,7 +1638,7 @@ De acuerdo con los requisitos, hemos concebido el sistema como la conjunción de
 Para verificar el desarrollo, vamos a prever la necesidad de probar los módulos críticos del diseño, a saber:
 
 \begin{enumerate}
-	\item Descodificador de archivos \textit{MIDI}.
+	\item Descodificador de archivos \acrshort{MIDI}.
 	\item Planificador.
 	\item Interfaz de salida.
 	\item Servidor \textit{socket}.
@@ -1651,7 +1651,7 @@ Para verificar el desarrollo, vamos a prever la necesidad de probar los módulos
 		\includegraphics[width=\linewidth/2]{capitulo4/daemon_critical}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:daemon_critical} Módulos críticos del \textit{back-end}.}
+	\caption{\label{fig:daemon_critical} Módulos críticos del back-end.}
 \end{figure} 
 
 \smallskip
@@ -1661,7 +1661,7 @@ En las secciones siguientes describiremos las soluciones que nos servirán para 
 Por otro lado, el \textit{front-end} necesita dos aplicaciones externas para distintos fines:
 
 \begin{enumerate}
-	\item El gestor de piezas (sección \ref{subsec:piezas}) requiere conocer la duración de una partitura mediante un programa que analice archivos \textit{MIDI}.
+	\item El gestor de piezas (sección \ref{subsec:piezas}) requiere conocer la duración de una partitura mediante un programa que analice archivos \acrshort{MIDI}.
 	\item El componente de autentificación (dentro de la sección \ref{subsec:portada}) necesita comprobar externamente la contraseña introducida por el usuario.
 \end{enumerate}
 
@@ -1671,11 +1671,11 @@ Por otro lado, el \textit{front-end} necesita dos aplicaciones externas para dis
 Esta aplicación cumplirá dos fines:
 
 \begin{enumerate}
-	\item Validar el analizador de archivos \textit{MIDI}.
+	\item Validar el analizador de archivos \acrshort{MIDI}.
 	\item Servir al \textit{front-end} la duración de una partitura.
 \end{enumerate}
 
-Sencillamente, utilizará la interfaz creada por el descodificador \textit{MIDI} (visto en la sección \ref{subsec:daemon_midi}) para enviar el nombre de un fichero \textit{MIDI}, descodificarlo y mostrar en la salida estándar la información básica de una partitura:
+Sencillamente, utilizará la interfaz creada por el descodificador \acrshort{MIDI} (visto en la sección \ref{subsec:daemon_midi}) para enviar el nombre de un fichero \acrshort{MIDI}, descodificarlo y mostrar en la salida estándar la información básica de una partitura:
 
 \begin{enumerate}
 	\item Organización de las pistas.
@@ -1688,7 +1688,7 @@ Esta información podrá ser aprovechada tanto desde el terminal como desde la i
 
 \subsubsection{Diagrama de uso}
 
-Al utilizar simplemente la interfaz del componente \textit{MIDI}, éste es el único elemento que habrá que implementar para validarlo.
+Al utilizar simplemente la interfaz del componente \acrshort{MIDI}, éste es el único elemento que habrá que implementar para validarlo.
 
 \smallskip
 
@@ -1697,7 +1697,7 @@ Al utilizar simplemente la interfaz del componente \textit{MIDI}, éste es el ú
 		\includegraphics[width=\linewidth/3]{capitulo4/midi_info}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:midi_info} Interacción del programa con el \textit{back-end}.}
+	\caption{\label{fig:midi_info} Interacción del programa con el back-end.}
 \end{figure} 
 
 \smallskip
@@ -1709,8 +1709,8 @@ El siguiente bloque a construir será el planificador (véase la sección \ref{s
 Vamos a hacer una pequeña aplicación que nos permita verificar el funcionamiento del planificador y la interfaz de salida, de la siguiente manera:
 
 \begin{enumerate}
-	\item Interactuará directamente con el planificador, de la misma forma que hará el \textit{socket} o el \textit{UART}.
-	\item Implementará la salida (diseñada para el \textit{GPIO}) sobre la salida estándar, suplantando a la \textit{PCB}.
+	\item Interactuará directamente con el planificador, de la misma forma que hará el \textit{socket} o el \acrshort{UART}.
+	\item Implementará la salida (diseñada para el \acrshort{GPIO}) sobre la salida estándar, suplantando a la \acrshort{PCB}.
 \end{enumerate}
 
 \subsubsection{Diagrama de uso}
@@ -1724,7 +1724,7 @@ Este programa utilizará el planificador e implementará la interfaz de salida:
 		\includegraphics[width=\linewidth/2]{capitulo4/midi_test}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:midi_test} Interacción del programa con el \textit{back-end}.}
+	\caption{\label{fig:midi_test} Interacción del programa con el back-end.}
 \end{figure} 
 
 \smallskip
@@ -1736,7 +1736,7 @@ Una vez implementados los componentes críticos del demonio, crearemos un sencil
 La aplicación admitirá los siguientes argumentos:
 
 \begin{description}
-	\item[play <archivo>] Ejecutar un fichero \textit{MIDI}.
+	\item[play <archivo>] Ejecutar un fichero \acrshort{MIDI}.
 	\item[playloop <archivo>] Reproducir en bucle un archivo..
 	\item[pause] Pausar la reproducción, si estaba funcionando.
 	\item[resume] Reanudar la ejecución, si estaba pausada.
@@ -1755,7 +1755,7 @@ Contando con una etapa madura del desarrollo, el terminal se comunicará con el 
 		\includegraphics[width=\linewidth/2]{capitulo4/terminal}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:terminal} Interacción del programa con el \textit{back-end}.}
+	\caption{\label{fig:terminal} Interacción del programa con el back-end.}
 \end{figure} 
 
 \smallskip
@@ -1784,12 +1784,12 @@ Se verificará que la contraseña introducida corresponda a la del usuario en Li
 El desarrollo de este capítulo nos ha permitido afinar con un alto nivel de detalle el esbozo inicial (figura \ref{fig:idea}), hasta obtener los tres grandes bloques del diseño:
 
 \begin{enumerate}
-	\item Un demonio de \textit{Linux}, como \textit{back-end}.
+	\item Un demonio de Linux, como \textit{back-end}.
 	\item Una base de datos, como sistema de almacenamiento persistente.
 	\item Una interfaz \textit{web}, como \textit{front-end}.
 \end{enumerate}
 
-En definitiva, hemos concebido un completo sistema de control para la \textit{PCB}, cuyo funcionamiento se resume en el siguiente diagrama:
+En definitiva, hemos concebido un completo sistema de control para la \acrshort{PCB}, cuyo funcionamiento se resume en el siguiente diagrama:
 
 \smallskip
 
