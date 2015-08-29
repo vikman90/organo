@@ -37,7 +37,7 @@ En último lugar, necesitamos almacenar información de los archivos \textit{MID
 
 \section{Demonio del reproductor}
 
-Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con otros procesos a través de herramientas proporcionadas por el sistema operativo.
+Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con otros procesos a través de herramientas proporcionadas por el sistema operativo. \cite{wiki_demonio}
 
 Este programa será el núcleo de nuestro sistema, y ofrecerá las siguientes vías para comunicarse:
 
@@ -392,6 +392,8 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 Para que todas las pistas se ejecuten simultáneamente, el planificador recorre en cada ciclo todas las listas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el menor valor y se resta a todos los \textit{deltas}. A continuación, se solicita al sistema operativo la espera correspondiente al tiempo restado, y se repite el ciclo. El algoritmo termina cuando todas las pistas han llegado al final.
 
+\smallskip
+
 \begin{algorithmic}
 	\LOOP
 		\STATE $mindelta \gets \infty$
@@ -419,6 +421,8 @@ Para que todas las pistas se ejecuten simultáneamente, el planificador recorre 
 		\STATE $sleep (mindelta)$
 	\ENDLOOP
 \end{algorithmic}
+
+\smallskip
 
 \subsubsection{Diagrama de uso}
 
@@ -610,7 +614,7 @@ Atendiendo a los requisitos propuestos, modelamos nuestros datos según el sigui
 
 \subsection{Modelo relacional}
 
-Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\textit{DBMS (database management system)}--- que vayamos a utilizar. En nuestro caso, utilizaremos un \textit{DBMS} relacional.
+Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\textit{DBMS (database management system)}--- que vayamos a utilizar. En nuestro caso, utilizaremos un \textit{DBMS} relacional \cite{bdrel}.
 
 \begin{enumerate}
 	\item Convertimos en relaciones (tablas) todas las entidades y las relaciones del modelo entidad-relación.
@@ -638,12 +642,12 @@ Una vez hecho esto, el modelo resultante es el siguiente:
 Para garantizar que la base de datos mantendrá la información coherente y sin anomalías, estudiamos las relaciones para normalizarlas. Podemos verificar que nuestro modelo relacional está en 5ª forma normal, atendiendo a las siguientes condiciones:
 
 \begin{description}
-	\item[1FN] El \textit{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas.
-	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la llave primaria, por tanto, está en segunda forma normal.
-	\item[3FN] No existen atributos secundarios que dependan transitivamente de la llave primaria, entonces, está en tercera forma normal.
-	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las claves candidatas. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN.
-	\item[4FN] La cuarta forma normal extiende la FNBC exigiendo que no existan dependencias multivaluadas no triviales. Este modelo no tiene dependencias multivaluadas, de forma que está en 4FN.
-	\item[5FN] Por último, la quinta forma normal especifica que, además de todo lo anterior, cada dependencia de unión sea implicada por claves candidatas. Esto se cumple en nuestro modelo, ya que toda llave externa se vincula a la llave primaria de otra relación.
+	\item[1FN] El \textit{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas. \cite{wiki_1fn}
+	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la llave primaria, por tanto, está en segunda forma normal. \cite{wiki_2fn}
+	\item[3FN] No existen atributos secundarios que dependan transitivamente de la llave primaria, entonces, está en tercera forma normal. \cite{wiki_3fn}
+	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las claves candidatas. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN. \cite{wiki_fnbc}
+	\item[4FN] La cuarta forma normal extiende la FNBC exigiendo que no existan dependencias multivaluadas no triviales. Este modelo no tiene dependencias multivaluadas, de forma que está en 4FN. \cite{wiki_4fn}
+	\item[5FN] Por último, la quinta forma normal especifica que, además de todo lo anterior, cada dependencia de unión sea implicada por claves candidatas. Esto se cumple en nuestro modelo, ya que toda llave externa se vincula a la llave primaria de otra relación. \cite{wiki_5fn}
 \end{description}
 
 Nuestro modelo relacional cumple todas las exigencias de las formas normales tenidas en cuenta, con lo que podemos garantizar que el modelo es consistente.
@@ -655,7 +659,7 @@ Nuestro modelo relacional cumple todas las exigencias de las formas normales ten
 		\includegraphics[width=\linewidth/2]{capitulo4/bd_fn}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:bd_fn} Relación entre las formas normales.}
+	\caption[Relación entre las formas normales.]{\label{fig:bd_fn} Relación entre las formas normales. \cite{wiki_normal}}
 \end{figure} 
 
 \smallskip
@@ -675,7 +679,7 @@ Vamos a diseñar una solución enfocada al uso remoto con ayuda de un explorador
 		\includegraphics[width=\linewidth*2/3]{capitulo4/despliegue}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema.}
+	\caption[Comunicación entre el cliente y el \textit{software} del sistema]{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema. \cite{svg_raspberry}}
 \end{figure} 
 
 \smallskip
@@ -779,7 +783,7 @@ A lo largo de esta sección detallaremos el comportamiento de todos los componen
 
 La visualidad es un punto importante en el diseño de interfaces gráficas, es la encargada de proporcionar una experiencia de usuario y hacer asequible la utilización del sistema. Pretendemos entregar la información requerida de forma clara y concisa, disponer fácilmente de los controles que puedan ser necesarios en cada vista, y que el estilo sea agradable y acorde a la solución que se está diseñando.
 
-Por ello, vamos a fijarnos en la guía de estilo \textit{Material Design} de \textit{Google} para inspirarnos. La idea es sencilla: cada elemento de la interfaz se entiende como una hoja de papel. El diseñador maquetará la interfaz en base a hojas que se solapan, produciendo una sutil sombra cuando esto ocurre.
+Por ello, vamos a fijarnos en la guía de estilo \textit{Material Design} de \textit{Google} \cite{material} para inspirarnos. La idea es sencilla: cada elemento de la interfaz se entiende como una hoja de papel. El diseñador maquetará la interfaz en base a hojas que se solapan, produciendo una sutil sombra cuando esto ocurre.
 
 \textit{Material design} provee una gran cantidad de componentes de control y paletas de colores. De todos ellos, escogeremos listas, menús desplegables y botones flotantes. Nos decantamos por un color marrón, que evoca tranquilidad y estabilidad, dando idea de un \textit{software} intuitivo y robusto.
 

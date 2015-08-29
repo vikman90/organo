@@ -8,3 +8,5 @@ makeindex -s "pfc_amroldan.ist" -t "pfc_amroldan.alg" -o "pfc_amroldan.acr" "pfc
 makeindex -s "pfc_amroldan.ist" -t "pfc_amroldan.glg" -o "pfc_amroldan.sym" "pfc_amroldan.sbl"
 
 makeindex -s "pfc_amroldan.ist" -t "pfc_amroldan.glg" -o "pfc_amroldan.gls" "pfc_amroldan.glo"
+
+bibtex pfc_amroldan.aux

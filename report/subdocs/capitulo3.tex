@@ -265,13 +265,15 @@ A continuación mostramos las medidas de longitud tomadas durante el análisis.
 
 \section{PCB de control}
 
-La placa de circuito impreso es la solución a los requisitos hardware aportada por el proyecto de D. Mikel Aguayo Fernández. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un prototipo de la placa con un número limitado de salidas.
+La placa de circuito impreso es la solución a los requisitos hardware aportada por el proyecto de D. Mikel Aguayo Fernández \cite{mikel}. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un prototipo de la placa con un número limitado de salidas.
 
 Una de las partes más importantes de este proyecto será desarrollar el \textit{software} controlador para esta PCB. A continuación detallamos aquellos componentes con los que tendremos que interactuar.
 
 \subsection{Registros de desplazamiento SN74HC595}
 
-Los registros de desplazamiento son circuitos lógicos que almacenan una serie de bits y permiten desplazarlos de una celda a otra. Este modelo tiene una capacidad de 8 bits, soporta entrada en serie y salida en paralelo con registro de almacenamiento. Así, solo necesitamos un pin para enviar toda la información, y la salida no se ve alterada durante el desplazamiento, sino que damos un pulso de reloj para indicar que hemos terminado de enviar los datos.
+Los registros de desplazamiento son circuitos lógicos que almacenan una serie de bits y permiten desplazarlos de una celda a otra. Este modelo tiene una capacidad de 8 bits, soporta entrada en serie y salida en paralelo con registro de almacenamiento \cite{shiftreg}. 
+
+Así, solo necesitamos un pin para enviar toda la información, y la salida no se ve alterada durante el desplazamiento, sino que damos un pulso de reloj para indicar que hemos terminado de enviar los datos.
 
 \smallskip
 
@@ -280,7 +282,7 @@ Los registros de desplazamiento son circuitos lógicos que almacenan una serie d
 		\includegraphics[width=\linewidth/4]{capitulo3/SN74HC595}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:SN74HC595} Pines del SN74HC595.}
+	\caption{\label{fig:SN74HC595} Pines del SN74HC595. }
 \end{figure} 
 
 \smallskip
@@ -380,7 +382,7 @@ El receptor de mando a distancia es un detector de radio con decodificador a int
 		\includegraphics[clip=true,trim=0 200 0 200, width=\linewidth/2]{capitulo3/HIRK-433A}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:HIRK-433A} Receptor de radio HIRK-433A.}
+	\caption[Receptor de radio HIRK-433A.]{\label{fig:HIRK-433A} Receptor de radio HIRK-433A. \cite{imagen_decoder}}
 \end{figure} 
 
 \smallskip
@@ -408,7 +410,7 @@ La siguiente tabla muestra los datos de nuestro interés:
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:info_recv} Características del receptor de mando.}
+	\captionof{table}[Características del receptor de mando.]{\label{tab:info_recv} Características del receptor de mando. \cite{datasheet_decoder}}
 \end{center}
 
 \smallskip
@@ -431,7 +433,7 @@ Esta pieza presenta el siguiente aspecto:
 
 \smallskip
 
-La siguiente tabla muestra sus características principales:
+La siguiente tabla muestra sus características principales \cite{datasheet_lcd}:
 
 \smallskip
 
@@ -452,7 +454,7 @@ La siguiente tabla muestra sus características principales:
 
 \subsection{Codificador rotatorio EC11J}
 
-Un codificador rotatorio es un componente electrónico consistente en un botón giratorio, y emite una señal cuyas características dependen del sentido en que el usuario ha girado el botón. El modelo que vamos a utilizar contiene un botón giratorio y pulsable.
+Un codificador rotatorio es un componente electrónico consistente en un botón giratorio, y emite una señal cuyas características dependen del sentido en que el usuario ha girado el botón. El modelo que vamos a utilizar contiene un botón giratorio y pulsable. \cite{rotary}
 
 \smallskip
 
@@ -515,6 +517,8 @@ El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que
 \smallskip
 
 \subsection{Especificaciones técnicas}
+
+La siguiente tabla ilustra las principales características del \textit{Raspberry Pi} \cite{raspberry}:
 
 \smallskip
 
@@ -608,9 +612,9 @@ En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de g
 
 \section{Formato de archivo MIDI}
 
-El estándar \textit{MIDI} es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales.
+El estándar \textit{MIDI} es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales. \cite{wiki_midi}
 
-Los datos de entrada a nuestro sistema consisten en archivos \textit{MIDI}, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de bloques ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textit{big-endian}, detalle a tener en cuenta, ya que tanto la arquitectura \textit{x86} como \textit{ARM} trabajan en \textit{little-endian}.
+Los datos de entrada a nuestro sistema consisten en archivos \textit{MIDI}, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de bloques ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textit{big-endian}, detalle a tener en cuenta, ya que tanto la arquitectura \textit{x86} como \textit{ARM} trabajan en \textit{little-endian}. \cite{midi}
 
 \subsection{Bloque de cabecera}
 
@@ -765,7 +769,7 @@ Los tipos de meta-evento estándar son los siguientes:
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:midi_mevaevento} Meta-eventos \textit{MIDI}.}
+	\captionof{table}{\label{tab:midi_mevaeventos} Meta-eventos \textit{MIDI}.}
 \end{center}
 
 \smallskip
