@@ -88,6 +88,8 @@ Tanto las medidas de cada tecla como su calado (diferencia entre la posición de
 
 Los datos más relevantes son los siguientes:
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Número de teclas & 49 / teclado \\
@@ -97,7 +99,11 @@ Los datos más relevantes son los siguientes:
 		\hline Presión máxima & 2,70 \textit{N} \\
 		\hline
 	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:teclados} Medidas de los teclados.}
 \end{center}
+
+\smallskip
 
 Cada tecla blanca del mismo nombre tiene unas medidas ligeramente diferentes en su parte interna, para permitir que las negras encajen perfectamente. Las medidas de una tecla blanca son las siguientes:
 
@@ -161,6 +167,8 @@ Este órgano cuenta con un \textit{pedalier} con un registro fijo: el \textit{ba
 
 Es importante saber que el peso necesario para mover un pedal es mucho mayor que para una tecla, asimismo, tanto la naturaleza artesanal como el deterioro crean mucha disparidad entre el tacto de cada pedal.
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Número de pedales & 12 \\ 
@@ -169,8 +177,12 @@ Es importante saber que el peso necesario para mover un pedal es mucho mayor que
 		\hline Profundidad de calado (cromáticas) & 19,8 \textit{mm} \\
 		\hline Presión máxima & 30,54 \textit{N} \\
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:pedalier} Medidas del \textit{pedalier}.}
 \end{center}
+
+\smallskip
 
 Por su parte, las cotas que definen el \textit{pedalier} son las siguientes:
 
@@ -208,6 +220,8 @@ Dado que el punto interno de equilibro de cada palanca está en lugares diferent
 
 A continuación mostramos las medidas de longitud tomadas durante el análisis.
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline \multicolumn{2}{|c|}{\textbf{A la izquierda}} \\	
@@ -222,7 +236,13 @@ A continuación mostramos las medidas de longitud tomadas durante el análisis.
 		\hline  Violón (100 \textit{mm}) & Trompeta real (144 \textit{mm})  \\ 
 		\hline
 	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:registros_izquierda} Medidas de los registros (izquierda).}
+\end{center}
+
+\smallskip
 	
+\begin{center}
 	\begin{tabular}{|l|l|}
 		\hline \multicolumn{2}{|c|}{\textbf{A la derecha}} \\
 		\hline Clarín (170 \textit{mm}) &  \\ 
@@ -237,7 +257,11 @@ A continuación mostramos las medidas de longitud tomadas durante el análisis.
 		\hline Trompeta real (135 \textit{mm}) & Gamba (102 \textit{mm}) \\ 
 		\hline 
 	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:registros_derecha} Medidas de los registros (derecha).}
 \end{center}
+
+\smallskip
 
 \section{PCB de control}
 
@@ -263,6 +287,8 @@ Los registros de desplazamiento son circuitos lógicos que almacenan una serie d
 
 La información más relevante es la siguiente:
 
+\smallskip
+
 \begin{center}
 		\begin{tabular}{|l|l|}
 		\hline Capacidad & 8 \textit{bits} / canal \\ 
@@ -270,7 +296,11 @@ La información más relevante es la siguiente:
 		\hline Ancho de pulso & 100 ns \\ 
 		\hline 
 	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:info_regdespl} Características de los registros de desplazamiento.}
 \end{center}
+
+\smallskip
 
 Basándonos en el órgano de la Parroquia de Santa Fe, tendremos cuatro registros de desplazamiento, uno para cada canal:
 
@@ -367,6 +397,8 @@ Es flexible para mandos con distinto número de botones y los indica como un cam
 
 La siguiente tabla muestra los datos de nuestro interés:
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Interfaz & RS-232 \\
@@ -374,8 +406,12 @@ La siguiente tabla muestra los datos de nuestro interés:
 		\hline Longitud de trama & 10 \textit{bytes} \\ 
 		\hline Sintaxis & <Nº serie (7 \textit{bytes})> <Botón (1 \textit{byte})> <CRLF> \\ 
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:info_recv} Características del receptor de mando.}
 \end{center}
+
+\smallskip
 
 \subsection{Pantalla LCD FDCC2004B}
 
@@ -397,6 +433,8 @@ Esta pieza presenta el siguiente aspecto:
 
 La siguiente tabla muestra sus características principales:
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Tipo & LCD retroiluminado \\ 
@@ -405,8 +443,12 @@ La siguiente tabla muestra sus características principales:
 		\hline Dimensión de celda & 5 x 8 \textit{pixels} \\ 
 		\hline Caracteres especiales & 8 \\ 
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:info_lcd} Características de la pantalla LCD.}
 \end{center} 
+
+\smallskip
 
 \subsection{Codificador rotatorio EC11J}
 
@@ -474,6 +516,8 @@ El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que
 
 \subsection{Especificaciones técnicas}
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Modelo & Raspberry Pi B+ v1.2 \\
@@ -492,8 +536,13 @@ El corazón de este computador es un \textit{SoC} (\textit{system on-chip}), que
 		\hline Consumo máximo & 1.8 \textit{A} (9 \textit{W}) \\ 
 		\hline Sistema operativo & Raspbian (Linux 3.8) \\
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:rapberry} Especificaciones del \textit{Raspberry Pi}.}
+
 \end{center}
+
+\smallskip
 
 \subsection{Pines de E/S}
 
@@ -536,8 +585,12 @@ La asignación de pines es la que sigue:
 		\hline Canal B (rotación) & GPIO 24 \\ 
 		\hline Pulsación & GPIO 23 \\ 
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:gpio} Asignaciones de los pines del GPIO.}
 \end{center}
+
+\smallskip
 
 \subsection{Sistema operativo}
 
@@ -563,6 +616,8 @@ Los datos de entrada a nuestro sistema consisten en archivos \textit{MIDI}, tal 
 
 El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e incluye la siguiente información:
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|l|}
 		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
@@ -572,8 +627,12 @@ El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e inclu
 		\hline 2 bytes & Número de pistas & 1--65535 \\ 
 		\hline 2 bytes & División de tiempo &  \\ 
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_header} Contenido de la cabecera \textit{MIDI}.}
 \end{center}
+
+\smallskip
 
 \begin{description}
 	\item[Formato] Es la forma en que se organizan las pistas. Puede ser:
@@ -592,18 +651,26 @@ El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e inclu
 
 Una pista consta de una cabecera y de una lista de eventos, que termina con el meta-evento \textit{fin de pista}.
 
+\smallskip
+
 \begin{center}
 	\begin{tabular}{|l|l|l|}
 		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
 		\hline 4 bytes & Firma & "MTrk" \\ 
 		\hline 4 bytes & Tamaño & 0-65535 \\  
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_track} Contenido de la cabecera de una pista \textit{MIDI}.}
 \end{center}
+
+\smallskip
 
 \subsection{Eventos MIDI}
 
 Cada evento está formado por los siguientes campos:
+
+\smallskip
 
 \begin{center}
 	\begin{tabular}{|l|l|}
@@ -613,13 +680,19 @@ Cada evento está formado por los siguientes campos:
 		\hline 1 byte & Parámetro 1 \\ 
 		\hline 1 byte & Parámetro 2 \\ 
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_evento} Especificación de un evento \textit{MIDI}.}
 \end{center}
+
+\smallskip
 
 \begin{description}
 	\item[$\Delta$] Indica el número de \textit{ticks} que separan al evento actual del precedente.
 	\item[Tipo de evento y canal] Los cuatro \textit{bits} más significativos corresponden al tipo de evento. Los otros cuatro marcan el canal \textit{MIDI}.
 \end{description}
+
+\smallskip
 
 \begin{center}
 	\begin{tabular}{|l|l|l|l|}
@@ -635,12 +708,18 @@ Cada evento está formado por los siguientes campos:
 		\hline 0xF0 & SYSTEM-EXCLUSIVE & \multicolumn{2}{c|}{} \\
 		\hline 0xFF & Meta-evento & \multicolumn{2}{c|}{} \\
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_eventos} Eventos \textit{MIDI}.}
 \end{center}
+
+\smallskip
 
 \subsubsection{Meta-eventos}
 
 Los metaeventos son mensajes de control que extienden la semántica de los eventos normales. Tienen la siguiente estructura:
+
+\smallskip
 
 \begin{center}
 	\begin{tabular}{|l|l|}
@@ -651,10 +730,16 @@ Los metaeventos son mensajes de control que extienden la semántica de los event
 		\hline Variable & Longitud del argumento \\ 
 		\hline (Longitud) & Valor del argumento \\ 
 		\hline
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_mevaevento} Especificación de un meta-evento \textit{MIDI}.}
 \end{center}
 
+\smallskip
+
 Los tipos de meta-evento estándar son los siguientes:
+
+\smallskip
 
 \begin{center}
 	\begin{tabular}{|l|l|}
@@ -678,8 +763,12 @@ Los tipos de meta-evento estándar son los siguientes:
 		\hline 0x59 & Indicación de tonalidad \\
 		\hline 0x7F & Reservado para el secuenciador \\
 		\hline 
-	\end{tabular} 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:midi_mevaevento} Meta-eventos \textit{MIDI}.}
 \end{center}
+
+\smallskip
 
 \subsubsection{Notas}
 
