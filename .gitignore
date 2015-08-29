@@ -20,3 +20,4 @@ report/*.pdf
 report/*.alg
 report/*.tps
 report/*.ist
+report/*.txss
