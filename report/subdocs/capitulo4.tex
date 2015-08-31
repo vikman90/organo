@@ -68,11 +68,25 @@ Así, el esquema de uso de los distintos componentes queda así:
 
 Como hemos detallado más arriba, el formato \acrshort{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
 
-Concebimos la estructura de datos como un conjunto de listas enlazadas de eventos. El tamaño de los eventos normales es constante, sin embargo, los meta-eventos extienden la semántica con una cadena de datos.
+Concebimos la estructura de datos principal como un conjunto de pistas, compuestas a su vez de eventos. El tamaño de los eventos normales es constante, sin embargo, los meta-eventos extienden la semántica con una cadena de datos.
 
-\subsubsection{Estructura midifile\_t}
+El siguiente diagrama de clases ilustra la estructura de datos completa:
 
-Define un archivo \acrshort{MIDI}. Sus campos son:
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/uml_midi}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:uml_midi} Diagrama de clases para el módulo MIDI.}
+\end{figure} 
+
+\smallskip
+
+\subsubsection{Clase MidiFile}
+
+Define un archivo \acrshort{MIDI}. Sus atributos son:
 
 \begin{description}
 	\item[format : \textit{enum}] Formato del archivo. Puede tener los siguientes valores enumerados:
@@ -83,80 +97,178 @@ Define un archivo \acrshort{MIDI}. Sus campos son:
 		\item[MULTIPLE\_INDEPENDENT] Varias pistas, independientes.
 	\end{description}
 	
-	\item[ntracks : \textit{word}] Número de pistas.
-	
 	\item[division : \textit{enum}] Unidad de medida de la división de tiempo:
 	
 	\begin{description}
 		\item[TICKS\ PER\ BEAT] La división se especifica en \textit{ticks}/\quarternote.
 		\item[FRAMES\_PER\_SECOND] La división se especifica en \textit{ticks/fotograma}.
 	\end{description}
-	
-	\item[tracks : \textit{array(midievent\_t)}] Conjunto de listas de eventos; cada lista corresponde a una pista.
 
 \end{description}
 
-\subsubsection{Estructura midievent\_t}
+La clase declara los siguientes métodos:
+
+\begin{description}[style=nextline]
+	\item[MidiFile (path)] 
+	Constructor, lee un archivo \acrshort{MIDI}. 
+	
+	\begin{description}
+		\item[path : \textit{string}] Ruta del fichero a leer.
+	\end{description}
+	
+	\item[duration () : \textit{float}] 
+	Obtener la duración de una pieza en segundos.
+	
+	\item[length : \textit{integer}]
+	Devuelve el número de pistas contenidas en el archivo.
+	
+	\item[get (n) : \textit{MidiFile}]
+	Devuelve la pista indicada.
+	
+	\begin{description}
+		\item[n : \textit{integer}] Índice de pista.
+	\end{description}
+\end{description}
+
+\subsubsection{Clase MidiTrack}
+
+Esta clase se modela como una colección de los eventos pertenecientes a cada pista de un archivo \aceshort{MIDI}.
+
+Solo contiene un atributo intrínseco y un constructor:
+
+\begin{description}
+	\item[size : \textit{integer}] Tamaño en \textit{bytes} que ocupa la pista en el fichero.
+\end{description}
+
+\begin{description}
+	\item[MidiTrack (file)]
+	Construye una pista a partir de un fichero abierto.
+	
+	\begin{description}
+		\item[file] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
+	\end{description}
+\end{description}
+
+\subsubsection{Clase MidiEvent}
 
 Define un evento \acrshort{MIDI}.
 
 \begin{description}
-	\item[delta : \textit{dword}] Separación temporal respecto al evento anterior.
-	\item[type : \textit{enum}] Tipo de evento. Se enumeran en el capítulo anterior.
+	\item[delta : \textit{integer}] Separación temporal respecto al evento anterior.
+	\item[type : \textit{enum}] Tipo de evento. Se enumeran en la tabla \ref{tab:midi_eventos}.
 	\item[param1 : \textit{byte}] Valor del primer parámetro, dependiendo del tipo de evento.
 	\item[param2 : \textit{byte}] Valor del segundo parámetro, dependiendo del tipo de evento.
-	\item[metaevent : \textit{metaevent\_t}] Información del metaevento, si procede.
-	\item[next : \textit{midievent\_t}] Evento siguiente, si procede.
 \end{description}
 
-\subsubsection{Estructura metaevent\_t}
+Los parámetros se consideran privados, ya que su semántica depende del tipo de evento. Por tanto, estableceremos los siguientes métodos para obtener la información adecuada:
 
-Define un meta-evento.
+\begin{description}[style=nextline]
+	\item[MidiEvent (delta, type, p1, p2)]
+	Crea un nuevo evento.
+	
+	\begin{description}
+		\item[delta : \textit{integer}] Separación temporal respecto al evento precedente.
+		\item[type : \textit{enum}] Tipo de evento.
+		\item[p1 : \textit{byte}] Valor del primer parámetro.
+		\item[p2 : \textit{byte}] Valor del segundo parámetro.
+	\end{description}
+	
+	\item[parse (file) : \textit{list(MidiEvent)}]
+	Analiza un archivo \acrshort{MIDI} en el punto en que estaba abierto, hasta encontrar un evento de final de pista.
+	
+	\begin{description}
+		\item[file] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
+	\end{description}
+	
+	Devuelve una lista de eventos.
+	
+	\item[note () : \textit{byte}] 
+	Código de nota musical.
+	
+	\item[velocity () : \textit{byte}] 
+	Velocidad de pulsación (intensidad del sonido).
+	
+	\item[aftertouch () : \textit{byte}] 
+	Variación de intensidad.
+	
+	\item[controller () : \textit{byte}] 
+	Número de controlador.
+	
+	\item[value () : \textit{byte}] 
+	Valor del controlador.
+	
+	\item[program () : \textit{byte}] 
+	Número de programa.
+	
+	\item[pitch () : \textit{byte}] 
+	Valor del \textit{pitch-bend}.
+\end{description}
+
+\subsubsection{Clase MetaEvent}
+
+Define un meta-evento. Extiende la clase \textit{MidiEvent} y presenta un atributo privado:
 
 \begin{description}
-	\item[type : \textit{emum}] Tipo de metaevento. Se enumeran en el capítulo anterior.
-	\item[length : \textit{dword}] Longitud de la cadena de datos, en \textit{bytes}.
 	\item[data : \textit{string}] Cadena de datos correspondientes al meta-evento.
 \end{description}
 
-\subsubsection{Funciones}
+Podemos interactuar con el meta-evento mediante los siguientes métodos, cada uno será válido para el tipo de meta-evento que corresponda.
 
 \begin{description}[style=nextline]
-	\item[midifile\_init (score, path) : \textit{int}] 
-	Lee un archivo \acrshort{MIDI} e inicializa la estructura recibida. 
+	\item[MetaEvent (delta, type, data)]
+	Crea un nuevo meta-evento.
 	
 	\begin{description}
-		\item[score : \textit{midifile\_t}] Archivo \acrshort{MIDI} sin inicializar.
-		\item[path : \textit{string}] Ruta del fichero a leer.
+		\item[delta : \textit{integer}] Separación temporal respecto al evento precedente.
+		\item[type : \textit{enum}] Tipo de evento.
+		\item[data : string] Cadena de datos correspondientes al meta-evento.
 	\end{description}
 	
-	Devuelve 0 en caso de éxito, o -1 en caso de error.
+	\item[number () : \textit{integer}] 
+	Número de secuencia.
 	
-	\item[midifile\_destroy (file)] 
-	Elimina una estructura y libera su memoria.
+	\item[text () : \textit{string}] 
+	Texto del meta-evento.
 	
-	\begin{description}
-		\item[file : \textit{midifile\_t}] Archivo \acrshort{MIDI}.
-	\end{description}
+	\item[channel () : \textit{byte}] 
+	Prefijo del canal.
 	
-	\item[midifile\_duration (file) : \textit{dword}] 
-	Obtener la duración de una pieza.
+	\item[tempo () : \textit{float}] 
+	Velocidad de ejecución del pasaje musical, en $\mu s/\quarternote$.
 	
-	\begin{description}
-		\item[file : \textit{midifile\_t}] Archivo \acrshort{MIDI}.
-	\end{description}
+	\item[offset () : \textit{array(integer)}] 
+	Desplazamiento temporal. Devuelve una tupla con el siguiente contenido:
 	
-	Devuelve la duración de la pieza, en \textit{segundos}.
+	\begin{enumerate}
+		\item Velocidad en \textit{cuadros / s}.
+		\item Hora.
+		\item Minuto.
+		\item Segundo.
+		\item Cuadro (\textit{frame}).
+	\end{enumerate}
 	
-	\item[metaevent\_tempo (event) : \textit{dword}] 
-	Obtener el \textit{tempo} de la pieza.
+	\item[time () : \textit{array(integer)}] 
+	Devuelve la marca de compás mediante una tupla de la siguiente manera:
 	
-	\begin{description}
-		\item[event : \textit{metaevent\_t}] Meta-vento.
-	\end{description}
+	\begin{enumerate}
+		\item Numerador.
+		\item Denominador como fracción de redonda. (\fullnote =1, \halfnote = 2, \quarternote =4, \eighthnote =8 ...)
+ 		\item Número de \textit{ticks} entre cada marca del metrónomo.
+ 		\item Subdivisión, en \textit{fusas / click}.
+	\end{enumerate}
 	
-	Devuelve el \textit{tempo} de la pieza en \textit{$\mu s$/\quarternote}.
+	\item[key () : \textit{array(integer)}] 
+	Devuelve la tonalidad de la pieza, mediante una tupla con el siguiente significado:
 	
+	\begin{enumerate}
+		\item Número de $\sharp$ si es positivo, o número de $\flat$ si es negativo.
+		\item Modo, de forma enumerada:
+		
+		\begin{description}
+			\item[MAJOR] Modo mayor.
+			\item[MINOR] Modo menor.
+		\end{description}
+	\end{enumerate}
 \end{description}
 
 \subsubsection{Diagrama de uso}
@@ -187,12 +299,12 @@ Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos d
 Las funciones diseñadas son las siguientes:
 
 \begin{description}[style=nextline]
-	\item[socket\_init (uid, gid) : \textit{dword}]
+	\item[socket\_init (uid, gid) : \textit{integer}]
 	Inicializar el \textit{socket} con el ID de usuario y grupo indicados.
 	
 	\begin{description}
-		\item[uid : \textit{dword}] ID de usuario en Linux.
-		\item[gid : \textit{dword}] ID de grupo en Linux.
+		\item[uid : \textit{integer}] ID de usuario en Linux.
+		\item[gid : \textit{integer}] ID de grupo en Linux.
 	\end{description}
 	
 	Devuelve 0 en caso de éxito y -1 en caso de error.
@@ -241,7 +353,7 @@ Además de reconocer la pulsación del mando, es necesario consultar en la base 
 Las funciones correspondientes a este módulo son las siguientes:
 
 \begin{description}[style=nextline]
-	\item[uart\_init () : \textit{dword}]
+	\item[uart\_init () : \textit{integer}]
 	Establece comunicación con el puerto serie.
 	
 	Devuelve 0 en caso de éxito y -1 en caso de error.
@@ -279,18 +391,18 @@ La información relativa a la lista de reproducción asignada a un botón, así 
 El sistema se comunicará con la base de datos mediante las siguientes funciones:
 
 \begin{description}[style=nextline]
-	\item[db\_init () : \textit{dword}]
+	\item[db\_init () : \textit{integer}]
 	Inicia la comunicación con el gestor de bases de datos. Devuelve 0 en caso de éxito y -1 en caso de error.
 	
 	\item[db\_destroy ()]
 	Cierra la comunicación.
 	
-	\item[db\_query (scores, idshortcut) : \textit{dword}]
+	\item[db\_query (scores, idshortcut) : \textit{integer}]
 	Realiza la consulta mencionada, asignando a \textit{scores} la lista de piezas a reproducir.
 	
 	\begin{description}
 		\item[scores : \textit{array(string)}] Lista de rutas a las piezas.
-		\item[idshortcut : \textit{dword}] ID del botón que se ha pulsado en el mando.
+		\item[idshortcut : \textit{integer}] ID del botón que se ha pulsado en el mando.
 	\end{description}
 	
 	Devuelve el número de piezas asignadas (pudiendo ser 0), o -1 en caso de error.
@@ -325,27 +437,27 @@ Al igual que otros módulos, utiliza una hebra para reproducir los archivos, per
 La interfaz que el planificador ofrece es la que sigue:
 
 \begin{description}[style=nextline]
-	\item[player\_start (playlist, n, loop) : \textit{dword}]
+	\item[player\_start (playlist, n, loop) : \textit{integer}]
 	Inicia la reproducción de una lista de archivos. Si ya estaba reproduciendo una lista, primero detiene la reproducción y elimina la lista antigua.
 	
 	\begin{description}
 		\item[playlist : \textit{array(string)}] Lista de rutas absolutas a los archivos que queremos reproducir.
-		\item[n : \textit{dword}] Número de piezas que se han transmitido en el parámetro anterior.
+		\item[n : \textit{integer}] Número de piezas que se han transmitido en el parámetro anterior.
 		\item[loop : \textit{bool}] Utilizar (1) o no (0) reproducción en bucle.
 	\end{description}
 	
 	Devuelve 0 en caso de éxito o -1 en caso de error.
 	
-	\item[player\_pause () : \textit{dword}]
+	\item[player\_pause () : \textit{integer}]
 	Pausa la reproducción, si estaba activa. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
-	\item[player\_resume () : \textit{dword}]
+	\item[player\_resume () : \textit{integer}]
 	Reanuda la reproducción, si estaba pausada. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
-	\item[player\_stop () : \textit{dword}]
+	\item[player\_stop () : \textit{integer}]
 	Detiene completamente la reproducción, si estaba activa o pausada. Si estaba parado, no hace nada. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
-	\item[player\_wait () : \textit{dword}]
+	\item[player\_wait () : \textit{integer}]
 	Espera a que el reproductor se detenga. Solo tiene sentido llamarla en caso de no estar reproduciendo en bucle. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
 	\item[player\_state (file) : \textit{enum}]
@@ -357,10 +469,10 @@ La interfaz que el planificador ofrece es la que sigue:
 	
 	Devuelve el estado actual del reproductor, a saber entre los estados contemplados en la máquina.
 	
-	\item[player\_engineer\_enter () : \textit{dword}]
+	\item[player\_engineer\_enter () : \textit{integer}]
 	Detiene el reproductor, bloquea el planificador y entra en modo Ingeniería. Devuelve 0 en caso de éxito o -1 en caso de error, como estar ya dentro del modo Ingeniería.
 	
-	\item[player\_engineer\_exit () : \textit{dword}]
+	\item[player\_engineer\_exit () : \textit{integer}]
 	Sale del modo Ingeniería y debloquea el planificador. Devuelve 0 en caso de éxito o -1 en caso de error, como no estar dentro del modo Ingeniería.
 	
 \end{description}
@@ -508,7 +620,7 @@ El reproductor delega en el módulo de salida las siguientes funciones:
 Las siguientes funciones conforman la interfaz del módulo:
 
 \begin{description}[style=nextline]
-	\item[output\_init () : \textit{dword}]
+	\item[output\_init () : \textit{integer}]
 	Inicializa los componentes de la salida. Devuelve 0 en caso de éxito o -1 en caso de error.
 	
 	\item[output\_destroy ()]
@@ -518,16 +630,16 @@ Las siguientes funciones conforman la interfaz del módulo:
 	Marcar una nota para activar en el sistema.
 	
 	\begin{description}
-		\item[track : \textit{dword}] Índice de la pista \acrshort{MIDI}.
-		\item[note : \textit{dword}] Número de nota \acrshort{MIDI}.
+		\item[track : \textit{integer}] Índice de la pista \acrshort{MIDI}.
+		\item[note : \textit{integer}] Número de nota \acrshort{MIDI}.
 	\end{description}
 	
 	\item[output\_noteon (track, note)]
 	Marcar una nota para apagarla en el sistema.
 	
 	\begin{description}
-		\item[track : \textit{dword}] Índice de la pista \acrshort{MIDI}.
-		\item[note : \textit{dword}] Número de nota \acrshort{MIDI}.
+		\item[track : \textit{integer}] Índice de la pista \acrshort{MIDI}.
+		\item[note : \textit{integer}] Número de nota \acrshort{MIDI}.
 	\end{description}
 	
 	\item[output\_update ()]
