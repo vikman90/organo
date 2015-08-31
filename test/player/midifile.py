@@ -30,8 +30,8 @@ class MidiTrack:
 class MidiFile:
     '''Class representing a MIDI file as a list of MIDItracks'''
 
-    # Default tempo: 1 / 120
-    tempo = 0.5
+    # Default tempo: 1 / 120000000
+    tempo = 500000
     
     def __init__(self, pathname):
         '''Creates a complete MIDI file from a file (path)'''

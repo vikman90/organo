@@ -135,8 +135,8 @@ INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME'''
         return data[0]
 
     def tempo(self):
-        '''Tempo in seconds per quarter-note'''
-        return ((self.data[0] << 16) | (self.data[1] << 8) | self.data[2]) / 1000000
+        '''Tempo in microseconds per quarter-note'''
+        return ((self.data[0] << 16) | (self.data[1] << 8) | self.data[2])
 
     def offset(self):
         '''SMPTE offset as tuple (fps, hour, min, sec, fr) '''
