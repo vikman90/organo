@@ -203,7 +203,7 @@ void midifile_destroy(midifile_t *file) {
 
 // Get duration of a score in seconds
 
-int midifile_duration(const midifile_t *file) {
+double midifile_duration(const midifile_t *file) {
 	midievent_t *event;
 	midievent_t *tracks[file->ntracks];
 	int deltas[file->ntracks];
@@ -261,7 +261,7 @@ int midifile_duration(const midifile_t *file) {
 		waiting += min_delta * tempo / file->timediv;
 	}
 
-	return waiting / 1000000;
+	return waiting / 1000000.0;
 }
 
 // Reads a variable-lenvth value from file
