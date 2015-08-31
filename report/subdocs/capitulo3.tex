@@ -611,6 +611,7 @@ Además, la versión utilizada del núcleo Linux es apropiativa ---\textit{preem
 En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
 
 \section{Formato de archivo MIDI}
+\label{sec:fmto_midi}
 
 El estándar \acrshort{MIDI} (\acrlong{MIDI}) es una interfaz que permite conectar instrumentos musicales electrónicos y computadoras. Comprende desde un protocolo electrónico hasta un formato de archivos, que se basa en una serie de eventos de control de parámetros musicales. \cite{wiki_midi}
 
@@ -648,7 +649,7 @@ El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e inclu
 	
 	\item[Número de pistas] Indica de cuántas pistas se compone el archivo. Obviamente, si el formato es 0, el valor de este campo será 1.
 	
-	\item[División de tiempo] Nos indica el significado de cada \textit{tick} de reloj del protocolo como divisiones de una negra (\quarternote). Valores típicos son 96, 120, 180, 192, 240, 360, 384, 480, 640, 720, 768 y 960 \textit{ticks}/\quarternote. Si el valor es negativo, el número indica en su lugar el número de \textit{ticks/fotograma}, habitualmente utilizado en realización de vídeo.
+	\item[División de tiempo] Nos indica el significado de cada \textit{tick} de reloj del protocolo como divisiones de una negra (\quarternote). Valores típicos son 96, 120, 180, 192, 240, 360, 384, 480, 640, 720, 768 y 960 \textit{ticks}/\quarternote. Si el \textit{bit} más significativo es 1, el valor indica en su lugar el número de \textit{ticks/fotograma}, habitualmente utilizado en realización de vídeo.
 \end{description}
 
 \subsection{Bloque de pista}
@@ -759,7 +760,8 @@ Los tipos de meta-evento estándar son los siguientes:
 		\hline 0x07 & Punto de corte \\
 		\hline 0x08 & Nombre del programa \\
 		\hline 0x09 & Nombre del dispositivo \\
-		\hline 0x20 & Prefijo del canal \\
+		\hline 0x20 & Canal por defecto (obsoleto) \\
+		\hline 0x21 & Puerto por defecto (obsoleto) \\
 		\hline 0x2F & Fin de pista \\
 		\hline 0x51 & \textit{Tempo} ($\mu s/\quarternote$) \\
 		\hline 0x54 & Desplazamiento temporal \\
