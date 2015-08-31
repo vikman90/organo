@@ -30,6 +30,7 @@ CUE_POINT = 0x7
 PROGRAM_NAME = 0x08
 DEVICE_NAME = 0x09
 CHANNEL_PREFIX = 0x20
+PORT_PREFIX = 0x21
 END_OF_TRACK = 0x2F
 SET_TEMPO = 0x51
 SMPTE_OFFSET = 0x54
@@ -39,9 +40,9 @@ SEQUENCER_SPECIFIC = 0x7F
 
 metaevent_types = {SEQUENCE_NUMBER, TEXT_EVENT, COPYRIGHT_NOTICE, \
                    SEQUENCE_NAME, INSTRUMENT_NAME, LYRICS, MARKER, \
-                   CUE_POINT, PROGRAM_NAME, DEVICE_NAME, CHANNEL_PREFIX,
-                   END_OF_TRACK, SET_TEMPO, SMPTE_OFFSET, TIME_SIGNATURE, \
-                   KEY_SIGNATURE, SEQUENCER_SPECIFIC}
+                   CUE_POINT, PROGRAM_NAME, DEVICE_NAME, CHANNEL_PREFIX, \
+                   PORT_PREFIX, END_OF_TRACK, SET_TEMPO, SMPTE_OFFSET,
+                   TIME_SIGNATURE, KEY_SIGNATURE, SEQUENCER_SPECIFIC}
 
 def varlen(file):
     '''Reads a variable-length value from file'''
@@ -70,7 +71,7 @@ class MidiEvent:
             self.param2 = file.read(1)[0]
 
     def __repr__(self):
-        string = '{0}: event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
+        string = '{0}: Event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
                                                               self.type, \
                                                               self.channel, \
                                                               self.param1)

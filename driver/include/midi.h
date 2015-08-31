@@ -36,6 +36,7 @@ enum metaevent_type_t {
 	PROGRAM_NAME = 0x08,
 	DEVICE_NAME = 0x09,
 	CHANNEL_PREFIX = 0x20,
+	PORT_PREFIX = 0x21,
 	END_OF_TRACK = 0x2F,
 	SET_TEMPO = 0x51,
 	SMPTE_OFFSET = 0x54,
