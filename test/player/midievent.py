@@ -56,7 +56,7 @@ def varlen(file):
     return value
 
 class MidiEvent:
-    def __init__(self, delta, value, file):
+    def __init__(self, delta, value, param1, param2):
         self.delta = delta
         self.type = value & 0xF0
         self.channel = value & 0x0F
@@ -64,11 +64,8 @@ class MidiEvent:
         if self.type not in event_types:
             raise Exception('Invalid event type: 0x{0:02x}'.format(self.type))
 
-        self.param1 = file.read(1)[0]
-
-        if not (self.type == PROGRAM_CHANGE \
-                or self.type == CHANNEL_AFTERTOUCH):
-            self.param2 = file.read(1)[0]
+        self.param1 = param1
+        self.param2 = param2
 
     def __repr__(self):
         string = '{0}: Event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
@@ -173,10 +170,18 @@ def parseEvents(file):
         
         if value < 0xF0:
             if value < 0x80:
+                param1 = value
                 value = runningstatus
-                file.seek(file.tell() - 1)
+            else:
+                param1 = file.read(1)[0]
+
+            if (value & 0xF0) in (PROGRAM_CHANGE, CHANNEL_AFTERTOUCH):
+                param2 = None
+            else:
+                param2 = file.read(1)[0]
+                
             try:
-                event = MidiEvent(delta, value, file)
+                event = MidiEvent(delta, value, param1, param2)
                 runningstatus = value
                 logging.info(event)
                 yield event

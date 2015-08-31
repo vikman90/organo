@@ -1,1 +1,2 @@
 test/**/__pycache__
+test/player/data/*
