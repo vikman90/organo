@@ -502,7 +502,7 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 \subsubsection{Algoritmo básico}
 
-Para que todas las pistas se ejecuten simultáneamente, el planificador recorre en cada ciclo todas las listas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el menor valor y se resta a todos los \textit{deltas}. A continuación, se solicita al sistema operativo la espera correspondiente al tiempo restado, y se repite el ciclo. El algoritmo termina cuando todas las pistas han llegado al final.
+Para que todas las pistas se ejecuten simultáneamente, el planificador recorre en cada ciclo todas las listas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el menor de ellos y se resta al \textit{delta} de todos los eventos. A continuación, se solicita al sistema operativo la espera correspondiente al tiempo restado, y se repite el ciclo. El algoritmo termina cuando todas las pistas han llegado al final.
 
 \smallskip
 

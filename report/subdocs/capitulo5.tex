@@ -297,15 +297,206 @@ Aparte del resto de transformaciones obvias, en pro de la velocidad de ejecució
 
 \subsection{Planificador}
 
+El planificador es la parte más crítica del sistema: debe cronometrar y ejecutar los eventos del archivo que está abierto, y atender a las llamadas declaradas en la interfaz.
+
+El procedimiento básico es sencillo: cada evento tiene una marca de tiempo respecto al evento anterior. El sistema debe "dormir" el tiempo indicado ejecutar el evento, y avanzar al siguiente, hasta la marca de fin de pista.
+
+Solo vamos a atender cuatro tipos de evento:
+
+\begin{enumerate}
+	\item Evento NOTE\_ON, para activar una nota.
+	\item Evento NOTE\_OFF, para desactivar una nota.
+	\item Metaevento TEMPO, para establecer la velocidad.
+	\item Metaevento END\_OF\_TRACK, para terminar.
+\end{enumerate}
+
 \subsubsection{Prototipo}
 
-\subsubsection{Implementación}
+De la misma forma que hicimos con el descodificador de archivos \acrshort{MIDI}, vamos a escribir un prototipo sencillo en Python. Recibirá un objeto de la clase \code{MidiFile} e interpretará una de sus pistas, a fin de estudiar la salida y hacer ajustes si es necesario.
+
+El algoritmo se estructurará según el siguiente diagrama:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/flujo_planificacion}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:flujo_planificacion} Diagrama de flujo del planificador (simple).}
+\end{figure}
+
+\smallskip
+
+En este caso, implementamos la clase \code{Instrument} para abstraernos de la configuración del instrumento, que tendrá que definir mínimamente algunas funciones de la interfaz de salida:
+
+\begin{description}[style=nextline]
+	\item[\code{state}]
+	Estado del instrumento. Almacena qué notas están activas y cuáles inactivas. En lugar de una lista de \textit{booleanos}, será un simple número entero que trataremos como un campo de \textit{bits}, correspondiendo el más significativo a la nota más aguda, y el \textit{bit} menos significativo a la tecla más grave.
+	
+	\item[\code{length}]
+	Especifica el número de notas que admite nuestro instrumento. Será el ancho del campo de \textit{bits}.
+	
+	\item[\code{offset}]
+	Indica la primera nota del instrumento como el desplazamiento respecto a la primera nota \acrshort{MIDI}.
+	
+	\item[\code{\_\_init\_\_(self, length, offset}]
+	Constructor. Crea las estructuras de datos en \code{self} conociendo la longitud del teclado (\code{length}) y la primera nota (\code{offset}).
+	
+	\item[\code{note\_on(self, note)}]
+	Activa la nota indicada (\code{note}), comprobando antes si está dentro del rango cubierto por el teclado.
+	
+	\item[\code{note\_off(self, note)}]
+	Apaga la nota indicada (\code{note}) si ésta pertenece al teclado.
+	
+	\item[\code{play(self, midi, track)}]
+	Método del planificador. Cronometra y ejecuta la pista indicada (\code{track}) del archivo de la clase \code{MidiFile}. Esta función implementa el algoritmo que queremos prototipar.
+	
+\end{description}
+
+La salida es muy simple: muestra para cada evento el cambio producido y el estado actual:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo5/cap_pytest}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_pytest} Captura de pantalla del prototipo.}
+\end{figure}
+
+\smallskip
+
+El prototipo nos sirvió para extraer dos objeciones:
+
+\begin{enumerate}
+	\item El retraso ($\Delta$) del evento es inversamente proporcional al \textit{tempo} y a la división de tiempo, indicada en la cabecera del archivo. Así pues, como el \textit{tempo} se expresa invertido, la espera se calcula de la siguiente forma:
+	
+	\begin{center}
+		$retraso \; (\mu s)  = \frac{\Delta \; (ticks) \; \times \; tempo \; (\mu s / \quarternote)}{division \; (ticks / \quarternote)}$
+	\end{center}
+	
+	\item La semántica para desactivar una nota no solo se hace con un evento NOTE\_OFF, sino que algunas piezas lo especifican con un evento NOTE\_ON con velocidad 0. Esto resulta útil para ahorrar espacio de almacenamiento, repitiendo el mismo tipo de evento.
+\end{enumerate}
+
+Una vez corregidos estos detalles, el prototipo cumple su objetivo correctamente. 
+
+\subsubsection{Implementación final}
+
+El paso siguiente es implantar el algoritmo en C con los correspondientes añadidos. El más importante es que, en realidad, no debemos ejecutar una pista, sino tantas como tenga el archivo. Tenemos dos alternativas:
+
+\begin{enumerate}
+	\item A cada pista se le asigna una hebra de ejecución. Se inician todas a la vez y se esperan al final.
+	\item Ampliamos el algoritmo para que ejecute todas las pistas de forma síncrona.
+\end{enumerate}
+
+Como hemos podido deducir del diseño, nos decantamos por la segunda opción, considerando que todas las hebras tendrían que sincronizarse con la interfaz de salida, haciendo más llamadas de las necesarias. Además, las llamadas al sistema para retrasar la ejecución, así como las dedicadas a sincronizar la exclusión mutua, desfasarían las pistas, provocando una interpretación musical incorrecta.
+
+Ya que el procesador del \textit{Raspberry Pi} solo tiene un núcleo, no vamos a ganar tiempo dividiendo el proceso en hebras, si sabemos manejar correctamente las pistas. Para ello, diseñamos el algoritmo descrito en la sección \ref{subsec:planificador}, que requerirá una sola hebra, que llamaremos "hebra de reproducción".
+
+El planificador define su interfaz de la siguiente manera:
+
+\begin{description}[style=nextline]
+	\item[enum player\_state\_t]
+	
+	Estado interno del reproductor.
+
+	\begin{description}
+		\item[\code{PAUSED}] En pausa.
+		\item[\code{PLAYING}] Reproduciendo.
+		\item[\code{STOPPED}] Detenido completamente.
+		\item[\code{ENGINEER}] En modo Ingeniería. No se puede reproducir.
+	\end{description}
+
+	El orden de los tipos debe hacerse cuidadosamente para permitir al compilador generar un código óptimo \cite{vikman_switch}: Si las funciones utilizan la sentencia \code{switch} con etiquetas que comparten instrucciones (no todas acaban en \code{break}), es buena práctica que las etiquetas sigan el orden en que se ha declarado la enumeración.
+	
+	\item[\code{int player\_start(char **playlist, int n, int loop)}]
+	Inicia la hebra de reproducción. Si ésta estaba en funcionamiento, primero la detiene. En primer lugar almacena la lista de rutas de archivo (\code{playlist}), el índice de la primera pieza a ejecutar (\code{n}) y la especificación de reproducir o no en bucle (\code{loop}).
+	
+	Ya que la terminación de la hebra anterior pudo ser natural o forzada, esta función es la encargada de eliminar la lista de reproducción precedente, si la hubiera. Una vez hecho esto, lanza la hebra de reproducción y devuelve el código de error (normalmente 0).
+	
+	\item[\code{int player\_wait()}]
+	
+	Bloquea a la hebra llamante hasta que la hebra de reproducción termine, y devuelve siempre \code{NULL}.
+	
+	\item[\code{int player\_pause()}]
+	
+	Comprueba que la hebra está funcionando y la pausa, cambiando el estado a \code{PAUSED}. A fin de evitar la espera activa de la hebra de reproducción, utilizaremos un semáforo de sincronización, que explicaremos más abajo.
+	
+	Devuelve 0 si ha pausado correctamente, o -1 si no estaba en ejecución.
+	
+	\item[\code{int player\_resume()}]
+	
+	Al contrario que la función anterior, comprueba que estaba en pausa, cambia el estado a \code{PLAYING} y señala el semáforo para despertar a la hebra de reproducción. Si estaba en reproducción, no hace nada. 
+	
+	Devuelve 0 si se ha reanudado la reproducción (o ya estaba funcionando), o -1 si estaba detenido.
+	
+	\item[\code{int player\_stop()}]
+	
+	Provoca la detención de la hebra de reproducción cambiando el estado a \code{STOPPED}, y espera a que la hebra termine efectivamente. Si estaba en pausa, primero despierta a la hebra para que termine por sí sola.
+	
+	Devuelve 0 si se ha detenido correctamente. Solo devuelve -1 si estaba en modo Ingeniería.
+	
+	\item[\code{player\_state\_t player\_state(char *file)}]
+	
+	Esta función devuelve el estado actual del reproductor. En caso de que estuviera en funcionamiento o pausado, copia en el parámetro \code{file} la ruta del archivo que está reproduciendo la hebra.
+	
+	\item[\code{int player\_engineer\_enter()}]
+	
+	Entra en el modo Ingeniería cambiando el estado a \code{ENGINEER}. Si la hebra estaba iniciada, previamente la detiene completamente. Si ya está en modo Ingeniería, no hace nada.
+	
+	Siempre devuelve 0.
+	
+	\item[\code{int player\_engineer\_exit()}]
+	
+	Sale del modo Ingeniería, si estaba dentro de él. El estado a la salida de \code{STOPPED}. Devuelve 0 si ha salido correctamente, o -1 si no estaba dentro.
+\end{description}
+
+Además, el módulo implementa los siguientes elementos de forma \textbf{estática}. Esto, en el ámbito del lenguaje C, significa que los símbolos no se exportan y, en consecuencia, solo las funciones dentro del módulo pueden llamarlas. Es el equivalente a los métodos privados en los lenguajes orientados a objetos. Son las siguientes:
+
+\begin{description}[style=nextline]
+	\item[\code{void* player\_run(void *arg)}]
+	Punto de inicio de la hebra de reproducción. Consiste sencillamente en un bucle que recorre la lista de reproducción. En cada ciclo, abre el archivo correspondiente con ayuda del módulo \acrshort{MIDI} y lo ejecuta llamando a \code{playscore()}. Si la lectura falla, se ignora el archivo. En cualquier caso, después del uso, se destruye.
+	
+	Si se ha marcado la ejecución en bucle, al terminar de reproducir la lista, se vuelve al principio, indefinidamente. Si se diera el (improbable) caso de que todos los archivos de la lista fallen, la hebra termina.
+	
+	Devuelve siempre \code{NULL} como código de retorno del subproceso.
+	
+	\item[\code{int playscore(midifile\_t *file)}]
+	
+	Implementa el algoritmo de planificación para reproducir el archivo (\code{file}). Aplica el procedimiento descrito, al que añade una comprobación de estado en cada ciclo del bucle principal:
+	
+	\begin{description}
+		\item[\code{PLAYING}] Continúa la ejecución normalmente.
+		
+		\item[\code{PAUSED}] Silencia la salida (manteniendo el estado) y pausa la reproducción. Como hemos adelantado, utiliza un semáforo para evitar la espera activa. El subproceso se bloquea hasta que otra hebra llame a \code{player\_pause()}, que es la que señala dicho semáforo..
+		
+		\item[\code{STOPPED}] Restablece la salida (borra el estado) y sale del bucle principal. 
+	\end{description}
+	
+	Para un rendimiento óptimo, el bucle que ejecuta inmediatamente los eventos llama a \code{output\_noteon()} y \code{output\_noteoff()}, que cambian el estado del módulo de salida pero no la exportan efectivamente al instrumento. Cuando la racha termina, se sincroniza con la salida ---\code{output\_update()}--- y realiza la espera mediante una llamada a \code{nanosleep()}.
+
+	El método de salida queda patente por el código de retorno:
+	
+	\begin{description}
+		\item[0] Finalización natural.
+		\item[1] Finalización forzada por una llamada a \code{player\_stop()}.
+	\end{description}
+	
+\end{description}
 
 \subsubsection{Concurrencia}
 
-\subsection{Salida GPIO}
+El planificador puede ser llamado por el servidor de \textit{socket}, el controlador del mando o el gestor del modo Ingeniería en cualquier momento, y en cualquier punto del reproductor. Esto puede llegar a generar \textbf{condiciones de carrera}, o incluso bloquear el sistema si dos módulos pretenden llevar a cabo acciones al mismo tiempo.
 
-\subsubsection{Prototipo}
+Además, debemos tener en cuenta posibles \textbf{usos ilegales} de la hebra de reproducción, como iniciarla, pausarla o detenerla varias veces consecutivas. Para evitar esto, como hemos descrito, las funciones públicas de control comprueban el estado antes de actuar.
+
+A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable "bandera"} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
+
+Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán un \textbf{\acrshort{mutex}} que monitoriza las llamadas, haciendo que toda función deba esperar a que termine cualquier otra que estuviera funcionando.
+
+\subsection{Salida GPIO}
 
 \subsubsection{Implementación}
 
