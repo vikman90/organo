@@ -316,6 +316,7 @@ Basándonos en el órgano de la Parroquia de Santa Fe, tendremos cuatro registro
 A pesar de que la capacidad de cada canal es de 8 bits, solo utilizaremos 7 de ellos.
 
 \subsection{Conexión a la mecánica}
+\label{subsec:conexion_mecanica}
 
 Los registros de desplazamiento están diseñados para albergar el estado lógico de cada una de las piezas del órgano con las que vamos a interactuar, y se han dispuesto cuidadosamente para que, clasificados por canales, cada uno se dedique a una zona de la consola del instrumento, manteniendo una interfaz lógica similar con objeto de homogeneizar la interfaz de cara al \textit{software}.
 
@@ -525,7 +526,7 @@ La siguiente tabla ilustra las principales características del \textit{Raspberr
 \begin{center}
 	\begin{tabular}{|l|l|}
 		\hline Modelo & Raspberry Pi B+ v1.2 \\
-		\hline SoC & Broadcom BCM2835 \\
+		\hline \acrshort{SOCA} & Broadcom BCM2835 \\
 		\hline Procesador &  1176JZF-S @ 700 \textit{MHz} \\
 		\hline Repertorio de instrucciones & ARMv6 (\textit{RISC} 32-\textit{bit}) \\
 		\hline Memoria & 512 \textit{MB} @ 400 \textit{MHz} \\

@@ -498,11 +498,203 @@ Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán u
 
 \subsection{Salida GPIO}
 
-\subsubsection{Implementación}
+Esta parte del programa supone el "puente" entre el planificador y la \acrshort{PCB}, transformará instrucciones de activación y desactivación de notas en señales lógicas que emitiremos por el \acrshort{GPIO}. 
+
+Este módulo se diseñó de forma muy flexible para que se pudiera adaptar fácilmente a cualquier órgano, o incluso se pudiera dirigir a otra interfaz, como tal vez la salida estándar ---de hecho, en el simulador de reproducción (sección \ref{subsec:simulador_reproduccion}) redefiniremos la interfaz para que así sea---.
+
+Todas las implementaciones deben tener en común el hecho de almacenar el estado de todas las notas del instrumento. Las llamadas a \code{output\_noteon()} y \code{output\_noteoff()} cambiarán ese estado, y \code{output\_update()} volcará efectivamente esta información en la salida.
+
+\subsubsection{Prototipo}
+
+Inicialmente hicimos una "prueba de concepto" en Python para entender el funcionamiento de los registros de desplazamiento. Como ya explicamos en la sección de análisis (\ref{subsec:conexion_mecanica}), cada registro está dedicado a un componente del órgano, pero todos funcionan igual.
+
+La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como ejemplo el famoso \textit{Himno a la alegría} de Ludwig van Beethoven:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim=20 580 20 30,width=\linewidth*3/4]{capitulo5/beethoven_1voz}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:beethoven_1voz} Fragmento del Himno a la Alegría de Beethoven.}
+\end{figure}
+
+\smallskip
+
+Ya que no tenemos notas cromáticas, y disponemos de solo 7 \textit{bits} en la \acrshort{PCB}, vamos a establecer la siguiente equivalencia:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Do & \code{1000000} \\ 
+		\hline Re & \code{0100000} \\ 
+		\hline Mi & \code{0010000} \\ 
+		\hline Fa & \code{0001000} \\
+		\hline Sol & \code{0000100} \\
+		\hline La & \code{0000010} \\
+		\hline Si & \code{0000001} \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:equiv_notas_prot} Equivalencia de notas en el prototipo.}
+\end{center}
+
+\smallskip
+
+Cualquier acorde no sería más que una combinación de bits. Todo lo que tenemos que hacer es volcar cada nota por separado, esperar el tiempo que hagamos corresponder a una negra (\quarternote) y silenciarlo todo (volcar solo ceros). El procedimiento es muy sencillo:
+
+\begin{enumerate}
+	\item Escribir el valor de una celda del vector en el puerto \acrshort{GPIO} correspondiente.
+	\item Emitir un pulso en el puerto conectado a SRCLK para desplazar y almacenar.
+	\item Repetir los pasos 1 y 2 con el resto de \textit{bits}.
+	\item Emitir un pulso en el puerto conectado a RCLK para copiar del registro de desplazamiento al registro de almacenamiento.
+\end{enumerate}
+
+Para emitir un pulso en el registro, actuamos de la siguiente forma, de acuerdo al manual técnico de los registros:
+
+\begin{enumerate}
+	\item Escribir "1" en el puerto llamando a \code{output()}.
+	\item Esperar 100 \textit{ns} con una llamada a \code{sleep()}.
+	\item Escribir "0" en el puerto.
+\end{enumerate}
+
+\subsubsection{Implementación final}
+
+Este módulo va a ser llamado síncronamente por el planificador, por lo que todas las funciones que implementemos deben de ser tan rápidas como sea posible. El primer detalle importante es escoger una \textbf{estructura de datos} eficiente para almacenar el estado.
+
+En este caso, todos los registros tienen el mismo tamaño, y conocemos de antemano las dimensiones, con lo cual, tenemos dos opciones. Teniendo en cuenta que hay que indizar por (nota, pista), vamos a deducir el número de operaciones necesarias para la escritura (aleatoria) y la lectura (secuencial):
+
+\begin{enumerate}
+	\item Una variable entera \textbf{como campo de \textit{bits}}.
+	\begin{itemize}
+		\item Cada escritura requiere: indirección + multiplicación + suma + desplazamiento + conjunción + escritura. 
+		\item Cada lectura requiere: desplazamiento.
+	\end{itemize}
+	
+	\item Una \textbf{matriz de \textit{bytes}}.
+	
+	\begin{itemize}
+		\item Cada escritura requiere: multiplicación + suma + escritura.
+		\item Cada lectura requiere: suma + indirección.
+	\end{itemize}
+\end{enumerate}
+
+La matriz de \textit{bytes} está mejor equilibrada, sobre todo teniendo en cuenta que se va a hacer más escrituras que lecturas. El campo de \textit{bits}, además, nos limita a 32 \textit{bits} en total, lo que nos obligaría a hacer modificaciones cuando extendamos los registros.
+
+Crearemos la matriz de esta manera:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|c|cccc|}
+		\hline & \multicolumn{4}{c|}{N pistas} \\
+		\hline \multirow{7}{*}{\rotatebox[]{90}{M notas}} & $s_{0,0}$ & $s_{0,1}$ & $s_{0,2}$ & $s_{0,3}$ \\
+		& $s_{1,0}$ & $s_{1,1}$ & $s_{1,2}$ & $s_{1,3}$ \\
+		& $s_{2,0}$ & $s_{2,1}$ & $s_{2,2}$ & $s_{2,3}$ \\
+		& $s_{3,0}$ & $s_{3,1}$ & $s_{3,2}$ & $s_{3,3}$ \\
+		& $s_{4,0}$ & $s_{4,1}$ & $s_{4,2}$ & $s_{4,3}$ \\
+		& $s_{5,0}$ & $s_{5,1}$ & $s_{5,2}$ & $s_{5,3}$ \\
+		& $s_{6,0}$ & $s_{6,1}$ & $s_{6,2}$ & $s_{6,3}$ \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:matriz_estatica} Configuración de las notas en el estado.}
+\end{center}
+
+\smallskip
+
+El compilador, conociendo las dimensiones, convertirá la matriz estática en un \textit{array} de la siguiente forma:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|c|}
+		\hline $M\times N$ \textit{bytes} \\
+		\hline $s_{0,0}$ $s_{0,1}$ $s_{0,2}$ $s_{0,3}$ $s_{1,0}$ $s_{1,1}$ ... $s_{6,2}$  $s_{6,3}$ \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:matriz_estatica} Disposición física de la matriz en memoria.}
+\end{center}
+
+\smallskip
+
+Con esta estructura, el acceso aleatorio para escribir un valor en el estado se hará con la siguiente fórmula:
+
+\begin{center}
+	$s_{nota,pista} = v_{nota \times N + pista}$
+\end{center}
+
+Para volcar la información en los registros, seguiremos los mismos pasos que en el prototipo, pero en lugar de transmitir a un puerto \acrshort{GPIO}, transmitiremos a tantos como pistas tengamos, antes de enviar el pulso a SRCLK, que desplaza las notas de todos los registros a la vez.
+
+Hemos organizado la matriz para que la lectura se hagan en el orden estricto en que están los datos en memoria, con lo cual, en lugar de acceder a la matriz directamente y obligar al compilador a hacer una multiplicación y una suma, utilizaremos \textbf{aritmética de punteros} para movernos por ella.
 
 \subsubsection{Acceso directo al GPIO}
 
+La siguiente cuestión es cómo acceder al \acrshort{GPIO}. Conocemos bien el sistema de archivos especial que nos brinda Linux, pero el hecho de actuar por medio de llamadas al sistema y acceso a ficheros para algo tan elemental podría resultar ineficiente.
+
+Los puertos \acrshort{GPIO} son pines físicos del \acrshort{SOCA}, y se puede acceder a ellos mediante el periférico correspondiente mediante acceso a memoria. Estudiando el manual del BCM2835, obtenemos la siguiente información:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline 0x20200000 & Dirección base \\
+		\hline
+		\hline Base + 0 & \multirow{6}{*}{Selección de función} \\
+		\cline{1-1} Base + 4 & \\
+		\cline{1-1} Base + 8 & \\
+		\cline{1-1} Base + 12 & \\
+		\cline{1-1} Base + 16 & \\
+		\cline{1-1} Base + 20 & \\
+		\hline Base + 24 & Reservado \\
+		\hline Base + 28 & \multirow{2}{*}{Poner a "1"} \\
+		\cline{1-1} Base + 32 & \\
+		\hline Base + 36 & Reservado \\
+		\hline Base + 40 & \multirow{2}{*}{Poner a "0"} \\
+		\cline{1-1} Base + 44 & \\
+		\hline \multicolumn{2}{|c|}{...} \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:gpio_struct} Direcciones físicas del GPIO.}
+\end{center}
+
+\smallskip
+
+El controlador de \acrshort{GPIO} utiiza registros de 32-\textit{bit}. Para obtener un puntero a una dirección de memoria física, tan solo necesitamos hacer una llamada a \code{mmap(file = "dev/mem", offset = 0x20200000)} \cite{soii}. A partir de ahí, podemos acceder a cada registro con los desplazamientos adecuados. Hay un banco de registros para poner a "1", escribiendo un 1 lógico en el \textit{bit} correspondiente al número de puerto, y otro para poner a "0", escribiendo un 1 lógico en el \textit{bit} adecuado.
+
+De esta forma logramos la mayor eficiencia, tanto por el acceso directo a memoria como la posibilidad de escribir en todas las pistas más el reloj en una sola operación de escritura.
+
 \subsubsection{Mapeo y tolerancia}
+
+Huelga decir que para logar una óptima reproducción, será necesario adaptar las partituras al órgano en cuestión, ya que cada ejemplar tendrá una rango de notas y un conjunto de registros distintos. Nuestra aplicación será lo más estándar posible a la hora de leer un archivo \acrshort{MIDI}, por ello, y para evitar errores por incompatibilidad, debemos contemplar que podemos recibir un archivo \acrshort{MIDI} cualquiera.
+
+El número de pistas y el tamaño de cada una es conocido en tiempo de compilación, como ya sabemos. Las funciones \code{output\_noteon()} y \code{output\_noteoff()} reciben el código de nota y el índice de pista, que se escribirá en el estado. Un detalle simple, pero importante, será \textbf{descartar} cualquier nota fuera del rango, y cualquier pista no declarada.
+
+Por otro lado, no es estrictamente necesario que el orden de las pistas en el archivo (pentagramas) coincida con el orden de los registros en la \acrshort{PCB}. Para modelar esto, tendremos un \textit{array} con los números de puerto \acrshort{GPIO} asociados a cada pista del archivo \acrshort{MIDI}:
+
+La asignación por defecto, para el órgano de prueba, será la siguiente:
+
+
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|c|c|c|c|}
+		\hline \textbf{Pista} & 1 & 2 & 3 & 4 \\
+		\hline \textbf{Puerto GPIO} & 02 & 03 & 17 & 04 \\
+		\hline \textbf{Canal PCB} & S1 & S2 & S4 & S3 \\
+		\hline \textbf{Componente} & Teclado 1 & Teclado 2 & Registros & Pedalier \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:asig_canales} Asignación de pistas al GPIO.}
+\end{center}
+
+\smallskip
 
 \subsection{Demonio}
 
@@ -572,6 +764,7 @@ Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán u
 \section{Aplicaciones auxiliares}
 \subsection{Información de archivo MIDI}
 \subsection{Simulador de reproducción}
+\label{subsec:simulador_reproduccion}
 \subsection{Terminal del reproductor}
 \subsection{Comprobación de contraseña}
 \subsection{Instalador del servidor}
