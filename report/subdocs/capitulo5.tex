@@ -678,8 +678,6 @@ Por otro lado, no es estrictamente necesario que el orden de las pistas en el ar
 
 La asignación por defecto, para el órgano de prueba, será la siguiente:
 
-
-
 \smallskip
 
 \begin{center}
@@ -696,13 +694,9 @@ La asignación por defecto, para el órgano de prueba, será la siguiente:
 
 \smallskip
 
-\subsection{Demonio}
-
-\subsubsection{Características}
-\subsubsection{Script de arranque}
-\subsubsection{Permisos de usuario}
-
 \subsection{Servidor socket}
+
+
 
 \subsection{Servidor UART}
 
@@ -712,12 +706,86 @@ La asignación por defecto, para el órgano de prueba, será la siguiente:
 \subsubsection{Control de entrada}
 \subsubsection{Máquina de estados}
 
+\subsection{Inicio del demonio}
+
+Ahora vamos a crear el punto de inicio de nuestro servicio, para que se inicie durante el arranque del sistema operativo del \textit{Raspberry Pi}. Lo que este módulo hará será muy sencillo: iniciar todos los módulos y llamar a los bucles de escucha que incorporan en hebras diferentes.
+
+\subsubsection{Características}
+
+Un demonio ---en nomenclatura de la familia Unix--- es un programa que se ejecuta en segundo plano, es iniciado por el \textit{boostrap} del sistema operativo y no interactúa directamente con el usuario. Está diseñado para dar servicio a otras aplicaciones. Ni siquiera utiliza la entrada y salida estándar, en su lugar usa el registro del sistema.
+
+Al mismo tiempo, y paradójicamente, debe terminar lo antes posible para permitir que continúe el arranque del sistema. Para iniciar correctamente el demonio, la función principal del programa recibirá el ID del usuario y del grupo con que actuará el demonio, y hará lo siguiente: \cite{shahmir_daemon}
+
+\begin{enumerate}
+	\item Crea una copia de sí mismo mediante una bifurcación, llamando a \code{fork()}. Como ya sabemos, esta función devuelve el ID del hijo al proceso padre y 0 al proceso hijo. En este punto, el padre termina.
+	
+	\item Crea una nueva sesión mediante \code{setsid()}, convirtiendo al proceso hijo en líder de su grupo de procesos.
+	
+	\item Cambia la carpeta de trabajo por la raíz del sistema, llamando a \code{chdir(''/'')}.
+	
+	\item Cierra mediante \code{close()} los descriptores de archivo de la entrada y salida estándar: \textit{stdin}, \textit{stdout} y \textit{stderr}.
+	
+	\item Abre el \textit{log} del sistema con \code{openlog()}.
+	
+	\item Inicia el módulo del \textit{socket}.
+	
+	\item Arranca el módulo del mando a distancia.
+	
+	\item Inicia el módulo del modo Ingeniería.
+	
+	\item Rebaja sus permisos a los del \acrshort{UID} y el \acrshort{GID} recibidos.
+	
+	\item Inicia el bucle de escucha del servidor del puerto en serie (en otra hebra).
+	
+	\item Llama al bucle de servicio del \textit{socket}.
+	
+\end{enumerate}
+
+Otra acción importante es \textbf{programar el cierre} controlado mediante una sencilla función que detenga la reproducción y llame a las funciones de limpieza ---las que terminan en \code{\_destroy()}---:
+
+\begin{enumerate}
+	\item Planificar dicha llamada cuando se termine el programa, haciendo uso de \code{atexit}.
+	\item Programar una salida normal ---\code{exit(0)}--- cuando se reciba la señal SIGTERM, que es la que envía por defecto \code{kill} y la que corresponde a pulsar Ctrl+C.
+\end{enumerate}
+
+\subsubsection{Script de arranque}
+
+Conforme a la base estándar de Linux ---\acrshort{LSB}, \textit{\acrlong{LSB}}---, el arranque del sistema buscará un \textit{script} para iniciar el demonio en una ubicación dependiente del nivel de ejecución, y lo llamará con el argumento \code{''start''}. \cite{debian_lsbinit}
+
+Con objeto de arrancar los distintos servicios en el orden correcto para preservar dependencias, debemos escribir una cabecera en el código, que utilizará la orden \code{insserv} para registrar el servicio. En ella especificaremos la siguiente información:
+
+\begin{enumerate}
+	\item Requiere el servicio \code{syslog}, para el \textit{log} del sistema.
+	\item Se iniciará en los niveles de ejecución 2, 3, 4, 5 (multiusuario). \cite{wiki_runlevel}
+	\item Se parará en los niveles 0, 1 y 6 (monousuario, apagar y reiniciar).
+\end{enumerate}
+
+El \textit{script} atenderá a las siguientes órdenes:
+
+\begin{description}
+	\item[start] Arranca el demonio. Busca el proceso con \code{ps -e | grep}, si no lo encuentra, consulta el \acrshort{UID} y \acrshort{GID} del usuario dedicado, y llama al servicio pasando ambos argumentos.
+	
+	\item[stop] Busca el proceso y, si lo encuentra, lo detiene con \code{kill} y espera a que haya finalizado.
+\end{description}
+
+\subsubsection{Permisos de usuario}
+
+El demonio es llamado por el proceso \code{init} (que está empezando a ser reemplazado por \code{systemd}), por supuesto con permisos de superusuario (\textit{root}). Mantener al proceso con tales privilegios es inseguro. El servicio debe cambiar de usuario y de grupo con \code{setuid()} y \code{setgid()} cuando haya terminado de iniciar los dispositivos que requieren permisos especiales, especialmente el \acrshort{GPIO}, que mapea un puntero en memoria física.
+
+Para manejar los permisos adecuadamente, crearemos un usuario de sistema, de uso exclusivo para el demonio. Su \acrshort{UID} y su \acrshort{GID} serán los que reciba el ejecutable al iniciar el servicio.
+
 \subsection{Seguridad}
 \subsubsection{Permisos de usuario}
 \subsubsection{Conexiones simultáneas}
 \subsubsection{Compatibilidad con MIDI estándar}
 
-\subsection{Código de preinstalación}
+\subsection{Pre-instalación}
+
+\subsection{Compilación e instalación}
+
+
+
+
 
 \section{Interfaz web}
 
