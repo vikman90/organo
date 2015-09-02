@@ -294,9 +294,9 @@ Un \textit{socket} un mecanismo de comunicación inter-proceso ---\acrshort{IPC}
 
 Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
 
-\subsubsection{Funciones}
+\subsubsection{Funciones públicas}
 
-Las funciones diseñadas son las siguientes:
+Las funciones diseñadas para el uso externo son las siguientes:
 
 \begin{description}[style=nextline]
 	\item[socket\_init (uid, gid) : \textit{integer}]
@@ -314,6 +314,21 @@ Las funciones diseñadas son las siguientes:
 	
 	\item[socket\_loop ()]
 	Despliega una hebra con un bucle de escucha y atiende las peticiones.
+	
+\end{description}
+
+\subsubsection{Funciones privadas}
+
+\begin{description}[style=nextline]
+	\item[socket\_play (arg, loop) : \textit{integer}]
+	Reestructura la lista de reroducción (del protocolo de comunicación a una lista de cadenas de caracteres) e inicia la ejecución.
+	
+	\begin{description}
+		\item[arg : \textit{string}] Cadena de caracteres recibida, conteniendo la lista de archivos.
+		\item[loop : \textit{integer}] 1 para reproducir en bucle o 0 para hacerlo secuencialmente.
+	\end{description}
+	
+	Devuelve 0 en caso de éxito o -1 en caso de error.
 	
 \end{description}
 
@@ -348,9 +363,9 @@ De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la
 
 Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos en la sección \ref{sec:database}, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
 
-\subsubsection{Funciones}
+\subsubsection{Funciones públicas}
 
-Las funciones correspondientes a este módulo son las siguientes:
+Las funciones correspondientes a la interfaz de este módulo son las siguientes:
 
 \begin{description}[style=nextline]
 	\item[uart\_init () : \textit{integer}]
@@ -364,6 +379,27 @@ Las funciones correspondientes a este módulo son las siguientes:
 	\item[uart\_loop ()]
 	Despliega una hebra con un bucle de escucha y ejecuta las órdenes.
 	
+\end{description}
+
+\subsubsection{Funciones privadas}
+
+\begin{description}[style=nextline]
+	\item[uart\_run ()]
+	Ejecuta el bucle de escucha en una hebra aparte.
+	
+	\item[uart\_playlist (list) : \textit{integer}]
+	Consulta a la base de datos los nombres de archivos asociados a la lista asignada al botón pulsado e inicia la reproducción.
+	
+	\begin{description}
+		\item[list : \textit{integer}] Código del botón que se ha pulsado.
+	\end{description}
+	
+	Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[uart\_pause () : \textit{integer}]
+	Pausa o reanuda la reproducción, dependiendo de si estaba o no pausada.
+	
+	Devuelve 0 en caso de éxito, o -1 si el reproductor estaba detenido.
 \end{description}
 
 \subsubsection{Diagrama de uso}
@@ -562,7 +598,7 @@ Como parte central del programa, y al contrario que el resto de componentes, el 
 
 El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \acrshort{LCD}.
 
-El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \acrshort{GPIO}.
+El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \acrshort{GPIO}. Funcionará en una hebra independiente.
 
 Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
 
@@ -584,6 +620,30 @@ Este diagrama muestra las transiciones entre los estados:
 	\item[OFF] Estado inicial, modo Ingeniería apagado. Mostrará el estado del reproductor.
 	\item[MENU] Ofrece la opción de entrar en el modo Ingeniería.
 	\item[ON] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales
+\end{description}
+
+\subsubsection{Funciones públicas}
+
+Este bloque solo incluye una función:
+
+\begin{description}[style=nextline]
+	\item[periph\_init () : integer]
+	Inicia el módulo y prepara la escucha de los controles.
+	
+	Devuelve 0 en caso de éxito, o -1 si encuentra algún error.
+\end{description}
+
+\subsubsection{Funciones privadas}
+
+\begin{description}[style=nextline]
+	\item[rot\_change ()]
+	Se llama cuando se gira el botón del \textit{rotary}. Envía una señal a la hebra de control.
+	
+	\item[rot\_push ()]
+	Se llama cuando se aprieta el botón del \textit{rotary}. De manera análoga, envía una señal a la hebra que controla el modo Ingeniería.
+	
+	\item[periph\_run ()]
+	Ejecuta el bucle de actualización de la máquina de estados, en función del estado actual y cualquier eventual entrada, además de actualizar la salida al \acrshort{LCD}.
 \end{description}
 
 \subsubsection{Diagrama de uso}
@@ -788,7 +848,7 @@ Vamos a diseñar una solución enfocada al uso remoto con ayuda de un explorador
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo4/despliegue}
+		\includegraphics[width=\linewidth/2]{capitulo4/despliegue}
 		\par\end{centering}
 	\smallskip
 	\caption[Comunicación entre el cliente y el software del sistema]{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema. \cite{svg_raspberry}}
@@ -796,7 +856,7 @@ Vamos a diseñar una solución enfocada al uso remoto con ayuda de un explorador
 
 \smallskip
 
-En primer lugar será especificar los casos de uso que nos enfrentarán al usuario. Después, concebiremos el aspecto de la interfaz y por último esbozaremos la estructura del diseño.
+Lo primero que haremos será especificar los casos de uso que nos enfrentarán al usuario. Después, concebiremos el aspecto de la interfaz y por último esbozaremos la estructura del diseño.
 
 \subsection{Casos de uso}
 
@@ -1356,7 +1416,7 @@ El sistema de traducción estará basado en pares \textit{clave-contenido}. El l
 	Elemento raíz. Define la traducción completa a un idioma. Sus atributos son:
 	
 	\begin{description}
-		\item[code] Código estándar del idioma, como "es" (español) o "en" (inglés).
+		\item[code] Código estándar del idioma, como ''es'' (español) o ''en'' (inglés).
 		\item[language] Nombre de la lengua, escrito en el propio idioma.
 	\end{description}
 	
