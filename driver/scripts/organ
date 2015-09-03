@@ -22,7 +22,7 @@ GROUP="organ"
 
 case $1 in
 	"start")
-		log_daemon_msg "Iniciando servicio..."
+		log_daemon_msg "Iniciando controlador del organo..."
 		pid=$(ps -e | grep $DAEMON | cut -b-5)
 
 		if [ ! -z "$pid" ]; then
@@ -41,7 +41,7 @@ case $1 in
 		;;
 
 	"stop")
-		log_daemon_msg "Parando servicio..."
+		log_daemon_msg "Deteniendo controlador del organo..."
 		pid=$(ps -e | grep $DAEMON | cut -b-5)
 
 		if [ -z "$pid" ]; then
