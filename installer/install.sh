@@ -9,6 +9,7 @@
 PACKAGES="apache2 php5 mysql-server php5-mysqlnd"
 SUDOERS="/etc/sudoers"
 
+HOST_USER="pi"
 ORGAN_GROUP="organ"
 
 SITE_SOURCE="organo"
@@ -25,7 +26,7 @@ DB_SOURCE="organo.sql"
 
 ################################################################################
 
-apt-get install $PACKAGES
+apt-get -y install $PACKAGES
 adduser $HTTP_USER $ORGAN_GROUP
 
 ################################################################################
@@ -55,4 +56,5 @@ fi
 ################################################################################
 
 mysql -u$DB_USER -p < $(dirname $0)/$DB_SOURCE
-mkdir -p $SITE_ROOT $SITE_ROOT
+mkdir -p $SITE_ROOT $SITE_POOL
+chown $HOST_USER:$HOST_USER $SITE_ROOT $SITE_POOL
