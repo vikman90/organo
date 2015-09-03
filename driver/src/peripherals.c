@@ -142,9 +142,9 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 				note = (note + 1) % OUTPUT_LENGTH;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 			}
 
@@ -166,9 +166,9 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 				note = (note + OUTPUT_LENGTH - 1) % OUTPUT_LENGTH;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 			}
 
@@ -186,19 +186,19 @@ void* periph_run(void __attribute__((unused)) *arg) {
 					player_engineer_enter();
 
 				track = note = 0;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 				state = ENGINEER_ON;
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 
 				if (++track == OUTPUT_NTRACKS)
 					state = MENU;
 				else {
 					note = 0;
-					output_noteon(track, note);
+					output_noteon(track, note + OUTPUT_OFFSET);
 				}
 				output_update();
 			}
