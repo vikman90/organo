@@ -73,6 +73,13 @@ int periph_init() {
 	// We must not destroy the semaphore because ISR threads can't be removed at this time
 }
 
+// Destroys data and clears LCD
+
+void periph_destroy() {
+	lcdPosition(lcd, 0, 0);
+	lcdClear(lcd);
+}
+
 // Rotary change on channel A
 
 static void rot_change() {

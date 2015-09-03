@@ -20,6 +20,7 @@
 
 static void cleanup() {
 	player_stop();
+	periph_destroy();
 	output_destroy();
 	uart_destroy();
 	socket_destroy();

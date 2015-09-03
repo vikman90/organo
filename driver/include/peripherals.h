@@ -10,4 +10,7 @@
 // Initialize peripherals and start threads
 int periph_init();
 
+// Destroys data and clears LCD
+void periph_destroy();
+
 #endif
