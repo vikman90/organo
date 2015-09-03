@@ -11,7 +11,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include "player.h"
-#include "gpio.h"
+#include "output.h"
 #include "values.h"
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
