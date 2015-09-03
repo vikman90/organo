@@ -50,7 +50,7 @@
 
 #define PIN_RCKL 27					// Register clock
 #define PIN_SRCKL 22				// Shifting clock
-#define PIN_PORTS { 2, 3, 4, 17 }	// Ports for channels
+#define PIN_PORTS { 2, 3, 17, 4 }	// Ports for channels
 
 #define DB_HOST "localhost"
 #define DB_USER "organo"
