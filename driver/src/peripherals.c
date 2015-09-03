@@ -96,7 +96,7 @@ static void rot_change() {
 	
 	// a==b => CW
 	
-	buttons[a == b] = 1;
+	buttons[a != b] = 1;
 	sem_post(&semaphore);
 }
 
