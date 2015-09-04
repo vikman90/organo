@@ -4,25 +4,30 @@
 # 4 August 2015
 
 USER='organ'
-PACKAGES='libmysqlclient-dev'
+PACKAGES='git libmysqlclient-dev'
+
+HOST_USER="pi"
 
 BIN=$(dirname $0)/../bin
 OBJ=$(dirname $0)/../obj
 
 SCRIPT=$(dirname $0)/organ
 WIRINGPI=$(dirname $0)/wiringPi
-WIRINGPI_TAR=$(dirname $0)/wiringPi.tar.gz
+WIRINGPI_GIT="git://git.drogon.net/wiringPi"
 
-apt-get install $PACKAGES
+apt-get -y install $PACKAGES
 
 mkdir -p $BIN $OBJ
-chown pi:pi $BIN $OBJ
+chown $HOST_USER:$HOST_USER $BIN $OBJ
 chmod a+x $SCRIPT
 
 adduser --quiet --group --system --no-create-home $USER
 adduser $USER $USER
 
-tar -xf $WIRINGPI_TAR -C $(dirname $0)
-chown -R pi:pi $WIRINGPI
+if [ ! -d $WIRINGPI ]; then
+	git clone $WIRINGPI_GIT $WIRINGPI
+	chown -R $HOST_USER:$HOST_USER $WIRINGPI
+fi
+
 cd $WIRINGPI
 ./build

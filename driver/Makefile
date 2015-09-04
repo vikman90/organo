@@ -99,14 +99,12 @@ $(BIN)/organd: $(OBJ)/database.o $(OBJ)/gpio.o $(OBJ)/midi.o $(OBJ)/organd.o $(O
 $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(OBJ)/gpio.o: $(INC)/gpio.h
+$(OBJ)/database.o: $(INC)/values.h
 $(OBJ)/midi.o: $(INC)/midi.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
-$(OBJ)/organd.o:  $(INC)/output.h $(INC)/peripherals.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h
-$(OBJ)/peripherals.o: $(INC)/gpio.h $(INC)/player.h
+$(OBJ)/organd.o:  $(INC)/output.h $(INC)/peripherals.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h $(INC)/values.h
+$(OBJ)/peripherals.o: $(INC)/output.h $(INC)/player.h $(INC)/values.h
 $(OBJ)/player.o: $(INC)/midi.h $(INC)/output.h $(INC)/player.h
-$(OBJ)/socket.o: $(INC)/player.h
+$(OBJ)/socket.o: $(INC)/player.h $(INC)/values.h
 $(OBJ)/test.o: $(INC)/output.h $(INC)/player.h
-$(OBJ)/uart.o: $(INC)/database.h $(INC)/player.h
-
-$(INC)/gpio.h: $(INC)/output.h
+$(OBJ)/uart.o: $(INC)/database.h $(INC)/player.h $(INC)/values.h

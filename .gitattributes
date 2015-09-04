@@ -1,0 +1,7 @@
+driver/include/*.h eol=lf
+driver/scripts/* eol=lf
+driver/src/*.c eol=lf
+driver/Makefile eol=lf
+test/**/*.c eol=lf
+test/**/*.py eol=lf
+test/**/Makefile eol=lf

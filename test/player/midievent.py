@@ -30,6 +30,7 @@ CUE_POINT = 0x7
 PROGRAM_NAME = 0x08
 DEVICE_NAME = 0x09
 CHANNEL_PREFIX = 0x20
+PORT_PREFIX = 0x21
 END_OF_TRACK = 0x2F
 SET_TEMPO = 0x51
 SMPTE_OFFSET = 0x54
@@ -39,9 +40,9 @@ SEQUENCER_SPECIFIC = 0x7F
 
 metaevent_types = {SEQUENCE_NUMBER, TEXT_EVENT, COPYRIGHT_NOTICE, \
                    SEQUENCE_NAME, INSTRUMENT_NAME, LYRICS, MARKER, \
-                   CUE_POINT, PROGRAM_NAME, DEVICE_NAME, CHANNEL_PREFIX,
-                   END_OF_TRACK, SET_TEMPO, SMPTE_OFFSET, TIME_SIGNATURE, \
-                   KEY_SIGNATURE, SEQUENCER_SPECIFIC}
+                   CUE_POINT, PROGRAM_NAME, DEVICE_NAME, CHANNEL_PREFIX, \
+                   PORT_PREFIX, END_OF_TRACK, SET_TEMPO, SMPTE_OFFSET,
+                   TIME_SIGNATURE, KEY_SIGNATURE, SEQUENCER_SPECIFIC}
 
 def varlen(file):
     '''Reads a variable-length value from file'''
@@ -55,7 +56,7 @@ def varlen(file):
     return value
 
 class MidiEvent:
-    def __init__(self, delta, value, file):
+    def __init__(self, delta, value, param1, param2):
         self.delta = delta
         self.type = value & 0xF0
         self.channel = value & 0x0F
@@ -63,14 +64,11 @@ class MidiEvent:
         if self.type not in event_types:
             raise Exception('Invalid event type: 0x{0:02x}'.format(self.type))
 
-        self.param1 = file.read(1)[0]
-
-        if not (self.type == PROGRAM_CHANGE \
-                or self.type == CHANNEL_AFTERTOUCH):
-            self.param2 = file.read(1)[0]
+        self.param1 = param1
+        self.param2 = param2
 
     def __repr__(self):
-        string = '{0}: event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
+        string = '{0}: Event {1:02x}@{2:02x} ({3:02x}'.format(self.delta, \
                                                               self.type, \
                                                               self.channel, \
                                                               self.param1)
@@ -137,8 +135,8 @@ INSTRUMENT_NAME, LYRICS, MARKER, CUE_POINT, PROGRAM_NAME and DEVICE_NAME'''
         return data[0]
 
     def tempo(self):
-        '''Tempo in seconds per quarter-note'''
-        return ((self.data[0] << 16) | (self.data[1] << 8) | self.data[2]) / 1000000
+        '''Tempo in microseconds per quarter-note'''
+        return ((self.data[0] << 16) | (self.data[1] << 8) | self.data[2])
 
     def offset(self):
         '''SMPTE offset as tuple (fps, hour, min, sec, fr) '''
@@ -172,10 +170,18 @@ def parseEvents(file):
         
         if value < 0xF0:
             if value < 0x80:
+                param1 = value
                 value = runningstatus
-                file.seek(file.tell() - 1)
+            else:
+                param1 = file.read(1)[0]
+
+            if (value & 0xF0) in (PROGRAM_CHANGE, CHANNEL_AFTERTOUCH):
+                param2 = None
+            else:
+                param2 = file.read(1)[0]
+                
             try:
-                event = MidiEvent(delta, value, file)
+                event = MidiEvent(delta, value, param1, param2)
                 runningstatus = value
                 logging.info(event)
                 yield event

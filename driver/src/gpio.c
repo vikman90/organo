@@ -17,13 +17,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#include "gpio.h"
-
-#define GPIO_BASE 0x20200000
-#define GPIO_LENGTH 0x80
-
-#define PIN_RCKL 27		// Register clock
-#define PIN_SRCKL 22	// Shifting clock
+#include "values.h"
 
 typedef struct gpio_t {
 	unsigned int gpfsel[6];
@@ -35,8 +29,8 @@ typedef struct gpio_t {
 
 enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
 
-static const char PORTS[] = { 2, 3, 4, 17 };		// GPIO ports
-const struct timespec PULSE_WIDTH = { 0, 100 };		// 100 ns
+static const char PORTS[] = PIN_PORTS;					// GPIO ports
+const struct timespec PULSE_WIDTH = GPIO_PULSE_WIDTH;	// Pulse width for clock
 
 static volatile gpio_t *gpio;						// GPIO base address
 static char state[OUTPUT_LENGTH][OUTPUT_NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns

@@ -13,14 +13,14 @@
 #include "socket.h"
 #include "player.h"
 #include "output.h"
+#include "values.h"
 #include "uart.h"
-
-static const char LOG_IDENT[] = "organd";				// Logging identity
 
 // Cleanup function, called automatically on exiting.
 
 static void cleanup() {
 	player_stop();
+	periph_destroy();
 	output_destroy();
 	uart_destroy();
 	socket_destroy();

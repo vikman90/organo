@@ -20,50 +20,76 @@ GROUP="organ"
 
 . /lib/lsb/init-functions
 
+start() {
+	log_daemon_msg "Iniciando controlador del organo"
+	pid=$(ps -e | grep $DAEMON | cut -b-5)
+
+	if [ ! -z "$pid" ]; then
+		log_warning_msg "Servicio ya iniciado"
+	else
+		/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
+
+		if [ $? != "0" ]; then
+			log_end_msg 1
+			exit 1
+		else
+			log_end_msg 0
+		fi
+	fi
+}
+
+stop() {
+	log_daemon_msg "Deteniendo controlador del organo"
+	pid=$(ps -e | grep $DAEMON | cut -b-5)
+
+	if [ -z "$pid" ]; then
+		log_warning_msg "El servicio no estaba iniciado"
+	else
+		kill $pid
+
+		if [ $? != 0 ]; then
+			log_end_msg 1
+			exit 1
+		else
+			until [ -z $(ps -e | grep $DAEMON | cut -b-5) ]; do
+				sleep 1
+			done
+			
+			rm -f $SOCKET
+			log_end_msg 0
+		fi
+	fi
+}
+
 case $1 in
 	"start")
-		log_daemon_msg "Iniciando servicio..."
-		pid=$(ps -e | grep $DAEMON | cut -b-5)
-
-		if [ ! -z "$pid" ]; then
-			log_progress_msg "Servicio ya iniciado"
-			log_end_msg 0
-		else
-			/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
-
-			if [ $? != "0" ]; then
-				log_failure_msg "No se pudo iniciar el servicio"
-				exit 1
-			else
-				log_end_msg 0
-			fi
-		fi
+		start
 		;;
 
 	"stop")
-		log_daemon_msg "Parando servicio..."
-		pid=$(ps -e | grep $DAEMON | cut -b-5)
-
-		if [ -z "$pid" ]; then
-			log_progress_msg "El servicio no estaba iniciado"
-			log_end_msg 0
-		else
-			kill $pid
-
-			if [ $? != 0 ]; then
-				log_failure_msg "No se pudo parar el servicio"
-				exit 1
-			else
-				until [ -z $(ps -e | grep $DAEMON | cut -b-5) ]; do
-					sleep 1
-				done
-				rm -f $SOCKET
-				log_end_msg 0
-			fi
-		fi
+		stop
 		;;
+	
+	"restart")
+		stop
+		start
+		;;
+	
+	"force-reload")
+		;;
+	
+	"status")
+		if [ -z $(ps -e | grep $DAEMON | cut -b-5) ]; then
+			log_action_msg "Servicio no iniciado"
+		else
+			log_action_msg "Servicio iniciado"
+			organ status
+		fi	
+		;;
+	
+		
 
 	*)
-		echo "Sintaxis:" $0 "start|stop"
+		echo "Sintaxis:" $0 "start|stop|restart|force-reload|status|"
 		exit 1
 esac

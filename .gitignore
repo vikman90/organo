@@ -24,3 +24,5 @@ report/*.pdf
 report/*.alg
 report/*.tps
 report/*.ist
+test/**/__pycache__
+test/player/data/*

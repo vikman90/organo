@@ -15,7 +15,7 @@ static int duration(const char *path) {
 		return EXIT_FAILURE;
 	}
 
-	printf("%d\n", midifile_duration(&score));
+	printf("%d\n", (int)midifile_duration(&score));
 	return EXIT_SUCCESS;
 }
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 
 	printf("Pistas: %u\n", score.ntracks);
 	printf("Division de tiempo: %u ticks/negra.\n", score.timediv);
-	printf("Duracion: %d seg.\n", midifile_duration(&score));
+	printf("Duracion: %f seg.\n", midifile_duration(&score));
 
 	return EXIT_SUCCESS;
 }

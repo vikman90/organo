@@ -36,6 +36,7 @@ enum metaevent_type_t {
 	PROGRAM_NAME = 0x08,
 	DEVICE_NAME = 0x09,
 	CHANNEL_PREFIX = 0x20,
+	PORT_PREFIX = 0x21,
 	END_OF_TRACK = 0x2F,
 	SET_TEMPO = 0x51,
 	SMPTE_OFFSET = 0x54,
@@ -107,7 +108,7 @@ int midifile_init(midifile_t *score, const char *path);
 void midifile_destroy(midifile_t *file);
 
 // Get duration of a score in seconds
-int midifile_duration(const midifile_t *file);
+double midifile_duration(const midifile_t *file);
 
 // Aftertouch value, for NOTE_AFTERTOUCH and CHANNEL_AFTERTOUCH
 char midievent_aftertouch(const midievent_t *event);

@@ -11,23 +11,8 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include "player.h"
-#include "gpio.h"
-
-#define LCD_ROWS 4
-#define LCD_COLS 20
-#define LCD_RS 20
-#define LCD_ES 16
-#define LCD_D4 12
-#define LCD_D5 7
-#define LCD_D6 8
-#define LCD_D7 25
-
-#define ROT_CH_A 18	// Clockwise
-#define ROT_CH_B 24	// Counterclockwise
-#define ROT_PUSH 23	// Button
-
-#define TIMEOUT 1.0			// Waiting time to force LCD updating
-#define BUFFER_LENGTH 256	// Buffer to receive file path from player
+#include "output.h"
+#include "values.h"
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
 typedef enum periph_state_t { ENGINEER_OFF, MENU, ENGINEER_ON } periph_state_t;
@@ -88,22 +73,30 @@ int periph_init() {
 	// We must not destroy the semaphore because ISR threads can't be removed at this time
 }
 
+// Destroys data and clears LCD
+
+void periph_destroy() {
+	lcdPosition(lcd, 0, 0);
+	lcdClear(lcd);
+}
+
 // Rotary change on channel A
 
 static void rot_change() {
 	static int first = 1;
-	int b;
+	int a, b;
 	
 	if (first) {
 		first = 0;
 		return;
 	}
 	
+	a = digitalRead(ROT_CH_A);
 	b = digitalRead(ROT_CH_B);
 	
-	// b=1 => cw
+	// a==b => CW
 	
-	buttons[1 - b] = 1;
+	buttons[a != b] = 1;
 	sem_post(&semaphore);
 }
 
@@ -149,9 +142,9 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 				note = (note + 1) % OUTPUT_LENGTH;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 			}
 
@@ -173,9 +166,9 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 				note = (note + OUTPUT_LENGTH - 1) % OUTPUT_LENGTH;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 			}
 
@@ -193,19 +186,19 @@ void* periph_run(void __attribute__((unused)) *arg) {
 					player_engineer_enter();
 
 				track = note = 0;
-				output_noteon(track, note);
+				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
 				state = ENGINEER_ON;
 				break;
 
 			case ENGINEER_ON:
-				output_noteoff(track, note);
+				output_noteoff(track, note + OUTPUT_OFFSET);
 
 				if (++track == OUTPUT_NTRACKS)
 					state = MENU;
 				else {
 					note = 0;
-					output_noteon(track, note);
+					output_noteon(track, note + OUTPUT_OFFSET);
 				}
 				output_update();
 			}
@@ -255,8 +248,8 @@ void* periph_run(void __attribute__((unused)) *arg) {
 		// Wait one second
 
 		clock_gettime(CLOCK_REALTIME, &timeout);
-		timeout.tv_sec += (int)TIMEOUT;
-		timeout.tv_nsec += (int)((TIMEOUT - (int)TIMEOUT) * 1000000000);
+		timeout.tv_sec += (int)LCD_TIMEOUT;
+		timeout.tv_nsec += (int)((LCD_TIMEOUT - (int)LCD_TIMEOUT) * 1000000000);
 		sem_timedwait(&semaphore, &timeout);
 	}
 	

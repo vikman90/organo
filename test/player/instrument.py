@@ -42,7 +42,7 @@ class Instrument:
         for event in midi[track]:
             if event.delta > 0:
                 print(self)
-                sleep(event.delta * midi.tempo / midi.timedivision)
+                sleep(event.delta * midi.tempo / midi.timedivision / 1000000)
 
             if isinstance(event, midievent.MidiEvent):
                 if event.type == midievent.NOTE_ON:
