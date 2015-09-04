@@ -8,6 +8,7 @@
 namespace manager;
 require_once 'lib/database.php';
 require_once 'lib/driver.php';
+require_once 'lib/templates.php';
 
 global $tr;
 
@@ -58,7 +59,7 @@ switch ($state[0]) {
 $play_hidden = $state[0] == 'PLAYING' ? 'hidden' : '';
 $pause_hidden = $state[0] == 'PLAYING' ? '' : 'hidden';
 $skip_disabled = $playlist ? '' : 'disabled';
-$play_disabled = $state[0] == 'STOPPED' ? 'disabled' : '';
+$play_disabled = $state[0] == ('STOPPED' or $state[0] == 'ENGINEER') ? 'disabled' : '';
 
 echo <<< EOT
 <section>

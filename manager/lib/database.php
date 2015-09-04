@@ -8,7 +8,7 @@
 
 namespace manager;
 
-require_once __DIR__ . '/templates.php';
+require_once __DIR__ . '/values.php';
 
 $db = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
@@ -53,7 +53,7 @@ function db_get_playlist($idplaylist) {
         return null;
 
     $name = $row[0];
-    $sql = "SELECT idscore, source, name, duration FROM score WHERE playlist = ? ORDER BY sorting";
+    $sql = "SELECT idscore, source, name, duration FROM score WHERE playlist = ?";
     $stmt = $db->prepare($sql);
     $stmt->bind_param('i', $idplaylist);
     $stmt->execute();
@@ -93,7 +93,7 @@ function db_insert_score($idplaylist, $name) {
     $stmt->execute();
     $idscore = $stmt->insert_id;
     $source = $idscore . '.mid';
-    $sql = "UPDATE score SET sorting = idscore, source = ? WHERE idscore = ?";
+    $sql = "UPDATE score SET source = ? WHERE idscore = ?";
     $stmt = $db->prepare($sql);
     $stmt->bind_param('si', $source, $idscore);
     $stmt->execute();

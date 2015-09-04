@@ -1,15 +1,14 @@
-Define root
-
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 	ServerName
 
-	DocumentRoot $root
+	DocumentRoot /var/www/html
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
 	</Directory>
-	<Directory $root>
+	
+	<Directory /var/www/html>
 		Options Indexes FollowSymLinks MultiViews
 		AllowOverride None
 		Order allow,deny

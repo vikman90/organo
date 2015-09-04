@@ -8,6 +8,7 @@
 
 namespace manager;
 require_once 'lib/database.php';
+require_once 'lib/templates.php';
 
 global $tr;
 
@@ -30,7 +31,7 @@ html_navigation('playlists');
 
 echo <<< EOT
 <section>
-    <div ondragover="drag(event)" ondragleave="dragstop()" ondrop="drop(event)" id="playlist" data-idplaylist="{$playlist['id']}">
+    <div ondragover="drag(event)" ondragleave="dragstop()" ondrop="drop(event, this)" id="playlist" data-idplaylist="{$playlist['id']}">
         <h2>
             <span id="plname">{$playlist['name']}</span>
             <input class="action bt-add" type="button" title="{$tr['add_score']}" onclick="add()">
@@ -39,7 +40,7 @@ echo <<< EOT
             <input type="button" class="action bt-rename" value="{$tr['rename']}" onclick="renamePlaylist()">
             <input type="button" class="action bt-delete" value="{$tr['delete']}" onclick="deletePlaylist()">
         </div>
-        <form id="form-score" action="control.php?action=new_score" method="post" enctype="multipart/form-data">
+        <form action="control.php?action=new_score" method="post" enctype="multipart/form-data">
             <input type="hidden" name="idplaylist" value="{$playlist['id']}">
             <input type="file" name="score" id="input-score" onchange="submit()" accept="audio/mid">
         </form>
@@ -58,8 +59,8 @@ foreach ($playlist['scores'] as $score) {
                 <td class="icon"><a onclick="event.stopPropagation()" class="bt-download" href="$link" download="$download" title="{$tr['play']}"></a></td>
                 <td>$name</td>
                 <td>$duration</td>
-                <td class="icon"><a class="bt-rename" onclick="renameScore(this)" title="{$tr['rename']}"></a></td>
-                <td class="icon"><a class="bt-delete" onclick="deleteScore(this)" title="{$tr['delete']}"></td></td>
+                <td class="icon"><a class="bt-rename" onclick="renameScore(event, this)" title="{$tr['rename']}"></a></td>
+                <td class="icon"><a class="bt-delete" onclick="deleteScore(event, this)" title="{$tr['delete']}"></td></td>
             </tr>
 
 EOT;
@@ -120,6 +121,13 @@ echo <<< EOT
                 <input class="action bt-cancel" type="button" value="{$tr['cancel']}" onclick="closeModal()">
             </div>
         </form>
+    </div>
+</div>
+<div class="modal" id="dialog-uploading"">
+    <div class="box">
+        <h2>{$tr['wait']}</h2>
+        <p>{$tr['uploading']}</p>
+        <p id="current_file"></p>
     </div>
 </div>
 

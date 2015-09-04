@@ -13,7 +13,7 @@ require_once __DIR__ . '/values.php';
 
 global $translators;
 
-$lang = isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE;
+$lang = get_language();
 $tr = $translators[$lang]->strings;
 
 function html_open($id, $refresh = null) {
@@ -155,18 +155,9 @@ EOT;
 function html_footer() {
     global $tr;
 
-    /*echo <<< EOT
-<footer>
-    <p>{$tr['footer']}</p>
-</footer>
-
-EOT;*/
-
-    $time = round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 0);
-
     echo <<< EOT
 <footer>
-    <p>Página generada en $time ms.</p>
+    <p>{$tr['footer']}</p>
 </footer>
 
 EOT;

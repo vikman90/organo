@@ -8,6 +8,8 @@
 
 namespace manager;
 
+require_once __DIR__ . '/values.php';
+
 session_start();
 
 function test_auth() {
@@ -36,4 +38,12 @@ function last_page() {
         return $_SESSION['last'];
     else
         return 'index.php';
+}
+
+function set_language($code) {
+    $_SESSION['lang'] = $code;
+}
+
+function get_language() {
+    return isset($_SESSION['lang']) ? $_SESSION['lang'] : DEFAULT_LANGUAGE;
 }
