@@ -55,4 +55,6 @@
     <string name="error_playlist_empty">Elenco vuoto.</string>
     <string name="button">Botone</string>
     <string name="engineer">Modo Ingegneria</string>
+    <string name="wait">Attendere prego</string>
+    <string name="uploading">Caricamento dei file...</string>
 </translation>

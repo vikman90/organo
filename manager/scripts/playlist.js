@@ -16,22 +16,54 @@ function submit() {
 }
 
 function drag(event) {
-    event.preventDefault();
-    document.getElementById('playlist').className = 'dragging';
+    var types = event.dataTransfer.types;
+
+    for (var i = 0; i < types.length; i++) {
+        if (types[i] == "Files") {
+            event.preventDefault();
+            document.getElementById('playlist').className = 'dragging';
+            return;
+        }
+    }
 }
 
 function dragstop() {
     document.getElementById('playlist').className = '';
 }
 
-function drop(event) {
-    var input = document.getElementById('input-score');
-    var form = document.getElementById('form-score');
+function drop(event, div) {
+    var idplaylist = div.getAttribute("data-idplaylist");
+    var dialog = document.getElementById('dialog-uploading');
 
+    dialog.style.display = 'block';
     event.preventDefault();
-    input.files = event.dataTransfer.files;
-    form.submit();
     dragstop();
+
+    send(event.dataTransfer.files, idplaylist, 0);
+}
+
+function send(files, idplaylist, i) {
+    var curFile = document.getElementById("current_file");
+
+    if (i == files.length) {
+        location.reload();
+    }
+    else {
+        var request = new XMLHttpRequest();
+        var data = new FormData();
+
+        data.append("idplaylist", idplaylist);
+        data.append("score", files[i]);
+        curFile.innerHTML = files[i].name;
+
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200)
+                send(files, idplaylist, i + 1);
+        }
+
+        request.open("POST", "control.php?action=new_score");
+        request.send(data);
+    }
 }
 
 function play(score) {
