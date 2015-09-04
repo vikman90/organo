@@ -54,7 +54,7 @@ function deletePlaylist() {
     dialog.style.display = 'block';
 }
 
-function renameScore(td) {
+function renameScore(event, td) {
     var dialog = document.getElementById('dialog-rename-score');
     var idscore = document.getElementById('input-rename-idscore');
     var scorename = document.getElementById('input-scorename');
@@ -68,7 +68,7 @@ function renameScore(td) {
     event.stopPropagation();
 }
 
-function deleteScore(td) {
+function deleteScore(event, td) {
     var dialog = document.getElementById('dialog-delete-score');
     var idscore = document.getElementById('input-delete-idscore');
     var row = td.parentElement.parentElement;
