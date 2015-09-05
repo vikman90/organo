@@ -24,6 +24,7 @@ static void cleanup() {
 	output_destroy();
 	uart_destroy();
 	socket_destroy();
+	player_destroy();
 	closelog();
 }
 
@@ -50,6 +51,13 @@ static int setup(int uid, int gid) {
 
 	atexit(cleanup);
 	signal(SIGTERM, onsigterm);
+	
+	// Player
+	
+	if (player_init() < 0) {
+		syslog(LOG_ERR, "Error at player_init()");
+		return -1;
+	}
 
 	// Socket
 

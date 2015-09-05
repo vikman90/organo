@@ -5,6 +5,12 @@
 
 typedef enum player_state_t { PAUSED, PLAYING, STOPPED, ENGINEER } player_state_t;
 
+// Initializes the player
+int player_init();
+
+// Destroys the player
+void player_destroy();
+
 /*
  * Play a playlist
  * scores: Pointer to array of strings (absolute path of MIDI files). It's always destroyed (although there is an error).
