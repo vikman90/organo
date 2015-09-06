@@ -47,6 +47,7 @@ El código hace uso de los siguientes componentes externos:
 	\item Interfaz \acrshort{POSIX} \cite{wiki_posix}.
 	\item Llamadas al sistema Linux \cite{manpages}.
 	\item Sistema de archivos especial \textit{GPIOFS} \cite{gpiofs}.
+	\item \acrshort{API} para C del cliente MySQL (para el módulo de base de datos) \cite{mysql}.
 	\item Biblioteca \textit{WiringPi} (solo para el modo Ingeniería) \cite{wiringpi}.
 	\item Biblioteca estándar de Python (para los prototipos) \cite{python}.
 \end{enumerate}
@@ -470,7 +471,7 @@ Además, el módulo implementa los siguientes elementos de forma \textbf{estáti
 	\begin{description}
 		\item[\code{PLAYING}] Continúa la ejecución normalmente.
 		
-		\item[\code{PAUSED}] Silencia la salida (manteniendo el estado) y pausa la reproducción. Como hemos adelantado, utiliza un semáforo para evitar la espera activa. El subproceso se bloquea hasta que otra hebra llame a \code{player\_pause()}, que es la que señala dicho semáforo..
+		\item[\code{PAUSED}] Silencia la salida (manteniendo el estado) y pausa la reproducción. Como hemos adelantado, utiliza un semáforo para evitar la espera activa. El subproceso se bloquea hasta que otra hebra llame a \code{player\_pause()}, que es la que señala dicho semáforo.
 		
 		\item[\code{STOPPED}] Restablece la salida (borra el estado) y sale del bucle principal. 
 	\end{description}
@@ -495,6 +496,10 @@ Además, debemos tener en cuenta posibles \textbf{usos ilegales} de la hebra de 
 A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable "bandera"} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
 
 Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán un \textbf{\acrshort{mutex}} que monitoriza las llamadas, haciendo que toda función deba esperar a que termine cualquier otra que estuviera funcionando.
+
+Por último, la \textbf{espera activa} se evita con un semáforo que se comporta como un \acrshort{mutex}: La función \code{player\_pause()} en primer lugar decrementa el semáforo y luego pone el estado a \code{PAUSED} para que, en la próxima vuelta, el planificador lo detecte y se bloquee esperando al semáforo. Cuando cualquier función quiera despertar al planificador, lo hace al revés: primero pone el estado a \code{PLAYING} y después desbloquea el semáforo, así el planificador no cae dos veces por error en el código de espera. Una vez el reproductor consigue el semáforo, lo vuelve a incrementar. 
+
+Hacemos esto así para que el valor ''por defecto'' sea 1, evitando problemas si se diera el caso de solicitar una pausa justo cuando el planificador ha salido del bucle y no va a esperar al semáforo. La alternativa era utilizar un \acrshort{mutex}, pero no tenemos garantía de que lo vaya a desbloquear la misma hebra (e.g. si pausamos desde la interfaz gráfica, en una hebra, y reanudamos desde el mando, en otra). Un \acrshort{mutex} caería en una \textbf{condición indefinida}, mientras que un semáforo responde correctamente.
 
 \subsection{Salida GPIO}
 
@@ -616,7 +621,7 @@ El compilador, conociendo las dimensiones, convertirá la matriz estática en un
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:matriz_estatica} Disposición física de la matriz en memoria.}
+	\captionof{table}{\label{tab:matriz_fisica} Disposición física de la matriz en memoria.}
 \end{center}
 
 \smallskip
@@ -696,15 +701,109 @@ La asignación por defecto, para el órgano de prueba, será la siguiente:
 
 \subsection{Servidor socket}
 
+Esta parte del programa es la vía de acceso al servicio, se dedica a atender las peticiones de otras aplicaciones, como la interfaz web, según el protocolo de comunicación diseñado. Para ello utiliza un \textit{socket} de Unix \cite{wiki_socket}, similar a los \textit{sockets} de Internet, pero dedicado a la comunicación inter-proceso dentro de la misma máquina, a través de memoria compartida.
 
+El \textbf{código de inicialización}, en la función \code{socket\_init(uid, gid)}, hace lo siguiente:
+
+\begin{enumerate}
+	\item Crea la estructura de archivos de programación.
+	\item Asigna un archivo \textit{socket} en el sistema de archivos. Por defecto será \code{/run/organd.sock}.
+	\item Prepara el zócalo para escucha (modo servidor).
+	\item Establece como propietario el \acrshort{UID} y el \acrshort{GID} que recibe como parámetros, correspondientes a un usuario especial.
+	\item Solicita ignorar la señal \code{SIGPIPE}, que colgaría el programa si un cliente se desconecta repentinamente.
+\end{enumerate}
+
+Por otro lado, el procedimiento \code{socket\_loop()} inicia el \textbf{bucle de escucha}: se bloquea hasta recibir una nueva petición y, a partir de ahí, actúa siguiendo el protocolo establecido en la sección \ref{sec:protocolo}, transmitiendo las órdenes al planificador.
+
+Recordemos que el planificador recibe una lista de nombres de archivo, como una matriz de caracteres, de cuya destrucción se ocupa él mismo. La función \code{socket\_play()} pues, clasifica la lista de archivos recibidas en la cadena a una lista de cadenas, antes de pasarla al planificador (\code{player\_start()}).
 
 \subsection{Servidor UART}
 
+El módulo de servicio del \acrshort{UART} tiene una estructura similar al del \textit{socket}, solo que atiende a las peticiones del mando a distancia que llegan por el \textbf{puerto en serie}. Por un lado el protocolo de comunicación es más sencillo, por otro, no conocemos la información de las listas asociadas a un botón, por lo que hay que hacer consultas a la \textbf{base de datos}.
+
+En primer lugar, \code{uart\_init()} abre la comunicación con el puerto en serie y establece los parámetros de configuración adecuados al receptor del mando (9600 \textit{baudios}) y bloqueo hasta recibir 10 caracteres, que es la longitud de la cadena que esperamos recibir.
+
+Para iniciar el \textbf{bucle de recepción} implementamos \code{uart\_loop()}, que simplemente crea una hebra y la inicia en \code{uart\_run()}. Como adelantamos en la fase de análisis (sección \ref{analisis_mando}), el descodificador envía en primer lugar el \textbf{número de serie} del mando, que comparamos con el número de serie registrado en tiempo de compilación. 
+
+A continuación leemos el \textbf{código del botón}, codificado como ya describimos, y seguimos adelante según este esquema para un mando de cuatro botones:
+
+\begin{description}
+	\item[Botón 1] Inicia la lista de reproducción asignada al botón 1.
+	\item[Botón 2] Reproduce la lista asignada al botón 2.
+	\item[Botón 3] Pausa la reproducción, o la reanuda.
+	\item[Botón 4] Detiene la ejecución completamente.
+\end{description}
+
+Para reproducir una lista, escribimos el código en una función auxiliar, \code{uart\_playlist()}, que se comunica con la \textbf{base de datos} en busca de una lista de reproducción asignada, y los nombres de archivo correspondientes, para generar un \textit{array} de rutas de fichero y llamar a \code{player\_start()}.
+
+Por otro lado, la función de \textbf{pausa/reanudar} llama a la función \code{uart\_pause()}, encargada de consultar el estado del planificador y actuar en consecuencia: si estaba funcionando llama a \code{player\_pause()}, y si estaba pausado ejecuta \code{player\_resume()}; en otro caso no realiza ninguna acción.
+
+Por último, el botón para \textbf{detener} simplemente hace llamar a \code{player\_stop()}, cuyo funcionamiento es inocuo si el reproductor ya estaba parado.
+
+\subsection{Comunicación con la base de datos}
+
+El módulo receptor del mando necesita conocer la asignación de botones a listas, y las rutas de archivo de las partituras pertenecientes a las listas. Esta información está almacenada en una base de datos, y el acceso se hace a través de un módulo aparte, con objeto de presentar una interfaz independiente del \acrshort{SGBD} que utilicemos.
+
+Como explicaremos más adelante, utilizaremos \textbf{MySQL}, de forma que nuestro módulo utilizará la biblioteca cliente de MySQL para C. Así, la implementación de las funciones de inicio y cierre, \code{db\_init()} y \code{db\_destroy()}, respectivamente, simplemente abren la comunicación con MySQL mediante \code{mysql\_real\_connect()} y la terminan con \code{mysql\_close()}.
+
+Para conectarse a la base de datos hay que conocer el \textbf{nombre de usuario} y la \textbf{contraseña} asignados a dicha base, que conocemos de antemano y están guardados en tiempo de compilación.
+
+La última función diseñada, \code{db\_query()}, es la encargada de realizar consultar la lista de archivos en la base de datos, conocido el número de botón pulsado. La información recibida es devuelta como un puntero a una matriz de caracteres, a tratar por el módulo llamador.
+
 \subsection{Modo Ingeniería}
 
-\subsubsection{Control de salida}
+El diseño ha contemplado un control de la mecánica del sistema, a través del \acrshort{LCD} y el codificador rotatorio, que consiste en un menú que permite entrar en modo Ingeniería para activar y desactivar las notas a placer, de una en una.
+
+Como especificamos en la sección \ref{subsec:ingenieria}, la gestión de esta interfaz está diseñada como una máquina de estados. La función \code{periph\_init()} se encarga de preparar los puertos \acrshort{GPIO} asignados al codificador, e inicializa el \acrshort{LCD}. Por seguridad, activaremos la polarización de los puertos \acrshort{GPIO} de acuerdo a la utilizada por el codificador:
+
+\begin{itemize}
+	\item \textit{Pull-up} para los canales A y B (giro).
+	\item \textit{Pull-down} para el pulsador.
+\end{itemize}
+
+Por último, esta función crea una hebra independiente para gestionar la máquina de estados.
+
 \subsubsection{Control de entrada}
+
+El codificador rotatorio producirá los eventos de entrada. De acuerdo con el análisis de este dispositivo (sección \ref{subsec:rotary}), entre dos puntos de equilibrio cambia el canal A, y entonces, dependiendo del valor de los canales A y B ---si coinciden o difieren--- interpretaremos un giro a la izquierda y otro a la derecha.
+
+De esta forma, tenemos que esperar dos eventos:
+
+\begin{enumerate}
+	\item Cambio en el canal A.
+	\item Subida en el pulsador.
+\end{enumerate}
+	
+A fin de evitar la \textbf{espera activa}, se crearán dos hebras que se bloquearán hasta recibir la señal correspondiente, cuando llamarán a dos funciones asignadas como \textit{callbacks}:
+
+\begin{description}[style=nextline]
+	\item[rot\_change()] Ha cambiado el canal A. Lee A y B, los compara y activa la bandera correspondiente.
+	\item[rot\_push()] Se ha pulsado el botón. Activa la bandera de pulsación.
+\end{description}
+
+Ambas funciones utilizan un \textit{array} de banderas (\textit{flags}) para indicar qué evento está pendiente de atender, y señalan un \textbf{semáforo} para el control de la máquina de estados.
+
 \subsubsection{Máquina de estados}
+
+La función principal de la hebra de control es \code{periph\_run()}, que implementa un bucle para atender los eventos y definir el estado siguiente. La implementación de esta función sigue la especificación del diagrama de la figura \ref{fig:engineer}.
+
+Cuando entra en modo Ingeniería, llama a la función del planificador \code{player\_engineer\_enter()}, que lo aísla de la salida del \acrshort{GPIO}, dejándolo libre para actuar sobre él con las llamadas a bajo nivel \code{output\_noteon()} y \code{output\_noteoff()}.
+
+Al final del bucle, el subproceso se bloquea esperando que el usuario actúe y el \textit{callback} correspondiente señale el semáforo.
+
+\subsubsection{Control de salida}
+
+La salida de este módulo se hace sobre el \acrshort{LCD}, que realimentará las acciones del usuario en modo Ingniería. Sin embargo, mientras no se use este modo, se mostrará el estado del planificador y, en su caso, la ruta del archivo que se está reproduciendo.
+
+Para ello, cuando el bucle de la máquina de estados ha calculado el estado siguiente, se refresca la pantalla en función del nuevo estado, ya sea:
+
+\begin{enumerate}
+	\item Navegar por el menú.
+	\item Mostrar el estado del reproductor.
+	\item En modo Ingeniería, indicar la pista actual y la nota que está activa.
+\end{enumerate}
+
+Para mostrar el estado del reproductor, hay que tener en cuenta que la información va a cambiar aunque el usuario no interactúe con los mandos. Por ello, la espera del semáforo será \textbf{temporizada}: si tras un tiempo determinado el usuario no toca el control, la hebra se despierta sola y refresca la pantalla.
 
 \subsection{Inicio del demonio}
 
@@ -760,12 +859,18 @@ Con objeto de arrancar los distintos servicios en el orden correcto para preserv
 	\item Se parará en los niveles 0, 1 y 6 (monousuario, apagar y reiniciar).
 \end{enumerate}
 
-El \textit{script} atenderá a las siguientes órdenes:
+De acuerdo al estándar, el \textit{script} atenderá a las siguientes órdenes:
 
 \begin{description}
 	\item[start] Arranca el demonio. Busca el proceso con \code{ps -e | grep}, si no lo encuentra, consulta el \acrshort{UID} y \acrshort{GID} del usuario dedicado, y llama al servicio pasando ambos argumentos.
 	
 	\item[stop] Busca el proceso y, si lo encuentra, lo detiene con \code{kill} y espera a que haya finalizado.
+	
+	\item[restart] Detiene el servicio y lo vuelve a iniciar.
+	
+	\item[force-reload] Esta orden sirve para recargar la información. Nuestro programa no tiene nada que hacer al respecto.
+	
+	\item[status] Informa de si el proceso está iniciado o no. Si está funcionando muestra el estado del planificador (reproduciendo, detenido, pausado o en modo Ingeniería).
 \end{description}
 
 \subsubsection{Permisos de usuario}
