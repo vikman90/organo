@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <pthread.h>
+#include <semaphore.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -29,14 +31,22 @@ typedef struct gpio_t {
 
 enum gpio_function {GPIO_INPUT, GPIO_OUTPUT};
 
-static const char PORTS[] = PIN_PORTS;					// GPIO ports
-const struct timespec PULSE_WIDTH = GPIO_PULSE_WIDTH;	// Pulse width for clock
+static const char PORTS[] = PIN_PORTS;							// GPIO ports
+static const struct timespec PULSE_WIDTH = GPIO_PULSE_WIDTH;	// Pulse width for clock
+static const struct timespec BUZZER_PULSE = METRONOME_PULSE;	// Duration of metronome click
+
+static int metro_enabled = 0;
+static pthread_t metro_thread;
+static sem_t metro_semaphore;
 
 static volatile gpio_t *gpio;						// GPIO base address
 static char state[OUTPUT_LENGTH][OUTPUT_NTRACKS];	// Matrix of LENGTH rows and NTRACKS columns
 
 // Select GPIO pin direction
 static void gpio_fsel(unsigned int pin, enum gpio_function func);
+
+// Metronome thread
+static void* metronome_run(void *arg);
 
 // Initialize output
 
@@ -60,11 +70,13 @@ int output_init() {
 
 	gpio_fsel(PIN_RCKL, GPIO_OUTPUT);
 	gpio_fsel(PIN_SRCKL, GPIO_OUTPUT);
+	gpio_fsel(PIN_BUZZER, GPIO_OUTPUT);
 
 	for (i = 0; i < OUTPUT_NTRACKS; i++)
 		gpio_fsel(PORTS[i], GPIO_OUTPUT);
-
-	return 0;
+	
+	sem_init(&metro_semaphore, 0, 0);
+	return pthread_create(&metro_thread, NULL, metronome_run, NULL);
 }
 
 // Release output
@@ -140,6 +152,25 @@ void output_silence() {
 	memcpy(state, stack, OUTPUT_LENGTH * OUTPUT_NTRACKS);
 }
 
+// Metronome click
+
+void output_metronome() {
+	if (metro_enabled)
+		sem_post(&metro_semaphore);
+}
+
+// Enable or disable metronome
+
+void output_metronome_enable(int enabled) {
+	metro_enabled = enabled;
+}
+
+// Query metronome state
+
+int output_metronome_enabled() {
+	return metro_enabled;
+}
+
 // Select GPIO pin direction
 
 void gpio_fsel(unsigned int pin, enum gpio_function func)
@@ -148,4 +179,17 @@ void gpio_fsel(unsigned int pin, enum gpio_function func)
 	int shift = pin % 10 * 3;
 
 	*reg = (*reg & ~(7 << shift)) | (func << shift);
+}
+
+// Metronome thread
+
+void* metronome_run(void __attribute__((unused)) *arg) {
+	while (1) {
+		sem_wait(&metro_semaphore);
+		*gpio->gpset = 1 << PIN_BUZZER;
+		nanosleep(&BUZZER_PULSE, NULL);
+		*gpio->gpclr = 1 << PIN_BUZZER;
+	}
+	
+	return NULL;
 }

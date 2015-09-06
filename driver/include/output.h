@@ -1,4 +1,8 @@
-// 29 July 2015
+/*
+ * Interface for generic output
+ * Victor Manuel Fernandez Castro
+ * 29 July 2015
+ */
 
 #ifndef OUTPUT_H
 #define OUTPUT_H
@@ -23,5 +27,14 @@ void output_panic();
 
 // Silence every note, keeping device's state
 void output_silence();
+
+// Metronome click
+void output_metronome();
+
+// Enable or disable metronome
+void output_metronome_enable(int enabled);
+
+// Query metronome state
+int output_metronome_enabled();
 
 #endif // ORGAN_H
