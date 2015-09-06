@@ -357,7 +357,7 @@ int playscore(midifile_t *file) {
 						
 						case TIME_SIGNATURE:
 							metaevent_time(event->metaevent, &miditime);
-							metro_clock = metro_cur = file->timediv * MIDI_DEFAULT_METRO / miditime.metronome;
+							metro_clock = metro_cur = file->timediv * miditime.metronome / MIDI_DEFAULT_METRO;
 							break;
 						}
 					}
