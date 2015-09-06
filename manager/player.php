@@ -31,7 +31,7 @@ switch ($state[0]) {
 
             if ($cur_score == null) {
                 $playlist = null;
-                $name = pathinfo($state[1], PATHINFO_FILENAME);
+                $name = pathinfo($state[1], PATHINFO_BASENAME);
             } else {
                 $playlist = db_get_playlist($cur_score['playlist']);
                 $name = $cur_score['name'];
