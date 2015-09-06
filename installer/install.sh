@@ -37,7 +37,7 @@ SITE_POOL_SED=$(echo $SITE_POOL | sed 's/\//\\\//g')
 sed -i "s/ServerName.*/ServerName $SITE_NAME/g" $(dirname $0)/$SITE_SOURCE
 sed -i "s/DocumentRoot.*/DocumentRoot $SITE_ROOT_SED/g" $(dirname $0)/$SITE_SOURCE
 sed -i "/<Directory \/>/b; s/<Directory.*/<Directory $SITE_ROOT_SED>/g" $(dirname $0)/$SITE_SOURCE
-sed -i "s/Alias \/pool.*/Alias pool $SITE_POOL_SED/g" $(dirname $0)/$SITE_SOURCE
+sed -i "s/Alias \/pool.*/Alias \/pool $SITE_POOL_SED/g" $(dirname $0)/$SITE_SOURCE
 
 cp $(dirname $0)/$SITE_SOURCE /etc/apache2/sites-available
 ln -fs /etc/apache2/sites-available/$SITE_SOURCE /etc/apache2/sites-enabled/$SITE_TARGET
