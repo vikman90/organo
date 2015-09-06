@@ -19,7 +19,7 @@ SITE_ROOT="/home/pi/manager"
 SITE_POOL="/home/pi/midis"
 
 HTTP_USER="www-data"
-HTTP_SUDO="/sbin/shutdown, /usr/bin/organ-login *"
+HTTP_SUDO="/sbin/shutdown, /usr/local/bin/organ-login *"
 
 DB_USER="root"
 DB_SOURCE="organo.sql"

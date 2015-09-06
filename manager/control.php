@@ -83,7 +83,7 @@ function shutdown() {
     global $tr;
 
     test_auth();
-    exec('/usr/bin/sudo /sbin/shutdown now 2>&1', $output, $retval);
+    exec(EXEC_SHUTDOWN, $output, $retval);
 
     if ($retval == 0) {
         html_redirect('index.php?view=shutdown');
@@ -95,7 +95,7 @@ function reboot() {
     global $tr;
 
     test_auth();
-    exec('/usr/bin/sudo /sbin/shutdown -r now 2>&1', $output, $retval);
+    exec(EXEC_REBOOT, $output, $retval);
 
     if ($retval == 0) {
         html_redirect('index.php?view=reboot');
@@ -109,7 +109,7 @@ function login() {
 
     $user = LINUX_USERNAME;
     $pass = escapeshellarg($_POST['password']);
-    exec("/usr/bin/sudo /usr/bin/organ-login $user $pass", $output, $retval);
+    exec(EXEC_LOGIN . " $user $pass", $output, $retval);
 
     if (!$retval) {
         set_auth();
