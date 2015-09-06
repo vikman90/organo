@@ -104,7 +104,7 @@ static int setup(int uid, int gid) {
 
 int main(int argc, char **argv) {
 	if (argc < 3) {
-		fprintf(stderr, "Syntax: %s <uid> <gid>", argv[0]);
+		fprintf(stderr, "Syntax: %s <uid> <gid>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 

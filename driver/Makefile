@@ -21,8 +21,8 @@ INC		= include
 SRC		= src
 SCRIPTS = scripts
 
-INSTALL_BIN		= /usr/bin
-INSTALL_SBIN	= /usr/sbin
+INSTALL_BIN		= /usr/local/bin
+INSTALL_SBIN	= /usr/local/sbin
 INSTALL_INIT	= /etc/init.d
 
 CC			= gcc
