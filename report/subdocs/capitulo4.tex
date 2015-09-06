@@ -473,6 +473,12 @@ Al igual que otros módulos, utiliza una hebra para reproducir los archivos, per
 La interfaz que el planificador ofrece es la que sigue:
 
 \begin{description}[style=nextline]
+	\item[player\_init () : \textit{integer}]
+	Inicializa las estructuras de datos. Devuelve 0 en caso de éxito o -1 en caso de error.
+	
+	\item[player\_destroy () : \textit{integer}]
+	Detiene el reproductor y elimina las estructuras de datos.
+	
 	\item[player\_start (playlist, n, loop) : \textit{integer}]
 	Inicia la reproducción de una lista de archivos. Si ya estaba reproduciendo una lista, primero detiene la reproducción y elimina la lista antigua.
 	
