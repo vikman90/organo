@@ -983,12 +983,21 @@ Una vez dibujados los primeros trazos, no es necesario maquetar completamente la
 \subsection{Portada}
 \label{subsec:portada}
 
-La portada es la vista principal y va a cumplir dos funciones:
+La portada es la vista principal y va a cumplir estas funciones:
 
 \begin{enumerate}
 	\item Presentar la aplicación y dar la bienvenida.
 	\item Introducir una contraseña para acceder al sistema.
+	\item Informar de un apagado o un reinicio.
+	\item Alertar de que la contraseña no es válida.
 \end{enumerate}
+
+Para modelar la página adecuadamente, la consulta admitirá los siguientes parámetros:
+
+\begin{description}
+	\item[error=1] La contraseña no es correcta.
+	\item[view=shutdown|reboot] Se ha ordenado apagar o reiniciar el sistema.
+\end{description}
 
 \subsubsection{Autentificación}
 
@@ -1407,6 +1416,7 @@ El diagrama de uso es más sencillo que en los casos anteriores, porque en este 
 \smallskip
 
 \subsection{Soporte de idiomas}
+\label{subsec:idiomas}
 
 Uno de los requisitos especificados es que la interfaz soporte varios idiomas. Modelaremos la solución para que sea fácil tanto escoger un idioma como agregar nuevas lenguas.
 
@@ -1510,6 +1520,7 @@ El siguiente diagrama ilustra las principales posibilidades de navegación:
 \smallskip
 
 \subsection{Sesión}
+\label{subsec:session}
 
 La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \acrshort{HTTP} (\textit{\acrlong{HTTP}}), un modelo de conexión sin estado ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
 
@@ -1606,6 +1617,7 @@ Como podremos ver, la interfaz de este componente actúa como tocón hacia las f
 \end{description}
 
 \subsection{Comunicación con la base de datos}
+\label{subsec:web_database}
 
 La base de datos, diseñada en la sección \ref{sec:database}, es el principal nexo de unión entre el controlador y la vista. Aparte de las operaciones obvias, como insertar, modificar y eliminar partituras y listas, será utilizada al recibir el nombre de archivo que se está reproduciendo para inferir el título de la obra y la lista a la que pertenece.
 

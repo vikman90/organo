@@ -886,31 +886,266 @@ Para manejar los permisos adecuadamente, crearemos un usuario de sistema, de uso
 
 \subsection{Pre-instalación}
 
+Para facilitar la compilación y la puesta en marcha del demonio, vamos a construir un \textit{script} que prepare el sistema para el funcionamiento del servicio, instalando los paquetes necesario y haciendo las configuraciones pertinentes.
+
+El \textit{script} es muy sencillo y hace lo siguiente:
+
+\begin{enumerate}
+	\item Instala la biblioteca cliente de \textbf{MySQL} para C, incluyendo las cabeceras.
+	\item Crea un usuario y grupo de sistema, llamados \textbf{''organ''}, que poseerán el proceso del demonio y el \textit{socket}.
+	\item Descarga la biblitoeca \textbf{WiringPi} del repositorio de su desarrollador, y la compila.
+	\item Crea las carpetas \textbf{bin} y \textbf{obj}, para alojar los archivos compilados.
+\end{enumerate}
+
 \subsection{Compilación e instalación}
 
+La compilación y la instalación del servicio está gestionada \textbf{\textit{Makefile}}, que trabaja sobre la siguiente estructura de directorios:
 
+\begin{description}
+	\item[bin] Archivos ejecutables finales.
+	\item[include] Ficheros de cabecera de C.
+	\item[obj] Código objeto, ensamblado pero no vinculado.
+	\item[scripts] Código de pre-instalación y arranque del demonio.
+	\item[src] Ficheros de código fuente en C.
+\end{description}
 
+El \textit{Makefile} contiene las siguientes reglas:
 
+\begin{description}
+	\item[all] Por defecto. Compila todos los ejecutables.
+	\item[install] Instala los archivos compilados en el sistema operativo.
+	\item[uninstall] Deshace la instalación.
+	\item[preinstall] Ejecuta los pasos de pre-instalación.
+	\item[clean] Elimina todos los archivos compilados.
+	\item[objclean] Limpia los ficheros de código objeto.
+\end{description}
+
+Las carpetas utilizadas como destino de instalación son las siguientes:
+
+\begin{description}
+	\item[/usr/local/bin] Programas auxiliares.
+	\item[/usr/local/sbin] Ejecutable del demonio (binarios de superusuario).
+	\item[/etc/init.d] \textit{Script} de inicio del servicio.
+\end{description}
 
 \section{Interfaz web}
 
+Es ahora el momento de abordar la construcción del \textit{back-end} del sistema. Como ya sabemos, será un servidor \acrshort{HTTP}. Hemos tenido en cuenta las siguientes \textbf{alternativas} como lenguajes de programación para el servidor:
+
+\begin{itemize}
+	\item \textbf{C/C++ con \acrshort{CGI}}. Sería la solución más rápida en tiempo de ejecución, por ser lenguajes compilados. A cambio, la programación sería mucho más lenta, porque trabajamos a más bajo nivel.
+	
+	\item \textbf{PHP 5}. Es quizás la opción más popular, es un lenguaje interpretado y diseñado para entornos \textit{web}.
+	
+	\item \textbf{Python 3 con la biblioteca Django}. También es un lenguaje interpretado, la biblioteca Django tiene una estructura más complicada, diseñada para sitios complejos.
+\end{itemize}
+
+Estudiadas las tres opciones, consideramos que la mejor es \textbf{PHP}, por equilibrar rendimiento y comodidad de programación. En el capítulo posterior probaremos el tiempo de ejecución de las páginas, que es más que aceptable.
+
+El servidor generará una página \textbf{\acrshort{HTML} 5}, la última versión del estándar. La estética se escribirá en \textbf{\acrshort{CSS} 3}. En el lado del cliente, siempre es necesario actuar sobre una página generada, donde utilizaremos \textbf{JavaScript} para acceder a ella a través de \acrshort{DOM} ---\textit{\acrlong{DOM}}---.
+
+Además, debemos almacenar las cadenas constantes en archivos, dependiendo del idioma del usuario; para esto usaremos archivos \textbf{\acrshort{XML}}. Otra tecnología que nos resultará útil es \textbf{\acrshort{AJAX}} ---\textit{\acrlong{AJAX}}---, para que JavaScript haga consultas al servidor sin recargar la página completa.
+
+En resumen usaremos las siguientes tecnologías:
+
+\begin{enumerate}
+	\item PHP 5.4, como lenguaje de programación.
+	\item \acrshort{HTML} 5, como lenguaje de marcado.
+	\item \acrshort{CSS} 3, para las hojas de estilos.
+	\item \acrshort{XML}, para almacenar información estática.
+	\item JavaScript, \acrshort{AJAX} y \acrshort{DOM}, para interactuar dinámicamente con la página.
+\end{enumerate}
+
 \subsection{Estructura principal}
+
+Vamos a organizar los archivos de una forma limpia y fácil de acceder. Para ello, en la carpeta raíz tendremos los archivos PHP correspondientes a las vistas, y otro para el control. Cada \textbf{vista} se implementará en un archivo diferente, para facilitar la consulta. Ya que el \textbf{controlador} recibirá datos privados, se implementará en un solo archivo.
+
+El resto de ficheros se clasificarán de las siguientes carpetas:
+
+\begin{description}
+	\item[ajax] Páginas PHP de uso exclusivo para \acrshort{AJAX}.
+	\item[images] Imágenes para la página.
+	\item[lib] Bibliotecas PHP, para el modelo y para la vista.
+	\item[scripts] Código JavaScript a cargar por las páginas.
+	\item[styles] Hojas de estilos en cascada, en \acrshort{CSS}.
+	\item[translations] Ficheros de traducción, en \acrshort{XML}.
+\end{description}
+
 \subsubsection{Plantillas}
+
+A medida que construimos la maqueta en \acrshort{HTML} y \acrshort{CSS}, fuimos conscientes de qué trozos de código se repetían, totalmente o con un ligero cambio, lo que nos ayudó a crear una biblioteca de plantillas, que podríamos denominar ''rutinas de vista''.
+
+En ella hemos escrito las siguientes funciones:
+
+\begin{description}[style=nextline]
+	\item[\code{html\_open(id, refresh)}]
+	Genera la cabecera \acrshort{HTML}. Establece el \code{id} del documento, y opcionalmente, una \acrshort{URL} de redirección (\code{refresh}).
+	
+	\item[\code{html\_close()}]
+	De manera contraria, escribe el final del documento \acrshort{HTML}.
+	
+	\item[\code{html\_header(full)}]
+	Modela la barra de cabecera. Si se indica \code{full} se hace completa, incluyendo los controles de energía (apagar y reiniciar). Si se pasa el valor \code{false}, entonces solo se muestra el cambio de idioma.
+	
+	\item[\code{html\_navigation (selected)}]
+	Escribe la barra de navegación, marcando como seleccionado aquel elemento de la lista cuyo ID coincida con el valor de \code{selected}.
+	
+	\item[\code{html\_footer}]
+	Muestra el pie de página de la vista.
+	
+	\item[\code{html\_error (type)}]
+	Genera una página completa con un mensaje de error, y cuyo texto depende del parámetro \code{type}. A continuación termina el programa.
+	
+	\item[\code{html\_redirect (target)}]
+	Crea una página sin contenido, dedicada a redireccionar a otra, cuya \acrshort{URL} se indica en \code{target}.
+	
+	\item[\code{html\_script (src)}]
+	Escribe el texto \acrshort{HTML} necesario para incluir el archivo JavaScript especificado en \code{src}.
+\end{description}
+
 \subsubsection{Controlador}
+
+Este archivo implementará todas las funciones de control del sistema, como iremos describiendo más adelante. Tan solo especificar que la ejecución de este módulo se lleva a cabo con una mezcla de parámetros \textit{GET} y \textit{POST}:
+
+\begin{description}
+	\item[GET] Solo se envía el nombre de la acción a ejecutar, como \code{control.php?action=login}.
+	\item[POST] Transmite el resto de la información, cuyos parámetros dependen de la acción.
+\end{description}
+
+De esta forma se evita que el explorador o eventualmente un motor de búsqueda cacheen una instancia. Si la orden se ejecuta correctamente, se devuelve una página en blanco con \textbf{redirección} a la vista adecuada (se pierde la dirección y no se relanza la orden si actualizamos la página). En caso de \textbf{error}, se muestra pero se mantiene la dirección en el explorador para poder volver a intentarlo.
+
 \subsubsection{Sesión}
+
+Este módulo implementa el modelo de la sesión para permitir que todos los parámetros a almacenar sean accedidos por el resto de archivos a través de funciones, evitando errores lógicos. La interfaz está descrita en la sección \ref{subsec:session}, del capítulo de diseño.
+
+La sesión de usuario es una \textit{cookie} gestionada por el intérprete de PHP, que se incluye en la cabecera \acrshort{HTTP} al principio del programa, llamando a \code{session\_start()}. A partir de ahí, tenemos acceso a la variable global \code{\_SESSION}, un \textit{array} del que utilizaremos tres claves:
+
+\begin{description}
+	\item[auth] Tiene el valor 1 si el usuario se ha autentificado. Se escribe con \code{set\_auth()} y \code{unset\_auth()} y se consulta con \code{get\_auth()}.
+	
+	\item[last] Hace referencia a la consulta de la última vista ejecutada, por si el controlador debe volver a ella. Se escribe con \code{set\_page()} y se lee con \code{last\_page()}.
+	
+	\item[lang] Almacena el código de lenguaje seleccionado por el usuario o, en su defecto, el idioma preestablecido. Se escribe con \code{set\_language()} y se consulta con \code{get\_language()}.
+\end{description}
+
+\subsubsection{Hoja de estilos}
+
+El modelo estándar de implementación de páginas \acrshort{HTML} separa contenido y forma en distintos archivos, así, todo el estilo de la interfaz se escribe en hojas de estilos en cascada.
+
+Nuestra interfaz será homogénea, de manera que todos los estilos se definirán en un solo archivo \acrshort{CSS}. El objetivo es obtener un resultado lo más cercano posible al diseño, donde tenemos un ejemplo en la figura \ref{fig:maqueta}.
+
+Sin adentrarnos en el código, existen tres zonas bien distinguidas en el fichero:
+
+\begin{enumerate}
+	\item Reglas \textbf{generales}, como el margen, la tipografía o el color de la fuente.
+	\item Opciones para los \textbf{elementos}, dependiendo de su etiqueta \acrshort{HTML}.
+	\item Reglas \textbf{específicas}, sobre todo a determinadas páginas. Esta es la razón por la que cada vista tiene un ID diferente.
+\end{enumerate}
+
+Como podemos ver en las siguientes figuras, hemos conseguido una estética en \acrshort{CSS} prácticamente similar a la diseñada con Photoshop.
 
 \subsection{Traductor}
 
+El traductor es el módulo en el que delegamos todo el texto que aparecerá en las vistas y será dependiente del idioma que escoja el usuario. Como especificamos en la sección \ref{subsec:idiomas} del capítulo de diseño, cada archivo de traducción implementará un elemento \code{<translation>} como raíz, dedicado a un solo lenguaje.
+
+Un ejemplo para un ''Hola Mundo'' en dos idiomas sería el siguiente:
+
+\begin{verbatim}
+	<translation code="es" language="Español">
+	    <string name="hello">¡Hola Mundo!</string>
+	</translation>
+
+	<translation code="it" language="Italiano">
+	    <string name="hello>Ciao Mondo!</string>
+	</translation>
+\end{verbatim}
+
+El programa en PHP busca todos los archivos existentes en la carpeta de traducciones con \code{glob()} y los interpreta con ayuda de la función \code{simplexml\_load\_file()}. A continuación los guarda en una lista global, denominada \code{translators}, a acceder por todas las funciones que la requieran.
+
+El hecho de leer todos los archivos de lenguaje se explica en el \textbf{menú desplegable} que se mostrará en la barra de cabecera, y presenta todos los idiomas disponibles. Cada opción está vinculada al \textbf{controlador}, que lanza la orden \code{language} con el código de idioma como parámetro.
+
 \subsection{Control de energía}
 
+Una de las funciones de la interfaz sería controlar el reinicio y el apagado del \textit{Raspberry Pi}. Esta acción solo se puede llevar a cabo con la orden correspondiente de Linux, y con permiso de superusuario.
+
+La implementación es tan sencilla como mostrar en la cabecera un \textbf{menú desplegable} con ambas opciones, cada una llama a controlador con una acción diferente:
+
+\begin{description}
+	\item[shutdown] Hace ejecutar la función \code{shutdown()}, que solo llama a \code{sudo shutdown now}.
+
+	\item[reboot] Ejecuta la función \code{reboot()}, que llama a \code{sudo shutdown -r now}.
+\end{description}
+
+Ambas llamadas devuelven un código de retorno (0 en caso de éxito o 1 en caso de error). El controlador filtra dicho código para redirigir a la portada, o bien mostrar un mensaje de error.
+
+Recordar que el usuario del servidor Apache (www-data) no posee por defecto privilegios para realizar cambios que afecten al equipo. Por ello modificaremos el sistema para concederle tales permisos, como explicaremos más adelante, en la sección \ref{subsec:web_seguridad}.
+
 \subsection{Portada}
+
+La portada constituye la primera página que se muestra al acceder al sistema. La \textbf{vista} incluye un fondo de pantalla dinámico, que cambia a intervalos de tiempo regulares.
+
+Para esto hemos implementado una función en JavaScript llamada \code{toggle()}, que guarda una lista de imágenes y altera el estilo del fondo de la página.
+
+Otro elemento importante es un \textbf{formulario} que permite introducir la contraseña de usuario y nos lleva al \textbf{controlador}, con la acción \code{login}.
+
 \subsubsection{Autentificación}
+
+El \textbf{controlador} recibe la contraseña por el método \textit{POST}, para ocultarla de la vista de la dirección y evitar que sea cacheada. Todo lo que hará será llamar a una \textbf{aplicación auxiliar} de la que hablaremos más tarde, en la sección \ref{subsec:aux_login}. A esta aplicación le pasamos el nombre de usuario (predefinido por nosotros) y la contraseña introducida como parámetros de llamada, y nos devuelve 0 (correcto) o 1 (error).
+
+Si se aprueba el acceso, llamamos a \code{set\_auth()} para registrarlo en la sesión y redirigimos al \textbf{reproductor}. En caso contrario, volvemos a la pantalla con parámetro \code{error=1}, de forma que se mostrará un pequeño mensaje de error:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_login_error}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_login_error} Formulario de entrada con mensaje de error.}
+\end{figure} 
+
+\smallskip
 
 \subsection{Navegación}
 
+Para movernos cómodamente entre las páginas de la interfaz, hemos diseñado una barra lateral de navegación. Consiste en una lista de vínculos, adornados con iconos mediante estilos. 
+
+La función de la plantilla que la crea, \code{html\_navigation()}, utiliza el ID de la página para indicar la clase \code{selected} al vínculo correspondiente. La hoja de estilos se encarga de que dicho elemento se dibuje de otro color para remarcar la página actual.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_navigation}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_navigation} Barra lateral de navegación.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Conexión a la base de datos}
 
+De manera análoga a como hicimos en el demonio para comunicarnos con la base de datos independientemente del motor utilizado, en la interfaz dedicaremos un módulo a conectarnos a la base de datos MySQL.
+
+La estructura de datos que más utilizaremos serán \textbf{mapas asociativos} (\textit{arrays} con claves), ya que son la estructura subyacente en los objetos de PHP y, por consiguiente, más eficientes.
+
+Nuestro módulo establecerá una conexión con la base de datos, creando un objeto \code{mysqli}, la nueva versión del cliente MySQL para PHP. Las credenciales y el nombre de esquema quedan predefinidos mediante constantes. En caso de \textbf{error}, se mostrará un mensaje con \code{html\_error()}, y no podremos continuar hasta que solucionemos el problema.
+
+Todas las funciones definidas están descritas en la sección \ref{subsec:web_database} de diseño. El \textbf{procedimiento habitual} para ejecutar una sentencia es el siguiente:
+
+\begin{enumerate}
+	\item Creamos una sentencia preparada con \code{prepare()}, a partir del código SQL correspondiente, marcando con una interrogación ('?') los valores que irán parametrizados.
+	\item Utilizamos el método \code{bind\_param()} para enlazar cada parámetro con su argumento correspondiente, que recibiremos en la llamada a la función.
+	\item Ejecutamos la sentencia con el método \code{execute()}.
+	\item Recibimos la información requerida con \code{get\_result()}.
+	\item Clasificamos los datos según sea necesario, y los devolvemos.
+\end{enumerate}
+
 \subsection{Conexión al demonio}
+
+Si el demonio implantaba un servidor de \textit{socket}, nosotros vamos a escribir un \textbf{cliente} que se conecte a él.
+
 \subsubsection{Prototipo}
 \subsubsection{Implementación}
 
@@ -927,6 +1162,7 @@ Para manejar los permisos adecuadamente, crearemos un usuario de sistema, de uso
 \subsubsection{Controlador}
 
 \subsection{Seguridad}
+\label{subsec:web_seguridad}
 \subsubsection{Inyección de código SQL}
 \subsubsection{Inyección de código shell}
 \subsubsection{Permisos de superusuario}
@@ -940,4 +1176,5 @@ Para manejar los permisos adecuadamente, crearemos un usuario de sistema, de uso
 \label{subsec:simulador_reproduccion}
 \subsection{Terminal del reproductor}
 \subsection{Comprobación de contraseña}
+\label{subsec:aux_login}
 \subsection{Instalador del servidor}
