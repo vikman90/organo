@@ -56,7 +56,7 @@
 #define PIN_PORTS { 2, 3, 17, 4 }	// Ports for channels
 #define PIN_BUZZER 21				// Buzzer
 
-#define METRONOME_PULSE { 0, 100000000 }	// Pulse width (seconds, ns)
+#define METRONOME_PULSE { 0, 1000000 }	// Pulse width (seconds, ns)
 
 #define DB_HOST "localhost"
 #define DB_USER "organo"
