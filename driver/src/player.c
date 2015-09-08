@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <syslog.h>
 #include "player.h"
+#include "values.h"
 #include "output.h"
 #include "midi.h"
 
@@ -231,100 +232,6 @@ int player_engineer_exit() {
 	return retval;
 }
 
-// Play a file
-
-int playscore(midifile_t *file) {
-	midievent_t *event;
-	midievent_t *tracks[file->ntracks];
-	struct timespec timereq;
-	int active, min_delta, tempo = DEFAULT_TEMPO;
-	unsigned short i;
-	char finished[file->ntracks];
-
-	for (i = 0; i < file->ntracks; i++)
-		tracks[i] = file->tracks[i];
-
-	bzero(finished, file->ntracks);
-	output_panic();
-
-	while (1) {
-		active = 0;
-		min_delta = INT_MAX;
-
-		if (state != PLAYING) {
-			if (state == PAUSED) {
-				output_silence();
-				sem_wait(&playback);
-				sem_post(&playback);
-			} else {
-				// STOPPED or ENGINEER
-				output_panic();
-				return 1;
-			}
-		}
-
-		for (i = 0; i < file->ntracks; i++) {
-			if (!finished[i]) {
-				event = tracks[i];
-
-				// 1 Execute events with delta = 0
-
-				while (event->delta == 0) {
-					if (event->type == NOTE_OFF)
-						output_noteoff(i, event->note);
-					else if (event->type == NOTE_ON) {
-						if (event->velocity > 0)
-							output_noteon(i, event->note);
-						else
-							output_noteoff(i, event->note);
-					} else if (event->type == METAEVENT) {
-						if (event->metaevent->type == END_OF_TRACK) {
-							finished[i] = 1;
-							break;
-						} else if (event->metaevent->type == SET_TEMPO)
-							tempo = metaevent_tempo(event->metaevent);
-					}
-
-					event = event->next;
-				}
-
-				// 2 Find minimum delta and ending contition
-
-				if (!finished[i]) {
-					active = 1;
-
-					if (event->delta < min_delta)
-						min_delta = event->delta;
-				}
-
-				tracks[i] = event;
-			}
-		}
-
-		output_update();
-
-		if (!active)
-			break;
-
-		// 3 Substract minimum delta to every pending event
-
-		for (i = 0; i < file->ntracks; i++) {
-			if (!finished[i])
-				tracks[i]->delta -= min_delta;
-		}
-
-		// 4 Wait
-
-		min_delta = min_delta * tempo / file->timediv;
-		timereq.tv_sec = min_delta / 1000000;
-		timereq.tv_nsec = (min_delta % 1000000) * 1000;
-		nanosleep(&timereq, NULL);
-	}
-
-	output_panic();
-	return 0;
-}
-
 // Thread's main function
 
 void* player_run(void __attribute__((unused)) *arg) {
@@ -381,4 +288,127 @@ void* player_run(void __attribute__((unused)) *arg) {
 
 	active = 0;
 	return NULL;
+}
+
+// Play a file
+
+int playscore(midifile_t *file) {
+	midievent_t *event;
+	midievent_t *tracks[file->ntracks];
+	miditime_t miditime;
+	struct timespec timereq;
+	int active, min_delta;
+	int tempo = MIDI_DEFAULT_TEMPO;
+	int metro_clock = file->timediv; // timediv * metro / metro
+	int metro_cur = metro_clock;
+	unsigned short i;
+	char finished[file->ntracks];
+
+	for (i = 0; i < file->ntracks; i++)
+		tracks[i] = file->tracks[i];
+
+	bzero(finished, file->ntracks);
+	output_panic();
+
+	while (1) {
+		active = 0;
+		min_delta = INT_MAX;
+
+		if (state != PLAYING) {
+			if (state == PAUSED) {
+				output_silence();
+				sem_wait(&playback);
+				sem_post(&playback);
+			} else {
+				// STOPPED or ENGINEER
+				output_panic();
+				return 1;
+			}
+		}
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i]) {
+				event = tracks[i];
+
+				// 1 Execute events with delta = 0
+
+				while (event->delta == 0) {
+					switch (event->type) {
+					case NOTE_OFF:
+						output_noteoff(i, event->note);
+						break;
+						
+					case NOTE_ON:
+						if (event->velocity > 0)
+							output_noteon(i, event->note);
+						else
+							output_noteoff(i, event->note);
+						break;
+						
+					case METAEVENT:
+						switch (event->metaevent->type) {
+						case END_OF_TRACK:
+							finished[i] = 1;
+							break;
+						
+						case SET_TEMPO:
+							tempo = metaevent_tempo(event->metaevent);
+							break;
+						
+						case TIME_SIGNATURE:
+							metaevent_time(event->metaevent, &miditime);
+							metro_clock = metro_cur = file->timediv * miditime.metronome / MIDI_DEFAULT_METRO;
+							break;
+						}
+					}
+					
+					if (finished[i])
+						break;
+					else
+						event = event->next;
+				}
+
+				// 2 Find minimum delta and ending contition
+
+				if (!finished[i]) {
+					active = 1;
+
+					if (event->delta < min_delta)
+						min_delta = event->delta;
+				}
+
+				tracks[i] = event;
+			}
+		}
+
+		if (metro_cur == 0) {
+			output_metronome();
+			metro_cur = metro_clock;
+		} else if (metro_cur < min_delta)
+			min_delta = metro_cur;
+
+		output_update();
+
+		if (!active)
+			break;
+
+		// 3 Substract minimum delta to every pending event
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i])
+				tracks[i]->delta -= min_delta;
+		}
+		
+		metro_cur -= min_delta;
+
+		// 4 Wait
+
+		min_delta = min_delta * tempo / file->timediv;
+		timereq.tv_sec = min_delta / 1000000;
+		timereq.tv_nsec = (min_delta % 1000000) * 1000;
+		nanosleep(&timereq, NULL);
+	}
+
+	output_panic();
+	return 0;
 }

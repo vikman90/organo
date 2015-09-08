@@ -11,11 +11,11 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include "player.h"
-#include "output.h"
 #include "values.h"
+#include "output.h"
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
-typedef enum periph_state_t { ENGINEER_OFF, MENU, ENGINEER_ON } periph_state_t;
+typedef enum periph_state_t { ENGINEER_OFF, MENU_ENGINEER, MENU_METRONOME, ENGINEER_ON } periph_state_t;
 
 // Rotary change on channel A
 static void rot_change();
@@ -131,13 +131,17 @@ void* periph_run(void __attribute__((unused)) *arg) {
 
 			switch (state) {
 			case ENGINEER_OFF:
-				state = MENU;
+				state = MENU_ENGINEER;
 				break;
 
-			case MENU:
+			case MENU_ENGINEER:
 				if (player_state(NULL) == ENGINEER)
 					player_engineer_exit();
 
+				state = MENU_METRONOME;
+				break;
+				
+			case MENU_METRONOME:
 				state = ENGINEER_OFF;
 				break;
 
@@ -155,14 +159,18 @@ void* periph_run(void __attribute__((unused)) *arg) {
 
 			switch (state) {
 			case ENGINEER_OFF:
-				state = MENU;
+				state = MENU_METRONOME;
 				break;
 
-			case MENU:
+			case MENU_ENGINEER:
 				if (player_state(NULL) == ENGINEER)
 					player_engineer_exit();
 
 				state = ENGINEER_OFF;
+				break;
+				
+			case MENU_METRONOME:
+				state = MENU_ENGINEER;
 				break;
 
 			case ENGINEER_ON:
@@ -181,7 +189,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			case ENGINEER_OFF:
 				break;
 
-			case MENU:
+			case MENU_ENGINEER:
 				if (player_state(NULL) != ENGINEER)
 					player_engineer_enter();
 
@@ -190,12 +198,16 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				output_update();
 				state = ENGINEER_ON;
 				break;
+				
+			case MENU_METRONOME:
+				output_metronome_enable(1 - output_metronome_enabled());
+				break;
 
 			case ENGINEER_ON:
 				output_noteoff(track, note + OUTPUT_OFFSET);
 
 				if (++track == OUTPUT_NTRACKS)
-					state = MENU;
+					state = MENU_ENGINEER;
 				else {
 					note = 0;
 					output_noteon(track, note + OUTPUT_OFFSET);
@@ -231,9 +243,28 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			}
 			break;
 
-		case MENU:
-			lcdPosition(lcd, 3, 1);
-			lcdPuts(lcd, "MODO INGENIERO");
+		case MENU_ENGINEER:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, "   MODO INGENIERO");
+			lcdPosition(lcd, 0, 2);
+			
+			if (player_state(NULL) == ENGINEER)
+				lcdPuts(lcd, "      Activado");
+			else
+				lcdPuts(lcd, "    Desactivado");
+			
+			break;
+			
+		case MENU_METRONOME:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, "     METRONOMO");
+			lcdPosition(lcd, 0, 2);
+			
+			if (output_metronome_enabled())
+				lcdPuts(lcd, "      Activado");
+			else
+				lcdPuts(lcd, "    Desactivado");
+			
 			break;
 
 		case ENGINEER_ON:

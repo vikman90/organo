@@ -7,6 +7,9 @@
 #ifndef VALUES_H
 #define VALUES_H
 
+#define MIDI_DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
+#define MIDI_DEFAULT_METRO 24		// Clocks per quarter
+
 #define SCORE_HOME "/home/pi/midis/"
 #define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define LOG_IDENT "organd"	// Logging identity
@@ -51,6 +54,9 @@
 #define PIN_RCKL 27					// Register clock
 #define PIN_SRCKL 22				// Shifting clock
 #define PIN_PORTS { 2, 3, 17, 4 }	// Ports for channels
+#define PIN_BUZZER 21				// Buzzer
+
+#define METRONOME_PULSE { 0, 1000000 }	// Pulse width (seconds, ns)
 
 #define DB_HOST "localhost"
 #define DB_USER "organo"

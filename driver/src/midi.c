@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "midi.h"
+#include "values.h"
 
 static int varlen(int fd);
 static int parse(midievent_t **first, int fd);
@@ -208,7 +209,7 @@ double midifile_duration(const midifile_t *file) {
 	midievent_t *tracks[file->ntracks];
 	int deltas[file->ntracks];
 	int finished[file->ntracks];
-	int active, min_delta, tempo = DEFAULT_TEMPO, waiting = 0;
+	int active, min_delta, tempo = MIDI_DEFAULT_TEMPO, waiting = 0;
 	unsigned short i;
 
 	for (i = 0; i < file->ntracks; i++) {
