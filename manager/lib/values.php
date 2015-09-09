@@ -23,3 +23,7 @@ const DOWNLOADS_DIR = 'pool';
 
 const BUFFER_MAX = 256;
 const SOCKET_PATH = "/run/organd.sock";
+
+const EXEC_SHUTDOWN = '/usr/bin/sudo /sbin/shutdown now 2>&1';
+const EXEC_REBOOT = '/usr/bin/sudo /sbin/shutdown -r now 2>&1';
+const EXEC_LOGIN = '/usr/bin/sudo /usr/local/bin/organ-login';

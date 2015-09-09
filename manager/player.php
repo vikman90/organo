@@ -31,7 +31,7 @@ switch ($state[0]) {
 
             if ($cur_score == null) {
                 $playlist = null;
-                $name = pathinfo($state[1], PATHINFO_FILENAME);
+                $name = pathinfo($state[1], PATHINFO_BASENAME);
             } else {
                 $playlist = db_get_playlist($cur_score['playlist']);
                 $name = $cur_score['name'];
@@ -59,7 +59,7 @@ switch ($state[0]) {
 $play_hidden = $state[0] == 'PLAYING' ? 'hidden' : '';
 $pause_hidden = $state[0] == 'PLAYING' ? '' : 'hidden';
 $skip_disabled = $playlist ? '' : 'disabled';
-$play_disabled = $state[0] == ('STOPPED' or $state[0] == 'ENGINEER') ? 'disabled' : '';
+$play_disabled = ($state[0] == 'STOPPED' or $state[0] == 'ENGINEER') ? 'disabled' : '';
 
 echo <<< EOT
 <section>
