@@ -22,12 +22,6 @@ static char buffer[BUFFER_LENGTH];
 
 static int play(char *arg, int loop);
 
-// Action on SIGPIPE
-
-static void onsigpipe() {
-	syslog(LOG_WARNING, "SIGPIPE received");
-}
-
 // Initialization of the socket
 
 int socket_init(int uid, int gid) {
@@ -64,7 +58,7 @@ int socket_init(int uid, int gid) {
 		return -1;
 	}
 
-	signal(SIGPIPE, onsigpipe);
+	signal(SIGPIPE, SIG_IGN);
 
 	return 0;
 }

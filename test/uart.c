@@ -18,12 +18,12 @@
 #define BUFFER_MAX 10
 #define BUFFER_MIN 10
 
-static const char UART[] = "/dev/ttyACM0";
+static const char UART[] = "/dev/ttyAMA0";
 static struct termios oldtio;
 static int tty;
 
 int uart_init() {
-	tty = open(UART, O_RDONLY | O_NOCTTY);
+	tty = open(UART, O_RDONLY | O_NOCTTY | O_NONBLOCK);
 	struct termios termios;
 
 	if (tty < 0) {
@@ -33,9 +33,10 @@ int uart_init() {
 
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
-	termios.c_cflag = CS8;
+	termios.c_cflag = CS8 | CLOCAL | CREAD;
 	termios.c_cc[VMIN] = BUFFER_MIN;
 	cfsetispeed(&termios, BAUD_RATE);
+	tcflush(tty, TCIFLUSH);
 	tcsetattr(tty, TCSANOW, &termios);
 
 	return 0;
@@ -55,15 +56,22 @@ int main() {
 
 	while (1) {
 		int n = read(tty, buffer, BUFFER_MAX);
-		
-		if (n < 0) {
-			perror("read()");
+		if (n < 1) {
+			
 			continue;
 		}
 		
 		buffer[n] = '\0';
-		printf("Leidos %d bytes: %s\n", n, buffer);
-		
-		printf("Funcion: %c\n", buffer[7]);
+
+if (n >= 8)
+	printf("Funcion %c\n", buffer[7]);
+
+//		if (n == 1)
+//			printf("Byte: %d\n", buffer[0]);
+//		else {
+//			printf("Leidos %d bytes: %s\n", n, buffer);
+//
+//			printf("Funcion: %c\n", buffer[7]);
+//		}
 	}
 }

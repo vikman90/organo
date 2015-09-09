@@ -1,12 +1,14 @@
 // 29 July 2015
 
 #include <pthread.h>
+#include <semaphore.h>
 #include <strings.h>
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
 #include <syslog.h>
 #include "player.h"
+#include "values.h"
 #include "output.h"
 #include "midi.h"
 
@@ -18,158 +20,25 @@ static int nfiles;
 static int loop;
 static volatile int cur_ifile = 0;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_mutex_t playback = PTHREAD_MUTEX_INITIALIZER;
+static sem_t playback;
 
 // Play a file
-
-static int playscore(midifile_t *file) {
-	midievent_t *event;
-	midievent_t *tracks[file->ntracks];
-	struct timespec timereq;
-	int active, min_delta, tempo = DEFAULT_TEMPO;
-	unsigned short i;
-	char finished[file->ntracks];
-
-	for (i = 0; i < file->ntracks; i++)
-		tracks[i] = file->tracks[i];
-
-	bzero(finished, file->ntracks);
-	output_panic();
-
-	while (1) {
-		active = 0;
-		min_delta = INT_MAX;
-
-		if (state != PLAYING) {
-			if (state == PAUSED) {
-				output_silence();
-				pthread_mutex_lock(&playback);
-				pthread_mutex_unlock(&playback);
-			} else {
-				// STOPPED or ENGINEER
-				output_panic();
-				return 1;
-			}
-		}
-
-		for (i = 0; i < file->ntracks; i++) {
-			if (!finished[i]) {
-				event = tracks[i];
-
-				// 1 Execute events with delta = 0
-
-				while (event->delta == 0) {
-					if (event->type == NOTE_OFF)
-						output_noteoff(i, event->note);
-					else if (event->type == NOTE_ON) {
-						if (event->velocity > 0)
-							output_noteon(i, event->note);
-						else
-							output_noteoff(i, event->note);
-					} else if (event->type == METAEVENT) {
-						if (event->metaevent->type == END_OF_TRACK) {
-							finished[i] = 1;
-							break;
-						} else if (event->metaevent->type == SET_TEMPO)
-							tempo = metaevent_tempo(event->metaevent);
-					}
-
-					event = event->next;
-				}
-
-				// 2 Find minimum delta and ending contition
-
-				if (!finished[i]) {
-					active = 1;
-
-					if (event->delta < min_delta)
-						min_delta = event->delta;
-				}
-
-				tracks[i] = event;
-			}
-		}
-
-		output_update();
-
-		if (!active)
-			break;
-
-		// 3 Substract minimum delta to every pending event
-
-		for (i = 0; i < file->ntracks; i++) {
-			if (!finished[i])
-				tracks[i]->delta -= min_delta;
-		}
-
-		// 4 Wait
-
-		min_delta = min_delta * tempo / file->timediv;
-		timereq.tv_sec = min_delta / 1000000;
-		timereq.tv_nsec = (min_delta % 1000000) * 1000;
-		nanosleep(&timereq, NULL);
-	}
-
-	output_panic();
-	return 0;
-}
+static int playscore(midifile_t *file);
 
 // Thread's main function
+void* player_run(void *arg);
 
-static void* player_run(void __attribute__((unused)) *arg) {
-	int i, nerrors = 0;
-	char error[nfiles];
-	midifile_t file;
+// Initializes the player
 
-	if (loop) {
-		bzero(error, nfiles);
+int player_init() {
+	return sem_init(&playback, 0, 1);
+}
 
-		// Play
+// Destroys the player
 
-		for (i = 0; 1; i = (i + 1) % nfiles) {
-			if (error[i])
-				continue;
-
-			if (midifile_init(&file, playlist[i]) < 0) {
-				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
-				midifile_destroy(&file);
-				error[i] = 1;
-
-				if (++nerrors >= nfiles)
-					break;
-			} else {
-				cur_ifile = i;
-				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
-				int retval = playscore(&file);
-				syslog(LOG_INFO, "Execution finished with code %d", retval);
-				midifile_destroy(&file);
-
-				if (retval)
-					break;
-			}
-		}
-	} else {
-		// No loop
-
-		for (i = 0; i < nfiles; i++) {
-			if (midifile_init(&file, playlist[i]) < 0) {
-				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
-				midifile_destroy(&file);
-			} else {
-				cur_ifile = i;
-				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
-				int retval = playscore(&file);
-				syslog(LOG_INFO, "Execution finished with code %d", retval);
-				midifile_destroy(&file);
-
-				if (retval)
-					break;
-			}
-		}
-	}
-
-	active = 0;
-	return NULL;
+void player_destroy() {
+	player_stop();
+	sem_destroy(&playback);
 }
 
 // Play a playlist
@@ -184,7 +53,7 @@ int player_start(char **_playlist, int n, int _loop) {
 
 	switch (state) {
 	case PAUSED:
-		pthread_mutex_unlock(&playback);
+		sem_post(&playback);
 
 	case PLAYING:
 		state = STOPPED;
@@ -244,7 +113,7 @@ int player_pause() {
 	if (state != PLAYING)
 		retval = -1;
 	else {
-		pthread_mutex_lock(&playback);
+		sem_wait(&playback);
 		state = PAUSED;
 	}
 
@@ -265,7 +134,7 @@ int player_resume() {
 	switch (state) {
 	case PAUSED:
 		state = PLAYING;
-		pthread_mutex_unlock(&playback);
+		sem_post(&playback);
 	case PLAYING:
 		break;
 	default:
@@ -288,7 +157,8 @@ int player_stop() {
 
 	switch (state) {
 	case PAUSED:
-		pthread_mutex_unlock(&playback);
+		state = PLAYING;
+		sem_post(&playback);
 	case PLAYING:
 		state = STOPPED;
 		pthread_join(thread, NULL);
@@ -328,7 +198,8 @@ int player_engineer_enter() {
 
 	switch (state) {
 	case PAUSED:
-		pthread_mutex_unlock(&playback);
+		state = PLAYING;
+		sem_post(&playback);
 	case PLAYING:
 		state = STOPPED;
 		pthread_join(thread, NULL);
@@ -359,4 +230,185 @@ int player_engineer_exit() {
 
 	pthread_mutex_unlock(&mutex);
 	return retval;
+}
+
+// Thread's main function
+
+void* player_run(void __attribute__((unused)) *arg) {
+	int i, nerrors = 0;
+	char error[nfiles];
+	midifile_t file;
+
+	if (loop) {
+		bzero(error, nfiles);
+
+		// Play
+
+		for (i = 0; 1; i = (i + 1) % nfiles) {
+			if (error[i])
+				continue;
+
+			if (midifile_init(&file, playlist[i]) < 0) {
+				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
+				midifile_destroy(&file);
+				error[i] = 1;
+
+				if (++nerrors >= nfiles)
+					break;
+			} else {
+				cur_ifile = i;
+				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
+				int retval = playscore(&file);
+				syslog(LOG_INFO, "Execution finished with code %d", retval);
+				midifile_destroy(&file);
+
+				if (retval)
+					break;
+			}
+		}
+	} else {
+		// No loop
+
+		for (i = 0; i < nfiles; i++) {
+			if (midifile_init(&file, playlist[i]) < 0) {
+				syslog(LOG_WARNING, "Score %s not loaded", playlist[i]);
+				midifile_destroy(&file);
+			} else {
+				cur_ifile = i;
+				syslog(LOG_INFO, "Starting execution of %s", playlist[i]);
+				int retval = playscore(&file);
+				syslog(LOG_INFO, "Execution finished with code %d", retval);
+				midifile_destroy(&file);
+
+				if (retval)
+					break;
+			}
+		}
+	}
+
+	active = 0;
+	return NULL;
+}
+
+// Play a file
+
+int playscore(midifile_t *file) {
+	midievent_t *event;
+	midievent_t *tracks[file->ntracks];
+	miditime_t miditime;
+	struct timespec timereq;
+	int active, min_delta;
+	int tempo = MIDI_DEFAULT_TEMPO;
+	int metro_clock = file->timediv; // timediv * metro / metro
+	int metro_cur = metro_clock;
+	unsigned short i;
+	char finished[file->ntracks];
+
+	for (i = 0; i < file->ntracks; i++)
+		tracks[i] = file->tracks[i];
+
+	bzero(finished, file->ntracks);
+	output_panic();
+
+	while (1) {
+		active = 0;
+		min_delta = INT_MAX;
+
+		if (state != PLAYING) {
+			if (state == PAUSED) {
+				output_silence();
+				sem_wait(&playback);
+				sem_post(&playback);
+			} else {
+				// STOPPED or ENGINEER
+				output_panic();
+				return 1;
+			}
+		}
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i]) {
+				event = tracks[i];
+
+				// 1 Execute events with delta = 0
+
+				while (event->delta == 0) {
+					switch (event->type) {
+					case NOTE_OFF:
+						output_noteoff(i, event->note);
+						break;
+						
+					case NOTE_ON:
+						if (event->velocity > 0)
+							output_noteon(i, event->note);
+						else
+							output_noteoff(i, event->note);
+						break;
+						
+					case METAEVENT:
+						switch (event->metaevent->type) {
+						case END_OF_TRACK:
+							finished[i] = 1;
+							break;
+						
+						case SET_TEMPO:
+							tempo = metaevent_tempo(event->metaevent);
+							break;
+						
+						case TIME_SIGNATURE:
+							metaevent_time(event->metaevent, &miditime);
+							metro_clock = metro_cur = file->timediv * miditime.metronome / MIDI_DEFAULT_METRO;
+							break;
+						}
+					}
+					
+					if (finished[i])
+						break;
+					else
+						event = event->next;
+				}
+
+				// 2 Find minimum delta and ending contition
+
+				if (!finished[i]) {
+					active = 1;
+
+					if (event->delta < min_delta)
+						min_delta = event->delta;
+				}
+
+				tracks[i] = event;
+			}
+		}
+
+		if (metro_cur == 0) {
+			output_metronome();
+			metro_cur = metro_clock;
+		} else if (metro_cur < min_delta)
+			min_delta = metro_cur;
+
+		output_update();
+
+		if (!active)
+			break;
+
+		// 3 Substract minimum delta to every pending event
+
+		for (i = 0; i < file->ntracks; i++) {
+			if (!finished[i])
+				tracks[i]->delta -= min_delta;
+		}
+		
+		metro_cur -= min_delta;
+
+		// 4 Wait
+
+		min_delta = min_delta * tempo / file->timediv;
+		timereq.tv_sec = min_delta / 1000000;
+		timereq.tv_nsec = (min_delta % 1000000) * 1000;
+		nanosleep(&timereq, NULL);
+	}
+
+	output_panic();
+	return 0;
 }

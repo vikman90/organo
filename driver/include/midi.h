@@ -7,8 +7,6 @@
 #ifndef MIDI_H
 #define MIDI_H
 
-#define DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
-
 enum format_t { SINGLE_TRACK, MULTIPLE_SIMULTANEOUS, MULTIPLE_INDEPENDENT };
 enum division_t { TICKS_PER_BEAT, FRAMES_PER_SECOND };
 enum midimode_t { MAJOR, MINOR };

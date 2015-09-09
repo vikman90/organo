@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <string.h>
 #include <strings.h>
 #include <termios.h>
 #include <pthread.h>
@@ -48,8 +49,8 @@ int uart_init() {
 	termios.c_cflag = CS8 | CLOCAL | CREAD;
 	termios.c_cc[VMIN] = UART_BUFFER_MIN;
 	cfsetispeed(&termios, UART_BAUDRATE);
-	tcsetattr(tty, TCSANOW, &termios);
 	tcflush(tty, TCIFLUSH);
+	tcsetattr(tty, TCSANOW, &termios);
 
 	return 0;
 }
@@ -76,9 +77,13 @@ void* uart_run(void __attribute__((unused)) *arg) {
 	while (1) {
 		int n = read(tty, buffer, UART_BUFFER_MAX);
 
-		if (n < 0) {
-			syslog(LOG_ERR, "read(): %m");
-			break;
+		if (n < 8) {
+			continue;
+		}
+		
+		if (strncmp(buffer, UART_SERIAL, 7)) {
+			syslog(LOG_ERR, "Invalid remote serial number");
+			continue;
 		}
 
 		switch (buffer[7]) {
@@ -100,21 +105,12 @@ void* uart_run(void __attribute__((unused)) *arg) {
 
 			break;
 
-		case 'd':
+		case 'c':
 			syslog(LOG_WARNING, "Battery low");
 
-		case 'D':
+		case 'C':
 			if (uart_pause() < 0)
 				syslog(LOG_ERR, "Error on uart_pause()");
-
-			break;
-
-		case 'h':
-			syslog(LOG_WARNING, "Battery low");
-
-		case 'H':
-			if (player_stop() < 0)
-				syslog(LOG_ERR, "Error on player_stop()");
 
 			break;
 
@@ -132,7 +128,7 @@ int uart_playlist(int list) {
 	int n, retval = 0;
 	char **playlist;
 
-	if (db_init() < 1) {
+	if (db_init() < 0) {
 		syslog(LOG_ERR, "Error at db_init()");
 		return -1;
 	}

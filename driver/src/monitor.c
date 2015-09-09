@@ -96,3 +96,6 @@ void output_panic() {
 	memset(state, 0, NOTES);
 	output_update();
 }
+
+void output_metronome() {
+}

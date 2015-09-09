@@ -7,6 +7,9 @@
 #ifndef VALUES_H
 #define VALUES_H
 
+#define MIDI_DEFAULT_TEMPO 500000	// usec / quarter = 120 bpm
+#define MIDI_DEFAULT_METRO 24		// Clocks per quarter
+
 #define SCORE_HOME "/home/pi/midis/"
 #define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define LOG_IDENT "organd"	// Logging identity
@@ -26,6 +29,7 @@
 #define UART_BAUDRATE B9600			// Baudrate of remote receiver
 #define UART_BUFFER_MAX 10			// Minimal length of received data (lock)
 #define UART_BUFFER_MIN 10			// Maximum length of received data (buffer)
+#define UART_SERIAL "0016D34"		// Remote serial code
 
 #define SOCKET_BACKLOG 5					// Listening queue length
 #define SOCKET_PATH "/run/organd.sock"	// Path to socket file
@@ -51,6 +55,9 @@
 #define PIN_RCKL 27					// Register clock
 #define PIN_SRCKL 22				// Shifting clock
 #define PIN_PORTS { 2, 3, 17, 4 }	// Ports for channels
+#define PIN_BUZZER 21				// Buzzer
+
+#define METRONOME_PULSE { 0, 1000000 }	// Pulse width (seconds, ns)
 
 #define DB_HOST "localhost"
 #define DB_USER "organo"

@@ -14,6 +14,7 @@
 ### END INIT INFO
 
 SOCKET="/run/organd.sock"
+SBIN='/usr/local/sbin'
 DAEMON='organd'
 USER="organ"
 GROUP="organ"
@@ -27,7 +28,7 @@ start() {
 	if [ ! -z "$pid" ]; then
 		log_warning_msg "Servicio ya iniciado"
 	else
-		/usr/sbin/$DAEMON $(id -u $USER) $(id -g $GROUP)
+		$SBIN/$DAEMON $(id -u $USER) $(id -g $GROUP)
 
 		if [ $? != "0" ]; then
 			log_end_msg 1
