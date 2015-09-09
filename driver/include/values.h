@@ -29,6 +29,7 @@
 #define UART_BAUDRATE B9600			// Baudrate of remote receiver
 #define UART_BUFFER_MAX 10			// Minimal length of received data (lock)
 #define UART_BUFFER_MIN 10			// Maximum length of received data (buffer)
+#define UART_SERIAL "0016D34"		// Remote serial code
 
 #define SOCKET_BACKLOG 5					// Listening queue length
 #define SOCKET_PATH "/run/organd.sock"	// Path to socket file
