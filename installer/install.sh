@@ -7,7 +7,6 @@
 ################################################################################
 
 PACKAGES="apache2 php5 mysql-server php5-mysqlnd"
-SUDOERS="/etc/sudoers"
 
 HOST_USER="pi"
 ORGAN_GROUP="organ"
@@ -19,7 +18,6 @@ SITE_ROOT="/home/pi/manager"
 SITE_POOL="/home/pi/midis"
 
 HTTP_USER="www-data"
-HTTP_SUDO="/sbin/shutdown, /usr/local/bin/organ-login *"
 
 DB_USER="root"
 DB_SOURCE="organo.sql"
@@ -42,17 +40,6 @@ sed -i "s/Alias \/pool.*/Alias \/pool $SITE_POOL_SED/g" $(dirname $0)/$SITE_SOUR
 cp $(dirname $0)/$SITE_SOURCE /etc/apache2/sites-available
 ln -fs /etc/apache2/sites-available/$SITE_SOURCE /etc/apache2/sites-enabled/$SITE_TARGET
 service apache2 reload
-
-################################################################################
-
-cp $SUDOERS $(dirname $0)/sudoers.bak
-
-if [ -z "$(grep $HTTP_USER $SUDOERS)" ]; then
-	echo "$HTTP_USER ALL=(ALL) NOPASSWD: $HTTP_SUDO" >> $SUDOERS
-else
-	HTTP_SUDO_SED=$(echo "$HTTP_SUDO" | sed 's/\//\\\//g')
-	sed "s/$HTTP_USER.*/$HTTP_USER ALL=(ALL) NOPASSWD: $HTTP_SUDO_SED/g" $(dirname $0)/sudoers.bak > $SUDOERS
-fi
 
 ################################################################################
 
