@@ -23,6 +23,7 @@ chmod a+x $SCRIPT
 
 adduser --quiet --group --system --no-create-home $USER
 adduser $USER $USER
+adduser $USER dialout
 
 if [ ! -d $WIRINGPI ]; then
 	git clone $WIRINGPI_GIT $WIRINGPI

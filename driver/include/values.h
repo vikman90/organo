@@ -13,6 +13,7 @@
 #define SCORE_HOME "/home/pi/midis/"
 #define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define LOG_IDENT "organd"	// Logging identity
+#define DAEMON_USER "organ"
 
 /*
  * Track 0: 7 keys, starting at C4 (baroque keyboard)
