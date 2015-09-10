@@ -64,4 +64,7 @@
 #define DB_PASS "ugr2015"
 #define DB_NAME "organo"
 
+#define CMD_SHUTDOWN "sudo shutdown now"
+#define CMD_REBOOT "sudo shutdown -r now"
+
 #endif
