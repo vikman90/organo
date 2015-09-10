@@ -35,31 +35,16 @@ static int uart_pause();
 // Initialization of the serial port
 
 int uart_init() {
-	struct termios termios;
-
-	tty = open(UART_PATH, O_RDONLY | O_NOCTTY | O_NONBLOCK);
-
-	if (tty < 0) {
-		syslog(LOG_ERR, "open(): %m");
-		return -1;
-	}
-
-	tcgetattr(tty, &oldtio);
-	bzero(&termios, sizeof(termios));
-	termios.c_cflag = CS8 | CLOCAL | CREAD;
-	termios.c_cc[VMIN] = UART_BUFFER_MIN;
-	cfsetispeed(&termios, UART_BAUDRATE);
-	tcflush(tty, TCIFLUSH);
-	tcsetattr(tty, TCSANOW, &termios);
-
 	return 0;
 }
 
 // Destroy the connection
 
 void uart_destroy() {
-	tcsetattr(tty, TCSANOW, &oldtio);
-	close(tty);
+	if (tty >= 0) {
+		tcsetattr(tty, TCSANOW, &oldtio);
+		close(tty);
+	}
 }
 
 // Dispatching loop
@@ -72,16 +57,38 @@ int uart_loop() {
 // Thread entry point
 
 void* uart_run(void __attribute__((unused)) *arg) {
-	char buffer[UART_BUFFER_MAX];
+	char buffer[UART_BUFFER_LENGTH];
+	struct termios termios;
+	
+	tty = open(UART_PATH, O_RDONLY | O_NOCTTY);
+	
+	if (tty < 0) {
+		syslog(LOG_ERR, "open(): %m");
+		return NULL;
+	}
+
+	tcgetattr(tty, &oldtio);
+	bzero(&termios, sizeof(termios));
+	termios.c_cflag = CS7 | CLOCAL | CREAD;
+	termios.c_iflag = IGNPAR;
+	termios.c_cc[VMIN] = UART_BUFFER_LENGTH;
+	cfsetispeed(&termios, UART_BAUDRATE);
+	tcflush(tty, TCIFLUSH);
+	tcsetattr(tty, TCSANOW, &termios);
 
 	while (1) {
-		int n = read(tty, buffer, UART_BUFFER_MAX);
+		int n = read(tty, buffer, UART_BUFFER_LENGTH);
 
-		if (n < 8) {
-			continue;
+		if (n < UART_BUFFER_LENGTH) {
+			syslog(LOG_ERR, "Received only %d bytes from UART", n);
+			return NULL;
 		}
-		
-		if (strncmp(buffer, UART_SERIAL, 7)) {
+
+		if (strncmp(&buffer[8], "\r\n", 2)) {
+			syslog(LOG_ERR, "Receiving error.\n");
+			tcflush(tty, TCIFLUSH);
+			continue;
+		} else if (strncmp(buffer, UART_SERIAL, 7)) {
 			syslog(LOG_ERR, "Invalid remote serial number");
 			continue;
 		}

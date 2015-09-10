@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <strings.h>
+#include <string.h>
 #include <termios.h>
 #include <unistd.h>
 #include <signal.h>
@@ -15,15 +16,15 @@
 #include <stdio.h>
 
 #define BAUD_RATE B9600
-#define BUFFER_MAX 10
-#define BUFFER_MIN 10
+#define BUFFER_LENGTH 10
 
 static const char UART[] = "/dev/ttyAMA0";
+static const char SERIAL[] = "0016D34";
 static struct termios oldtio;
 static int tty;
 
 int uart_init() {
-	tty = open(UART, O_RDONLY | O_NOCTTY | O_NONBLOCK);
+	tty = open(UART, O_RDONLY | O_NOCTTY);
 	struct termios termios;
 
 	if (tty < 0) {
@@ -33,8 +34,9 @@ int uart_init() {
 
 	tcgetattr(tty, &oldtio);
 	bzero(&termios, sizeof(termios));
-	termios.c_cflag = CS8 | CLOCAL | CREAD;
-	termios.c_cc[VMIN] = BUFFER_MIN;
+	termios.c_cflag = CS7 | CLOCAL | CREAD;
+	termios.c_iflag = IGNPAR;
+	termios.c_cc[VMIN] = BUFFER_LENGTH;
 	cfsetispeed(&termios, BAUD_RATE);
 	tcflush(tty, TCIFLUSH);
 	tcsetattr(tty, TCSANOW, &termios);
@@ -48,30 +50,26 @@ void uart_destroy() {
 }
 
 int main() {
-	char buffer[BUFFER_MAX + 1] = { 0 };
+	char buffer[BUFFER_LENGTH] = { 0 };
 	signal(SIGTERM, uart_destroy);
 
 	if (uart_init() < 0)
 		return EXIT_FAILURE;
 
 	while (1) {
-		int n = read(tty, buffer, BUFFER_MAX);
+		int n = read(tty, buffer, BUFFER_LENGTH);
+
 		if (n < 1) {
-			
-			continue;
+			printf("Error\n", n);
+			return 1;
 		}
-		
-		buffer[n] = '\0';
 
-if (n >= 8)
-	printf("Funcion %c\n", buffer[7]);
-
-//		if (n == 1)
-//			printf("Byte: %d\n", buffer[0]);
-//		else {
-//			printf("Leidos %d bytes: %s\n", n, buffer);
-//
-//			printf("Funcion: %c\n", buffer[7]);
-//		}
+		if (strncmp(&buffer[8], "\r\n", 2)) {
+			printf("Error de recepcion.\n");
+			tcflush(tty, TCIFLUSH);
+		} else if (strncmp(buffer, SERIAL, 7))
+			printf("No coincide el numero de serie\n");
+		else
+			printf("Funcion %c (%d)\n", buffer[7], n);
 	}
 }

@@ -1,18 +1,24 @@
 const char STRINGS[][9] = {
-  "0000000A",
-  "0000000a",
-  "0000000B",
-  "0000000b",
-  "0000000D",
-  "0000000d",
-  "0000000H",
-  "0000000h"
+  "0016D34A",
+  "0016D34a",
+  "0016D34B",
+  "0016D34b",
+  "0016D34C",
+  "0016D34c",
 };
 
 void setup() {
+  pinMode(13, OUTPUT);
   randomSeed(analogRead(0));
   Serial.begin(9600);
-  Serial.println(STRINGS[random(8)]);
+
+  if (random(5) < 1) {
+    Serial.println("001");
+    digitalWrite(13, 0);
+  } else {
+    Serial.println(STRINGS[random(6)]);
+    digitalWrite(13, 1);
+  }
 }
 
 void loop() {
