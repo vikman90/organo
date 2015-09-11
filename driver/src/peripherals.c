@@ -346,16 +346,22 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			
 		case OPT_REBOOT:
 			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
 			lcdPuts(lcd, "     Reiniciar");
 			break;
 			
 		case OPT_SHUTDOWN:
 			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
 			lcdPuts(lcd, "       Apagar");
 			break;
 			
 		case OPT_BACK:
 			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
 			lcdPuts(lcd, "       Atras");
 		}
 
