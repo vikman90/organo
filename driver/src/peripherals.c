@@ -27,10 +27,11 @@ static void rot_push();
 // Thread start point
 static void* periph_run(void *arg);
 
-static int lcd;								// LCD file descriptor
-static int buttons[3] = { 0 };				// Array of pushed buttons
-static pthread_t thread;					// Dispatching thread
-static sem_t semaphore;						// Semaphore for synchronization
+static int lcd;											// LCD file descriptor
+static int buttons[3] = { 0 };							// Array of pushed buttons
+static pthread_t thread;								// Dispatching thread
+static sem_t semaphore;									// Semaphore for synchronization
+static struct timespec PUSH_DEBOUNCE = DEBOUNCE_TIME;	// Delay to debounce
 
 // Initialize peripherals and start threads
 
@@ -83,17 +84,9 @@ void periph_destroy() {
 
 // Rotary change on channel A
 
-static void rot_change() {
-	static int first = 1;
-	int a, b;
-	
-	if (first) {
-		first = 0;
-		return;
-	}
-	
-	a = digitalRead(ROT_CH_A);
-	b = digitalRead(ROT_CH_B);
+static void rot_change() {	
+	int a = digitalRead(ROT_CH_A);
+	int b = digitalRead(ROT_CH_B);
 	
 	// a==b => CW
 	
@@ -104,11 +97,9 @@ static void rot_change() {
 // Rotary push event
 
 void rot_push() {
-	static int first = 1;
+	nanosleep(&PUSH_DEBOUNCE, NULL);
 	
-	if (first) {
-		first = 0;
-	} else {
+	if (digitalRead(ROT_PUSH)) {
 		buttons[PUSH] = 1;
 		sem_post(&semaphore);
 	}
