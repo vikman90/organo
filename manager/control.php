@@ -114,8 +114,10 @@ function login() {
     if (!$retval) {
         set_auth();
         html_redirect('player.php');
-    } else
+    } else {
+        sleep(WRONG_PASS_DELAY);
         html_redirect('index.php?error=1');
+    }
 }
 
 function play() {

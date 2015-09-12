@@ -10,6 +10,7 @@ namespace manager;
 
 const DEFAULT_LANGUAGE = 'es';
 const LINUX_USERNAME = 'pi';
+const WRONG_PASS_DELAY = 2;
 const REBOOT_TIME = 60;
 
 const DB_HOST = 'localhost';
