@@ -209,7 +209,9 @@ double midifile_duration(const midifile_t *file) {
 	midievent_t *tracks[file->ntracks];
 	int deltas[file->ntracks];
 	int finished[file->ntracks];
-	int active, min_delta, tempo = MIDI_DEFAULT_TEMPO, waiting = 0;
+	int active, min_delta;
+	int tempo = MIDI_DEFAULT_TEMPO;
+	int waiting = 0;
 	unsigned short i;
 
 	for (i = 0; i < file->ntracks; i++) {
@@ -259,10 +261,10 @@ double midifile_duration(const midifile_t *file) {
 				deltas[i] -= min_delta;
 		}
 
-		waiting += min_delta * tempo / file->timediv;
+		waiting += min_delta;
 	}
 
-	return waiting / 1000000.0;
+	return (double)waiting * tempo / file->timediv / 1000000.0;
 }
 
 // Reads a variable-lenvth value from file

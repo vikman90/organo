@@ -89,7 +89,7 @@ $(BIN)/login: $(OBJ)/login.o
 	$(CC) $(LDFLAGS) -o $@ $^ -lcrypt
 
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^ -lm
 
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^

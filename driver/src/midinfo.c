@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "midi.h"
 
 static int duration(const char *path) {
@@ -15,7 +16,7 @@ static int duration(const char *path) {
 		return EXIT_FAILURE;
 	}
 
-	printf("%d\n", (int)midifile_duration(&score));
+	printf("%d\n", (int)round(midifile_duration(&score)));
 	return EXIT_SUCCESS;
 }
 

@@ -337,31 +337,31 @@ int playscore(midifile_t *file) {
 					case NOTE_OFF:
 						output_noteoff(i, event->note);
 						break;
-						
+
 					case NOTE_ON:
 						if (event->velocity > 0)
 							output_noteon(i, event->note);
 						else
 							output_noteoff(i, event->note);
 						break;
-						
+
 					case METAEVENT:
 						switch (event->metaevent->type) {
 						case END_OF_TRACK:
 							finished[i] = 1;
 							break;
-						
+
 						case SET_TEMPO:
 							tempo = metaevent_tempo(event->metaevent);
 							break;
-						
+
 						case TIME_SIGNATURE:
 							metaevent_time(event->metaevent, &miditime);
 							metro_clock = metro_cur = file->timediv * miditime.metronome / MIDI_DEFAULT_METRO;
 							break;
 						}
 					}
-					
+
 					if (finished[i])
 						break;
 					else
@@ -384,7 +384,9 @@ int playscore(midifile_t *file) {
 		if (metro_cur == 0) {
 			output_metronome();
 			metro_cur = metro_clock;
-		} else if (metro_cur < min_delta)
+		}
+
+		if (metro_cur < min_delta)
 			min_delta = metro_cur;
 
 		output_update();
@@ -398,12 +400,12 @@ int playscore(midifile_t *file) {
 			if (!finished[i])
 				tracks[i]->delta -= min_delta;
 		}
-		
+
 		metro_cur -= min_delta;
 
 		// 4 Wait
 
-		min_delta = min_delta * tempo / file->timediv;
+		min_delta = (int)((double)min_delta * tempo / file->timediv);
 		timereq.tv_sec = min_delta / 1000000;
 		timereq.tv_nsec = (min_delta % 1000000) * 1000;
 		nanosleep(&timereq, NULL);
