@@ -7,7 +7,7 @@ USER='organ'
 PACKAGES='git libmysqlclient-dev'
 
 SUDOERS="/etc/sudoers"
-USER_SUDO="/sbin/shutdown, /usr/local/bin/organ-login"
+USER_SUDO="/sbin/shutdown"
 
 HOST_USER="pi"
 

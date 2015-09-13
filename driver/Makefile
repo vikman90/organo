@@ -63,6 +63,7 @@ $(INSTALL_INIT)/remote: $(SCRIPTS)/remote
 
 $(INSTALL_BIN)/organ-login: $(BIN)/login
 	$(CP_FILE) $< $@
+	chmod a+s $@
 
 $(INSTALL_BIN)/organ: $(BIN)/organ
 	$(CP_FILE) $< $@
