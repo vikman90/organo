@@ -84,12 +84,12 @@ function db_delete_playlist($idplaylist) {
     $stmt->execute();
 }
 
-function db_insert_score($idplaylist, $name) {
+function db_insert_score($idplaylist, $name, $duration) {
     global $db;
 
-    $sql = "INSERT INTO score (playlist, name) VALUES (?, ?)";
+    $sql = "INSERT INTO score (playlist, name, duration) VALUES (?, ?, ?)";
     $stmt = $db->prepare($sql);
-    $stmt->bind_param('is', $idplaylist, $name);
+    $stmt->bind_param('isi', $idplaylist, $name, $duration);
     $stmt->execute();
     $idscore = $stmt->insert_id;
     $source = $idscore . '.mid';
@@ -110,15 +110,6 @@ function db_get_score($idscore) {
     $stmt->execute();
     $row = $stmt->get_result()->fetch_row();
     return $row ? ['id' => $idscore, 'source' => $row[0], 'name' => $row[1]] : null;
-}
-
-function db_set_score_duration($idscore, $duration) {
-    global $db;
-
-    $sql = "UPDATE score SET duration = ? WHERE idscore = ?";
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param('ii', $duration, $idscore);
-    $stmt->execute();
 }
 
 function db_find_score($source) {
