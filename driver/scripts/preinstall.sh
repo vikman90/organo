@@ -33,6 +33,7 @@ chmod a+x $SCRIPT
 adduser --quiet --group --system --no-create-home $USER
 adduser $USER $USER
 adduser $USER dialout
+adduser $HOST_USER $USER
 
 ################################################################################
 
