@@ -54,6 +54,7 @@ switch ($_GET['action']) {
         break;
     case 'set_shortcut':
         set_shortcut();
+        break;
     default:
         html_error('args');
 }
