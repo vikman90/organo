@@ -54,6 +54,7 @@ switch ($_GET['action']) {
         break;
     case 'set_shortcut':
         set_shortcut();
+        break;
     default:
         html_error('args');
 }
@@ -215,13 +216,14 @@ function new_score() {
     if ($file['size'] > FILE_MAXSIZE)
         html_error('file_size');
 
-    $score = db_insert_score($_POST['idplaylist'], pathinfo($file['name'], PATHINFO_FILENAME));
+    exec(EXEC_DURATION . ' ' . $file['tmp_name'], $output, $retval);
+
+    if ($retval != 0)
+        html_error('file_type');
+
+    $score = db_insert_score($_POST['idplaylist'], pathinfo($file['name'], PATHINFO_FILENAME), $output[0]);
     $path = SCORE_DIR . '/' . $score['source'];
     move_uploaded_file($file['tmp_name'], $path);
-
-    exec("/usr/bin/organ-midinfo --duration $path", $output, $retval);
-    db_set_score_duration($score['id'], $output[0]);
-
     html_redirect("playlist.php?idplaylist={$_POST['idplaylist']}");
 }
 

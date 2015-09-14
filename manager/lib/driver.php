@@ -8,6 +8,7 @@
 
 namespace manager;
 require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/templates.php';
 
 $sock = socket_create(AF_UNIX, SOCK_STREAM, 0);
 
