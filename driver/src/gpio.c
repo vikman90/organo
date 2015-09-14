@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
+#include "output.h"
 #include "values.h"
 
 typedef struct gpio_t {
@@ -64,8 +65,6 @@ int output_init() {
 	if (gpio == MAP_FAILED)
 		return -1;
 
-	bzero(state, OUTPUT_LENGTH * OUTPUT_NTRACKS);
-
 	// Set GPIO function
 
 	gpio_fsel(PIN_RCKL, GPIO_OUTPUT);
@@ -74,6 +73,8 @@ int output_init() {
 
 	for (i = 0; i < OUTPUT_NTRACKS; i++)
 		gpio_fsel(PORTS[i], GPIO_OUTPUT);
+	
+	output_panic();
 	
 	sem_init(&metro_semaphore, 0, 0);
 	return pthread_create(&metro_thread, NULL, metronome_run, NULL);

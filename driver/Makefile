@@ -102,7 +102,7 @@ $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ)/database.o: $(INC)/values.h
-$(OBJ)/gpio.o: $(INC)/values.h
+$(OBJ)/gpio.o: $(INC)/output.h $(INC)/values.h
 $(OBJ)/midi.o: $(INC)/midi.h $(INC)/values.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
 $(OBJ)/organd.o:  $(INC)/output.h $(INC)/peripherals.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h $(INC)/values.h
