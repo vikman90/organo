@@ -16,11 +16,11 @@
  * Track 3: 26 keys, starting at C4 (stops)
  */
 
-#define NOTES 134	// Number of controlled notes
+#define NOTES 136	// Number of controlled notes
 #define NTRACKS 4	// Number of tracks
 
 static const char OFFSET[] = { 36, 36, 24, 60 };
-static const char LENGTH[] = { 48, 48, 12, 26 };
+static const char LENGTH[] = { 49, 49, 12, 26 };
 
 static char state[NOTES];	// Length: notes
 static char **channel;		// Pointers to initial sections of each channel into state

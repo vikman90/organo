@@ -16,8 +16,6 @@
 SOCKET="/run/organd.sock"
 SBIN='/usr/local/sbin'
 DAEMON='organd'
-USER="organ"
-GROUP="organ"
 
 . /lib/lsb/init-functions
 
@@ -28,7 +26,7 @@ start() {
 	if [ ! -z "$pid" ]; then
 		log_warning_msg "Servicio ya iniciado"
 	else
-		$SBIN/$DAEMON $(id -u $USER) $(id -g $GROUP)
+		$SBIN/$DAEMON
 
 		if [ $? != "0" ]; then
 			log_end_msg 1

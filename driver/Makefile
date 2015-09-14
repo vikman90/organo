@@ -63,6 +63,7 @@ $(INSTALL_INIT)/remote: $(SCRIPTS)/remote
 
 $(INSTALL_BIN)/organ-login: $(BIN)/login
 	$(CP_FILE) $< $@
+	chmod a+s $@
 
 $(INSTALL_BIN)/organ: $(BIN)/organ
 	$(CP_FILE) $< $@
@@ -89,7 +90,7 @@ $(BIN)/login: $(OBJ)/login.o
 	$(CC) $(LDFLAGS) -o $@ $^ -lcrypt
 
 $(BIN)/midinfo: $(OBJ)/midi.o $(OBJ)/midinfo.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) $(LDFLAGS) -o $@ $^ -lm
 
 $(BIN)/organ: $(OBJ)/organ.o
 	$(CC) $(LDFLAGS) -o $@ $^
@@ -101,7 +102,7 @@ $(BIN)/test: $(OBJ)/test.o $(OBJ)/midi.o $(OBJ)/monitor.o $(OBJ)/player.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 $(OBJ)/database.o: $(INC)/values.h
-$(OBJ)/gpio.o: $(INC)/values.h
+$(OBJ)/gpio.o: $(INC)/output.h $(INC)/values.h
 $(OBJ)/midi.o: $(INC)/midi.h $(INC)/values.h
 $(OBJ)/midinfo.o: $(INC)/midi.h
 $(OBJ)/organd.o:  $(INC)/output.h $(INC)/peripherals.h $(INC)/player.h $(INC)/socket.h $(INC)/uart.h $(INC)/values.h

@@ -5,9 +5,12 @@
  */
 
 #include <crypt.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <shadow.h>
+
+#define DELAY 2	// Delay in seconds
 
 int main(int argc, char **argv) {
 	struct spwd *spwd;
@@ -22,5 +25,10 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 
 	strncpy(buffer, spwd->sp_pwdp, 11);
-	return strcmp(crypt(argv[2], buffer), spwd->sp_pwdp) != 0;
+	
+	if (strcmp(crypt(argv[2], buffer), spwd->sp_pwdp)) {
+		sleep(DELAY);
+		return EXIT_FAILURE;
+	} else
+		return EXIT_SUCCESS;
 }

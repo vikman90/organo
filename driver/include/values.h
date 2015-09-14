@@ -13,6 +13,7 @@
 #define SCORE_HOME "/home/pi/midis/"
 #define BUFFER_LENGTH 4096	// Length of receiving buffer
 #define LOG_IDENT "organd"	// Logging identity
+#define DAEMON_USER "organ"
 
 /*
  * Track 0: 7 keys, starting at C4 (baroque keyboard)
@@ -27,8 +28,7 @@
 
 #define UART_PATH "/dev/ttyAMA0"	// Path to UART
 #define UART_BAUDRATE B9600			// Baudrate of remote receiver
-#define UART_BUFFER_MAX 10			// Minimal length of received data (lock)
-#define UART_BUFFER_MIN 10			// Maximum length of received data (buffer)
+#define UART_BUFFER_LENGTH 10		// Length of received data
 #define UART_SERIAL "0016D34"		// Remote serial code
 
 #define SOCKET_BACKLOG 5					// Listening queue length
@@ -57,11 +57,15 @@
 #define PIN_PORTS { 2, 3, 17, 4 }	// Ports for channels
 #define PIN_BUZZER 21				// Buzzer
 
+#define DEBOUNCE_TIME {0, 1000000}		// Debounce time
 #define METRONOME_PULSE { 0, 1000000 }	// Pulse width (seconds, ns)
 
 #define DB_HOST "localhost"
 #define DB_USER "organo"
 #define DB_PASS "ugr2015"
 #define DB_NAME "organo"
+
+#define CMD_SHUTDOWN "sudo shutdown now"
+#define CMD_REBOOT "sudo shutdown -r now"
 
 #endif

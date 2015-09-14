@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "midi.h"
 
 static int duration(const char *path) {
@@ -15,7 +16,7 @@ static int duration(const char *path) {
 		return EXIT_FAILURE;
 	}
 
-	printf("%d\n", (int)midifile_duration(&score));
+	printf("%d\n", (int)round(midifile_duration(&score)));
 	return EXIT_SUCCESS;
 }
 
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
 		printf("Formato: Pista simple.\n");
 		break;
 	case MULTIPLE_SIMULTANEOUS:
-		printf("Formato: Pistas simultaneas.\n");
+		printf("Formato: Pistas simultáneas.\n");
 		break;
 	case MULTIPLE_INDEPENDENT:
 		printf("Formato: Pistas independientes.\n");
@@ -56,8 +57,8 @@ int main(int argc, char **argv) {
 	}
 
 	printf("Pistas: %u\n", score.ntracks);
-	printf("Division de tiempo: %u ticks/negra.\n", score.timediv);
-	printf("Duracion: %f seg.\n", midifile_duration(&score));
+	printf("División de tiempo: %u ticks/negra.\n", score.timediv);
+	printf("Duración: %f seg.\n", midifile_duration(&score));
 
 	return EXIT_SUCCESS;
 }

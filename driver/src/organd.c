@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <pwd.h>
+#include <grp.h>
 #include "peripherals.h"
 #include "socket.h"
 #include "player.h"
@@ -17,8 +19,29 @@
 #include "uart.h"
 
 // Cleanup function, called automatically on exiting.
+static void cleanup();
 
-static void cleanup() {
+// Action on SIGTERM
+static void onsigterm();
+
+// Setup function. Returns 0 on success, or -1 on error.
+static int setup();
+
+// Main function
+
+int main() {
+	if (setup() < 0)
+		return EXIT_FAILURE;
+
+	uart_loop();
+	socket_loop();
+
+	return EXIT_SUCCESS;
+}
+
+// Cleanup function, called automatically on exiting.
+
+void cleanup() {
 	player_stop();
 	periph_destroy();
 	output_destroy();
@@ -30,13 +53,19 @@ static void cleanup() {
 
 // Action on SIGTERM
 
-static void onsigterm() {
+void onsigterm() {
 	exit(EXIT_SUCCESS);
 }
 
 // Setup function. Returns 0 on success, or -1 on error.
 
-static int setup(int uid, int gid) {
+int setup() {	
+	struct passwd *passwd = getpwnam(DAEMON_USER);
+	
+	if (passwd == NULL) {
+		syslog(LOG_ERR, "getpwnam(): %m");
+		return -1;
+	}
 
 	// Logging
 
@@ -61,7 +90,7 @@ static int setup(int uid, int gid) {
 
 	// Socket
 
-	if (socket_init(uid, gid) < 0) {
+	if (socket_init(passwd->pw_uid, passwd->pw_gid) < 0) {
 		syslog(LOG_ERR, "Error at socket_init()");
 		return -1;
 	}
@@ -88,31 +117,21 @@ static int setup(int uid, int gid) {
 	}
 
 	// Change UID and GID
+	
+	if (initgroups(passwd->pw_name, passwd->pw_gid) < 0) {
+		syslog(LOG_ERR, "initgroups(): %m");
+		return -1;
+	}
 
-	if (setgid(gid) < 0) {
+	if (setgid(passwd->pw_gid) < 0) {
 		syslog(LOG_ERR, "setgid(): %m");
 		return -1;
 	}
 
-	if (setuid(uid) < 0) {
+	if (setuid(passwd->pw_uid) < 0) {
 		syslog(LOG_ERR, "setuid(): %m");
 		return -1;
 	}
 
 	return 0;
-}
-
-int main(int argc, char **argv) {
-	if (argc < 3) {
-		fprintf(stderr, "Syntax: %s <uid> <gid>\n", argv[0]);
-		return EXIT_FAILURE;
-	}
-
-	if (setup(atoi(argv[1]), atoi(argv[2])) < 0)
-		return EXIT_FAILURE;
-
-	uart_loop();
-	socket_loop();
-
-	return EXIT_SUCCESS;
 }

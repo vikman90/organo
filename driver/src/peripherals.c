@@ -4,6 +4,7 @@
  * 18 August 2015
  */
 
+#include <stdlib.h>
 #include <wiringPi.h>
 #include <lcd.h>
 #include <time.h>
@@ -15,7 +16,7 @@
 #include "output.h"
 
 typedef enum button_t { CW, CCW, PUSH } button_t;
-typedef enum periph_state_t { ENGINEER_OFF, MENU_ENGINEER, MENU_METRONOME, ENGINEER_ON } periph_state_t;
+typedef enum periph_state_t { ENGINEER_OFF, MENU_ENGINEER, MENU_METRONOME, MENU_POWER, ENGINEER_ON, OPT_REBOOT, OPT_SHUTDOWN, OPT_BACK } periph_state_t;
 
 // Rotary change on channel A
 static void rot_change();
@@ -26,10 +27,11 @@ static void rot_push();
 // Thread start point
 static void* periph_run(void *arg);
 
-static int lcd;								// LCD file descriptor
-static int buttons[3] = { 0 };				// Array of pushed buttons
-static pthread_t thread;					// Dispatching thread
-static sem_t semaphore;						// Semaphore for synchronization
+static int lcd;											// LCD file descriptor
+static int buttons[3] = { 0 };							// Array of pushed buttons
+static pthread_t thread;								// Dispatching thread
+static sem_t semaphore;									// Semaphore for synchronization
+static struct timespec PUSH_DEBOUNCE = DEBOUNCE_TIME;	// Delay to debounce
 
 // Initialize peripherals and start threads
 
@@ -82,17 +84,9 @@ void periph_destroy() {
 
 // Rotary change on channel A
 
-static void rot_change() {
-	static int first = 1;
-	int a, b;
-	
-	if (first) {
-		first = 0;
-		return;
-	}
-	
-	a = digitalRead(ROT_CH_A);
-	b = digitalRead(ROT_CH_B);
+static void rot_change() {	
+	int a = digitalRead(ROT_CH_A);
+	int b = digitalRead(ROT_CH_B);
 	
 	// a==b => CW
 	
@@ -103,11 +97,9 @@ static void rot_change() {
 // Rotary push event
 
 void rot_push() {
-	static int first = 1;
+	nanosleep(&PUSH_DEBOUNCE, NULL);
 	
-	if (first) {
-		first = 0;
-	} else {
+	if (digitalRead(ROT_PUSH)) {
 		buttons[PUSH] = 1;
 		sem_post(&semaphore);
 	}
@@ -142,6 +134,10 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				break;
 				
 			case MENU_METRONOME:
+				state = MENU_POWER;
+				break;
+				
+			case MENU_POWER:
 				state = ENGINEER_OFF;
 				break;
 
@@ -150,6 +146,18 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				note = (note + 1) % OUTPUT_LENGTH;
 				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
+				break;
+				
+			case OPT_REBOOT:
+				state = OPT_SHUTDOWN;
+				break;
+			
+			case OPT_SHUTDOWN:
+				state = OPT_BACK;
+				break;
+				
+			case OPT_BACK:
+				state = OPT_REBOOT;
 			}
 
 		// Counterclockwise event
@@ -159,7 +167,7 @@ void* periph_run(void __attribute__((unused)) *arg) {
 
 			switch (state) {
 			case ENGINEER_OFF:
-				state = MENU_METRONOME;
+				state = MENU_POWER;
 				break;
 
 			case MENU_ENGINEER:
@@ -172,12 +180,28 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			case MENU_METRONOME:
 				state = MENU_ENGINEER;
 				break;
+				
+			case MENU_POWER:
+				state = MENU_METRONOME;
+				break;
 
 			case ENGINEER_ON:
 				output_noteoff(track, note + OUTPUT_OFFSET);
 				note = (note + OUTPUT_LENGTH - 1) % OUTPUT_LENGTH;
 				output_noteon(track, note + OUTPUT_OFFSET);
 				output_update();
+				break;
+				
+			case OPT_REBOOT:
+				state = OPT_BACK;
+				break;
+				
+			case OPT_SHUTDOWN:
+				state = OPT_REBOOT;
+				break;
+				
+			case OPT_BACK:
+				state = OPT_SHUTDOWN;
 			}
 
 		// Push event
@@ -202,6 +226,10 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			case MENU_METRONOME:
 				output_metronome_enable(1 - output_metronome_enabled());
 				break;
+				
+			case MENU_POWER:
+				state = OPT_REBOOT;
+				break;
 
 			case ENGINEER_ON:
 				output_noteoff(track, note + OUTPUT_OFFSET);
@@ -213,6 +241,32 @@ void* periph_run(void __attribute__((unused)) *arg) {
 					output_noteon(track, note + OUTPUT_OFFSET);
 				}
 				output_update();
+				break;
+				
+			case OPT_REBOOT:
+				if (system(CMD_REBOOT) == 0) {
+					lcdClear(lcd);
+					lcdPosition(lcd, 0, 1);
+					lcdPuts(lcd, "   REINICIANDO...");
+					return NULL;
+				} else
+					syslog(LOG_ERR, "Error rebooting");
+				
+				break;
+				
+			case OPT_SHUTDOWN:
+				if (system(CMD_SHUTDOWN) == 0) {
+					lcdClear(lcd);
+					lcdPosition(lcd, 0, 1);
+					lcdPuts(lcd, "    APAGANDO...");
+					return NULL;
+				} else
+					syslog(LOG_ERR, "Error shutting down");
+				
+				break;
+				
+			case OPT_BACK:
+				state = MENU_POWER;
 			}
 		}
 
@@ -266,6 +320,11 @@ void* periph_run(void __attribute__((unused)) *arg) {
 				lcdPuts(lcd, "    Desactivado");
 			
 			break;
+			
+		case MENU_POWER:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			break;
 
 		case ENGINEER_ON:
 			lcdPosition(lcd, 3, 0);
@@ -274,9 +333,30 @@ void* periph_run(void __attribute__((unused)) *arg) {
 			lcdPrintf(lcd, "Pista: %d", track);
 			lcdPosition(lcd, 0, 3);
 			lcdPrintf(lcd, "Nota:  %d", note);
+			break;
+			
+		case OPT_REBOOT:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
+			lcdPuts(lcd, "     Reiniciar");
+			break;
+			
+		case OPT_SHUTDOWN:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
+			lcdPuts(lcd, "       Apagar");
+			break;
+			
+		case OPT_BACK:
+			lcdPosition(lcd, 0, 0);
+			lcdPuts(lcd, " APAGAR / REINICIAR");
+			lcdPosition(lcd, 0, 2);
+			lcdPuts(lcd, "       Atras");
 		}
 
-		// Wait one second
+		// Wait for semaphore with timeout
 
 		clock_gettime(CLOCK_REALTIME, &timeout);
 		timeout.tv_sec += (int)LCD_TIMEOUT;
