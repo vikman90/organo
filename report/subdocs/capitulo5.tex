@@ -851,10 +851,12 @@ A fin de evitar la \textbf{espera activa}, se crearán dos hebras que se bloquea
 
 \begin{description}[style=nextline]
 	\item[rot\_change()] Ha cambiado el canal A. Lee A y B, los compara y activa la bandera correspondiente.
-	\item[rot\_push()] Se ha pulsado el botón. Activa la bandera de pulsación.
+	\item[rot\_push()] Se ha pulsado el botón. Solicita una espera de 1 \textit{ms} y activa la bandera de pulsación.
 \end{description}
 
 Ambas funciones utilizan un \textit{array} de banderas (\textit{flags}) para indicar qué evento está pendiente de atender, y señalan un \textbf{semáforo} para el control de la máquina de estados.
+
+La pulsación está sujeta a problemas de \textbf{rebotes}, que podrían disparar la función varias veces aun pulsando el botón una vez. Como vimos en la figura \ref{fig:rebotes}, existe una \textbf{incertidumbre} de $118 \; \mu s$ desde que comienza a subir la señal hasta que se queda estable. Por seguridad, estableceremos un tiempo de 1 \textit{ms} antes de hacer una \textbf{segunda lectura}, si sigue siendo positiva, aceptamos la pulsación.
 
 \subsubsection{Máquina de estados}
 
@@ -2027,7 +2029,7 @@ Esta información se representa gráficamente de la siguiente manera:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=50 180 50 50,width=\linewidth]{capitulo5/lineas}
+		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*2/3]{capitulo5/lineas}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas} Distribución del código fuente.}
@@ -2043,7 +2045,7 @@ Si agrupamos los datos en función de los bloques, obtenemos la siguiente gráfi
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=50 180 50 50,width=\linewidth]{capitulo5/lineas_modulos}
+		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*2/3]{capitulo5/lineas_modulos}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas_modulos} Distribución del código fuente por módulos.}
@@ -2059,7 +2061,7 @@ Por último, mostramos la gráfica que agrupa las líneas de código en función
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=50 150 50 50,width=\linewidth]{capitulo5/lineas_lenguajes}
+		\includegraphics[clip=true,trim=10 330 400 50,width=\linewidth*2/3]{capitulo5/lineas_lenguajes}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas_lenguajes} Distribución del código fuente por lenguaje.}

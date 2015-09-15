@@ -480,12 +480,46 @@ La información nos viene dada por tres canales: uno para el pulsador y dos para
 		\includegraphics[width=\linewidth/3]{capitulo3/rotary}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:rotary} Código de señales utilizado por el ECJ11.}
+	\caption{\label{fig:rotary} Código de señales utilizado por el codificador rotatorio.}
 \end{figure} 
 
 \smallskip
 
 Los \textbf{puntos de equilibro} ---\textit{detent stability points}--- coinciden con los saltos del canal B, de forma que a la mitad del recorrido de un giro cambiará el canal A. Todo lo que tenemos que hacer entonces es detectar un cambio en A y comparar el valor de A y B: si son iguales, significa que se ha rotado en sentido antihorario; si son distintos, entendemos que se ha girado en sentido horario.
+
+De la parte del \textbf{pulsador}, los botones pueden presentar problemas de \textbf{rebotes}. Para diseñar una solución en caso de ser necesario, analizamos con un \textbf{osciloscopio} la señal que produce una pulsación:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/rebotes}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:rebotes} Señal producida por una pulsación.}
+\end{figure} 
+
+\smallskip
+
+En resumen, condensamos la información que nos será útil en la siguiente tabla:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline Giro & Canales A y B \\ 
+		\hline Pulsación & Canal C \\ 
+		\hline Punto de equilibro & Saltos del canal B \\ 
+		\hline Giro a derecha & $A\neq B$ \\ 
+		\hline Giro a izquierda & $A=B$ \\
+		\hline Tiempo de incertidumbre & $118 \; \mu s$\\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:info_rotary} Características del codificador rotatorio.}
+\end{center} 
+
+\smallskip
 
 \subsection{Zumbador PKLCS1212E4001-R1}
 
