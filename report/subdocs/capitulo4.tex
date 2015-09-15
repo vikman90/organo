@@ -5,7 +5,7 @@ En este capítulo vamos a detallar cómo hemos concebido la solución a los requ
 
 \section{Planteamiento}
 
-Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un reproductor de archivos \acrshort{MIDI}, que recibe el fichero y lo envía a la \acrshort{PCB} a través del \acrshort{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
+Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un \textbf{reproductor de archivos \acrshort{MIDI}}, que recibe el fichero y lo envía a la \acrshort{PCB} a través del \acrshort{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
 
 \smallskip
 
@@ -19,7 +19,7 @@ Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste
 
 \smallskip
 
-Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de control, se requiere varias formas de acceder al sistema:
+Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de \textbf{control}, se requiere varias formas de acceder al sistema:
 
 \begin{enumerate}
 	\item Un \textit{software} controlador principal, que cubra todos los casos de uso, y sea fácil de instalar y utilizar, con preferencia de que sea multiplataforma.
@@ -29,24 +29,26 @@ Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de control,
 	\item Un control reducido empotrado en la \acrshort{PCB}.
 \end{enumerate}
 
-Atendiendo a los requisitos del primer controlador y a las prestaciones del \textit{Raspberry Pi}, y con objeto de eliminar la necesidad de instalar y mantener aplicaciones en otro sistema, decidimos enfocar la solución como una interfaz \textit{web} con un servidor alojado en el \textit{Raspberry Pi}. De esta forma podemos llegar fácilmente a cualquier sistema operativo de escritorio, incluso es fácilmente adaptable a dispositivos móviles.
+Atendiendo a los requisitos del primer controlador, decidimos enfocar la solución como una \textbf{interfaz \textit{web}} con un servidor. De esta forma podemos llegar fácilmente a cualquier sistema operativo de escritorio, incluso es fácilmente adaptable a \textbf{dispositivos móviles}.
 
-Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textit{demonio} de Linux, junto con sus módulos auxiliares.
+Además de atender peticiones de control remoto, hay que atender las señales del mando a distancia y manejar los controles de la \acrshort{PCB}. Un microcontrolador como \textit{Arduino} difícilmente será capaz de realizar tantas funciones simultáneas. Este motivo, sumado a la idea de la interfaz \textit{web} nos hacen decantarnos por el \textbf{\textit{Raspberry Pi}}.
 
-En último lugar, necesitamos almacenar información de los archivos \acrshort{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una base de datos nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textbf{demonio} de Linux, junto con sus módulos auxiliares.
+
+En último lugar, necesitamos \textbf{almacenar información} de los archivos \acrshort{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una \textbf{base de datos} nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
 
 \section{Demonio del reproductor}
 
-Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en segundo plano en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con otros procesos a través de herramientas proporcionadas por el sistema operativo. \cite{wiki_demonio}
+Un demonio ---\textit{daemon}--- es un proceso que se ejecuta en \textbf{segundo plano} en la fase de arranque del sistema operativo, y no interactúa directamente con el usuario, sino que se comunica con \textbf{otros procesos} a través de herramientas proporcionadas por el sistema operativo. \cite{wiki_demonio}
 
-Este programa será el núcleo de nuestro sistema, y ofrecerá las siguientes vías para comunicarse:
+Este programa será el \textbf{núcleo} de nuestro sistema, y ofrecerá las siguientes \textbf{vías} para comunicarse:
 
 \begin{enumerate}
-	\item Un \textit{socket} local de Linux. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
+	\item Un \textbf{\textit{socket} local} de Linux. Será usado principalmente por la interfaz \textit{web}, pero es una forma flexible y eficiente para que lo hagan más aplicaciones.
 	
-	\item El puerto en serie (\acrshort{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
+	\item El \textbf{puerto en serie} (\acrshort{UART}) del \textit{Raspberry Pi}, para recibir órdenes del mando.
 	
-	\item Los pines del \acrshort{GPIO} correspondientes al codificador rotatorio y el \acrshort{LCD}, para la interfaz reducida.
+	\item Los \textbf{pines del \acrshort{GPIO}} correspondientes al codificador rotatorio y el \acrshort{LCD}, para la interfaz reducida.
 \end{enumerate}
 
 Así, el esquema de uso de los distintos componentes queda así:
@@ -66,11 +68,11 @@ Así, el esquema de uso de los distintos componentes queda así:
 \subsection{Descodificador de MIDI}
 \label{subsec:daemon_midi}
 
-Como hemos detallado más arriba, el formato \acrshort{MIDI} expone los eventos de control en orden temporal, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
+Como hemos detallado más arriba, el formato \acrshort{MIDI} expone los eventos de control en \textbf{orden temporal}, clasificados por pistas, habitualmente simultáneas. Debemos proporcionar una estructura de datos que permita mantener cada archivo a reproducir en memoria y facilitar el acceso individual a cada pista.
 
-Concebimos la estructura de datos principal como un conjunto de pistas, compuestas a su vez de eventos. El tamaño de los eventos normales es constante, sin embargo, los meta-eventos extienden la semántica con una cadena de datos.
+Concebimos la estructura de datos principal como un \textbf{conjunto de pistas}, compuestas a su vez de \textbf{eventos}. El tamaño de los eventos normales es constante, sin embargo, los \textbf{meta-eventos} extienden la semántica con una cadena de datos.
 
-El siguiente diagrama de clases ilustra la estructura de datos completa:
+El siguiente diagrama de clases ilustra la \textbf{estructura de datos} completa:
 
 \smallskip
 
@@ -290,9 +292,9 @@ El módulo \acrshort{MIDI} solo se usa directamente a través del planificador. 
 \subsection{Control por socket}
 \label{subsec:daemon}
 
-Un \textit{socket} un mecanismo de comunicación inter-proceso ---\acrshort{IPC} (\textit{\acrlong{IPC}})--- que proporciona Linux y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
+Un \textit{socket} un mecanismo de \textbf{comunicación inter-proceso} ---\acrshort{IPC} (\textit{\acrlong{IPC}})--- que proporciona Linux y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
 
-Vamos a crear un \textit{socket} local, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en lenguaje natural, que explicaremos en la sección \ref{sec:protocolo}.
+Vamos a crear un \textbf{\textit{socket} local}, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en \textbf{lenguaje natural}, que explicaremos en la sección \ref{sec:protocolo}.
 
 \subsubsection{Funciones públicas}
 
@@ -351,17 +353,17 @@ El módulo correspondiente al \textit{socket} solamente interacciona internament
 \subsection{Control del mando}
 \label{subsec:daemon_mando}
 
-Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \acrshort{UART} ---\textit{\acrlong{UART}}---, que controla los puertos serie. \cite{wiki_uart}
+Como hemos indicado en el capítulo anterior, el receptor del mando a distancia está conectado al \textit{Raspberry Pi} a través de los pines correspondientes al dispositivo \textbf{\acrshort{UART}} ---\textit{\acrlong{UART}}---, que controla los puertos serie. \cite{wiki_uart}
 
-Este módulo tiene una topología análoga al control por \textit{socket}, tan solo cambia el origen y la forma de entrada de los datos. Establecerá una comunicación con el puerto serie e iniciará un bucle de escucha. La sintaxis del mensaje, como ya sabemos, es:
+Este módulo tiene una topología análoga al control por \textit{socket}, tan solo cambia el origen y la forma de entrada de los datos. Establecerá una comunicación con el puerto serie e iniciará un \textbf{bucle de escucha}. La sintaxis del mensaje, como ya sabemos, es:
 
 \begin{center}
 	<Nº serie (7 \textit{bytes})> <Botón (1 \textit{byte})> <CRLF>
 \end{center}
 
-De esta forma, el servicio tan solo debe verificar el nº de serie y ejecutar la orden correspondiente.
+De esta forma, el servicio tan solo debe \textbf{verificar el nº de serie} y \textbf{ejecutar} la orden correspondiente.
 
-Además de reconocer la pulsación del mando, es necesario consultar en la base de datos, que detallaremos en la sección \ref{sec:database}, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
+Además de reconocer la pulsación del mando, es necesario consultar en la \textbf{base de datos}, que detallaremos en la sección \ref{sec:database}, la lista que corresponde al botón pulsado y los archivos contenidos, que serán transmitidos al planificador.
 
 \subsubsection{Funciones públicas}
 
@@ -420,7 +422,7 @@ Este bloque interacciona con el planificador en unos términos similares al \tex
 
 \subsection{Comunicación con la base de datos}
 
-La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos en la sección \ref{sec:database}. Así, enmarcaremos un nuevo módulo dedicado a consultar la información requerida, ofreciendo una interfaz independiente del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos.
+La información relativa a la lista de reproducción asignada a un botón, así como la lista de partituras correspondientes, residirán en una base de datos, que definiremos en la sección \ref{sec:database}. Así, enmarcaremos un nuevo módulo dedicado a \textbf{consultar} la información requerida, ofreciendo una \textbf{interfaz independiente} del sistema de gestión de bases de datos que utilicemos, y de la propia base de datos.
 
 \subsubsection{Funciones}
 
@@ -464,9 +466,9 @@ La interfaz de la base de datos es utilizada exclusivamente por el servidor del 
 \subsection{Planificador}
 \label{subsec:planificador}
 
-El planificador es la pieza principal del reproductor. Recibe las órdenes de los controladores y la lista de partituras a ejecutar. Una a una las lee con ayuda del módulo \acrshort{MIDI} y planifica los eventos de todas las pistas para lanzarlos a la salida en el momento necesario.
+El planificador es la \textbf{pieza principal} del reproductor. Recibe las \textbf{órdenes} de los controladores y la lista de \textbf{partituras} a ejecutar. Una a una las lee con ayuda del módulo \acrshort{MIDI} y \textbf{planifica los eventos} de todas las pistas para lanzarlos a la salida en el momento necesario.
 
-Al igual que otros módulos, utiliza una hebra para reproducir los archivos, pero en este caso es una hebra dinámica, que podrá ser iniciada, pausada y detenida por el resto de procesos, por lo que hay que tener en cuenta los problemas de concurrencia para garantizar la consistencia del sistema.
+Al igual que otros módulos, utiliza una hebra para reproducir los archivos, pero en este caso es una \textbf{hebra dinámica}, que podrá ser iniciada, pausada y detenida por el resto de procesos, por lo que hay que tener en cuenta los \textbf{problemas de concurrencia} para garantizar la \textbf{consistencia} del sistema.
 
 \subsubsection{Funciones}
 
@@ -544,7 +546,11 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 \subsubsection{Algoritmo básico}
 
-Para que todas las pistas se ejecuten simultáneamente, el planificador recorre en cada ciclo todas las listas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el menor de ellos y se resta al \textit{delta} de todos los eventos. A continuación, se solicita al sistema operativo la espera correspondiente al tiempo restado, y se repite el ciclo. El algoritmo termina cuando todas las pistas han llegado al final.
+El procedimiento para reproducir \textbf{una sola pista} es trivial: recorrerla ordenadamente, y para cada evento, esperar el tiempo indicado y ejecutarlo. Sin embargo, un archivo \acrshort{MIDI} suele estar compuesto ---y de hecho así lo esperamos--- por varias pistas \textbf{simultáneas}.
+
+Para que todas las pistas se ejecuten simultáneamente, debemos diseñar un algoritmo que atienda a todas y decida qué evento debe ejecutarse en cada momento. Lo hemos realizado inspirándonos en el algoritmo de ordenación \textbf{\textit{merge sort}}:
+
+El planificador recorre en cada ciclo todas las pistas, avanzando mientras sea el momento de ejecutar el evento correspondiente ($\Delta=0$). Cuando se ha llegado a un evento con $\Delta > 0$ en todas las pistas, se busca el \textbf{menor} de ellos y se resta al \textit{delta} de todos los eventos. A continuación, se solicita al sistema operativo la \textbf{espera} correspondiente al tiempo restado, y se repite el ciclo. El algoritmo \textbf{termina} cuando todas las pistas han llegado al final.
 
 \smallskip
 
@@ -603,13 +609,21 @@ Como parte central del programa, y al contrario que el resto de componentes, el 
 \subsection{Modo Ingeniería}
 \label{subsec:ingenieria}
 
-El sistema requiere un modo de mantenimiento para regular la mecánica, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \acrshort{LCD}.
+El sistema requiere un modo de mantenimiento para regular la \textbf{mecánica}, al que se accederá localmente, a través de una interfaz reducida que controlaremos con el codificador rotatorio y el \acrshort{LCD}. Este sistema permitirá controlar las siguientes acciones:
 
-El codificador permitirá acceder al modo Ingeniería, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \acrshort{GPIO}. Funcionará en una hebra independiente.
+\begin{enumerate}
+	\item Entrar en modo Ingeniería.
+	\item Activar y desactivar el metrónomo.
+	\item Apagar y reiniciar el sistema.
+\end{enumerate}
 
-Vamos a diseñar la interfaz como una máquina de estados: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
+El codificador permitirá acceder al \textbf{modo Ingeniería}, que detendrá la reproducción ---si estaba en funcionamiento--- y  aislará el planificador, ganando acceso directo a la salida \acrshort{GPIO}. Funcionará en una hebra independiente.
 
-Este diagrama muestra las transiciones entre los estados:
+Vamos a diseñar la interfaz como una \textbf{máquina de estados}: Inicialmente el modo Ingeniería está desactivado, girando el botón se nos dará la opción de activarlo, y al pulsarlo entraremos en él. Se activará la nota más baja de la primera pista, al girar el botón podremos movernos cíclicamente por todas las notas de esa pista. Pulsando el botón cambiamos a la segunda pista, luego a la tercera, y así hasta la última. Si apretamos nuevamente el botón, volvemos al menú que nos permitirá salir del modo Ingeniería.
+
+También vamos a insertar en el menú opciones para habilitar el \textbf{metrónomo} y para \textbf{desactivar el sistema}.
+
+Este diagrama muestra las \textbf{transiciones} entre los estados:
 
 \smallskip
 
@@ -678,9 +692,10 @@ El reproductor delega en el módulo de salida las siguientes funciones:
 	\item Dirigir las pistas de \acrshort{MIDI} al canal de salida correspondiente.
 	\item Almacenar el estado de salida (notas pulsadas y no pulsadas).
 	\item Volcar la información en el \acrshort{GPIO}.
+	\item Hacer sonar el metrónomo.
 \end{enumerate}
 
-Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de aislar la salida también nos da flexibilidad para sustituir la interfaz \acrshort{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
+Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de \textbf{aislar la salida} también nos da flexibilidad para sustituir la interfaz \acrshort{GPIO} por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
 
 \subsubsection{Funciones}
 
@@ -718,13 +733,26 @@ Las siguientes funciones conforman la interfaz del módulo:
 	\item[output\_silence ()]
 	Silencia todas las notas en la salida, pero mantiene el estado. Útil para pausar la reproducción.
 	
+	\item[output\_metronome ()]
+	Emite un pulso del metrónomo.
+	
+	\item[output\_metronome\_enable (enabled)]
+	Habilita o deshabilita el metrónomo.
+	
+	\begin{description}
+		\item[enabled : \textit{bool}] \textit{true} para habilitar, \textit{false} para deshabilitar.
+	\end{description}
+	
+	\item[output\_metronome\_enabled () : \textit{bool}]
+	Devuelve \textit{true} si el metrónomo está habilitado, o \textit{false} en caso contrario.
+	
 \end{description}
 
 \subsubsection{Mapeo de pistas y canales}
 
-Nuestra especificación deja abierta la estructura que pueda tener un archivo \acrshort{MIDI}. A pesar de que el sistema podrá descodificar \acrshort{MIDI} estándar, para lograr una óptima ejecución, la pieza deberá adaptarse a cada órgano concreto.
+Nuestra especificación deja abierta la estructura que pueda tener un archivo \acrshort{MIDI}. A pesar de que el sistema podrá descodificar \acrshort{MIDI} estándar, para lograr una óptima ejecución, la pieza deberá \textbf{adaptarse} a cada órgano concreto.
 
-El módulo de salida permitirá asignar cada pista \acrshort{MIDI}, que normalmente corresponde a un pentagrama de la partitura, a un canal de salida diferente. La asignación por defecto, para el órgano estudiado, será la siguiente:
+El módulo de salida permitirá asignar cada pista \acrshort{MIDI}, que normalmente corresponde a un \textbf{pentagrama} de la partitura, a un canal de salida diferente. La asignación por defecto, para el órgano estudiado, será la siguiente:
 
 \smallskip
 
@@ -740,7 +768,7 @@ El módulo de salida permitirá asignar cada pista \acrshort{MIDI}, que normalme
 
 \subsubsection{Diagrama de uso}
 
-La interfaz de salida es utilizada principalmente por el planificador y, solo cuando éste entra en modo Ingeniería, es accedida por el módulo del mismo nombre, para poner a prueba la mecánica del sistema.
+La interfaz de salida es utilizada principalmente por el \textbf{planificador} y, solo cuando éste entra en \textbf{modo Ingeniería}, es accedida por el módulo del mismo nombre, para poner a prueba la mecánica del sistema.
 
 \smallskip
 
@@ -756,11 +784,11 @@ La interfaz de salida es utilizada principalmente por el planificador y, solo cu
 
 \subsection{Seguridad}
 
-A pesar de que el acceso al sistema se hará siempre con autentificación de usuario, nos interesa controlar que no todos los usuarios, o no todas las aplicaciones, se conecten al \textit{socket}. La seguridad de Linux recae en gran parte sobre su sistema de archivos y permisos. Se creará un nombre de usuario de sistema para ser utilizado exclusivamente por el \textit{socket}, que tendrá permisos de lectura y escritura para dicho usuario y su grupo.
+A pesar de que el acceso al sistema se hará siempre con autentificación de usuario, nos interesa controlar que no todos los usuarios, o no todas las aplicaciones, se conecten al \textit{socket}. La seguridad de Linux recae en gran parte sobre su \textbf{sistema de archivos} y permisos. Se creará un \textbf{nombre de usuario} de sistema para ser utilizado \textbf{exclusivamente} por el \textit{socket}, que tendrá permisos de lectura y escritura para dicho usuario y su grupo.
 
-Para autorizar a un usuario a acceder al \textit{socket}, simplemente hay que añadirlo al grupo del usuario propietario.
+Para \textbf{autorizar} a un usuario a acceder al \textit{socket}, simplemente hay que añadirlo al grupo del usuario propietario.
 
-Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es inseguro mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, reduciremos los permisos después de inicializar el proceso, como medida adicional para evitar problemas.
+Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es \textbf{inseguro} mantenerse durante toda la ejecución con tales privilegios. A pesar de que introduciremos medidas de seguridad en los clientes que desarrollemos para el sistema, \textbf{reduciremos los permisos} después de inicializar el proceso, como medida adicional para evitar problemas.
 
 \section{Base de datos}
 \label{sec:database}
@@ -768,11 +796,11 @@ Por otro lado, el demonio se ejecuta con permisos de \textit{superusuario}, y es
 La información que queremos almacenar funciona de la siguiente forma:
 
 \begin{enumerate}
-	\item Las partituras se guardan en un archivo, cuyo nombre no tiene que coincidir con el título de la partitura.
-	\item De una partitura podremos conocer su duración.
-	\item Una lista de reproducción es una colección de partituras, y le asignaremos un nombre.
+	\item Las \textbf{partituras} se guardan en un archivo, cuyo nombre no tiene que coincidir con el título de la partitura.
+	\item De una partitura podremos conocer su \textbf{duración}.
+	\item Una \textbf{lista de reproducción} es una colección de partituras, y le asignaremos un nombre.
 	\item Cada partitura pertenecerá a una lista de reproducción, y solo a una.
-	\item Un botón se distingue por su código, y se le asigna a una lista de reproducción, sin perjuicio de que una lista esté asignada a varios botones. Naturalmente, puede haber listas que no estén asignadas a ningún botón.
+	\item Un \textbf{botón} se distingue por su código, y se le asigna a una lista de reproducción, sin perjuicio de que una lista esté asignada a varios botones. Naturalmente, puede haber listas que no estén asignadas a ningún botón.
 \end{enumerate}
 
 \subsection{Modelo entidad-relación}
@@ -793,13 +821,13 @@ Atendiendo a los requisitos propuestos, modelamos nuestros datos según el sigui
 
 \subsection{Modelo relacional}
 
-Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el modelo de datos, que depende del tipo de sistema de gestión de bases de datos ---\acrshort{DBMS} (\textit{\acrlong{DBMS}})--- que vayamos a utilizar. En nuestro caso, utilizaremos un \acrshort{DBMS} relacional \cite{bdrel}.
+Una vez hemos considerado las entidades, sus atributos y las relaciones, diseñamos el \textbf{modelo de datos}, que depende del tipo de sistema de gestión de bases de datos ---\acrshort{DBMS} (\textit{\acrlong{DBMS}})--- que vayamos a utilizar. En nuestro caso, utilizaremos un \textbf{\acrshort{DBMS} relacional} \cite{bdrel}.
 
 \begin{enumerate}
-	\item Convertimos en relaciones (tablas) todas las entidades y las relaciones del modelo entidad-relación.
-	\item Los atributos de las entidades pasan a ser atributos de las relaciones correspondientes.
-	\item Buscamos llaves candidatas y escogemos una como llave primaria. En el caso de Pieza y Lista, no tenemos llave candidata, así que añadimos un ID a cada relación.
-	\item Las relaciones Contiene y Asigna tienen cardinalidad N-1, de forma que comparten la clave primaria. Fusionamos Contiene en Pieza y Asigna en Botón.
+	\item Convertimos en relaciones (\textbf{tablas}) todas las entidades y las relaciones del modelo entidad-relación.
+	\item Los atributos de las entidades pasan a ser \textbf{atributos} de las relaciones correspondientes.
+	\item Buscamos \textbf{llaves candidatas} y escogemos una como llave primaria. En el caso de Pieza y Lista, no tenemos llave candidata, así que añadimos un ID a cada relación.
+	\item Las relaciones Contiene y Asigna tienen cardinalidad N-1, de forma que comparten la clave primaria. \textbf{Fusionamos} Contiene en Pieza y Asigna en Botón.
 \end{enumerate}
 
 Una vez hecho esto, el modelo resultante es el siguiente:
@@ -818,18 +846,18 @@ Una vez hecho esto, el modelo resultante es el siguiente:
 
 \subsection{Consistencia}
 
-Para garantizar que la base de datos mantendrá la información coherente y sin anomalías, estudiamos las relaciones para normalizarlas. Podemos verificar que nuestro modelo relacional está en 5ª forma normal, atendiendo a las siguientes condiciones:
+Para garantizar que la base de datos mantendrá la información coherente y sin anomalías, estudiamos las relaciones para \textbf{normalizarlas}. Podemos verificar que nuestro modelo relacional está en \textbf{5ª forma normal}, atendiendo a las siguientes condiciones:
 
 \begin{description}
 	\item[1FN] El \acrshort{SGBD} relacional se encarga de que se cumpla la forma normal más básica: las columnas son regulares, no habrá filas duplicadas (por la llave primaria) ni orden alguno entre filas o columnas. \cite{wiki_1fn}
-	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la llave primaria, por tanto, está en segunda forma normal. \cite{wiki_2fn}
-	\item[3FN] No existen atributos secundarios que dependan transitivamente de la llave primaria, entonces, está en tercera forma normal. \cite{wiki_3fn}
-	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las claves candidatas. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN. \cite{wiki_fnbc}
-	\item[4FN] La cuarta forma normal extiende la FNBC exigiendo que no existan dependencias multivaluadas no triviales. Este modelo no tiene dependencias multivaluadas, de forma que está en 4FN. \cite{wiki_4fn}
-	\item[5FN] Por último, la quinta forma normal especifica que, además de todo lo anterior, cada dependencia de unión sea implicada por claves candidatas. Esto se cumple en nuestro modelo, ya que toda llave externa se vincula a la llave primaria de otra relación. \cite{wiki_5fn}
+	\item[2FN] Todos los atributos secundarios de cada tabla dependen de la \textbf{llave primaria}, por tanto, está en segunda forma normal. \cite{wiki_2fn}
+	\item[3FN] No existen atributos secundarios que dependan \textbf{transitivamente} de la llave primaria, entonces, está en tercera forma normal. \cite{wiki_3fn}
+	\item[FNBC] La forma normal de Boyce-Codd establece que los únicos determinantes sean las \textbf{claves candidatas}. Como el modelo está en 3FN y no existen llaves candidatas compuestas, podemos decir que está también en 3FN. \cite{wiki_fnbc}
+	\item[4FN] La cuarta forma normal extiende la FNBC exigiendo que no existan \textbf{dependencias multivaluadas} no triviales. Este modelo no tiene dependencias multivaluadas, de forma que está en 4FN. \cite{wiki_4fn}
+	\item[5FN] Por último, la quinta forma normal especifica que, además de todo lo anterior, cada \textbf{dependencia de unión} sea implicada por claves candidatas. Esto se cumple en nuestro modelo, ya que toda llave externa se vincula a la llave primaria de otra relación. \cite{wiki_5fn}
 \end{description}
 
-Nuestro modelo relacional cumple todas las exigencias de las formas normales tenidas en cuenta, con lo que podemos garantizar que el modelo es consistente.
+Nuestro modelo relacional cumple todas las exigencias de las formas normales tenidas en cuenta, con lo que podemos garantizar que el modelo es \textbf{consistente}.
 
 \smallskip
 
@@ -847,9 +875,9 @@ Nuestro modelo relacional cumple todas las exigencias de las formas normales ten
 
 Hasta ahora hemos diseñado el \textit{back-end} del sistema, con todas las características que darán funcionalidad a nuestra solución. Pero aún no tenemos una interfaz que permita al usuario interactuar con el sistema, más que el control del mando a distancia o desde la \acrshort{PCB}.
 
-El próximo paso es concebir el \textit{front-end} que, a tenor de los requisitos que propusimos al inicio, ofrezca al usuario la interfaz más completa posible. Frecuentemente la funcionalidad viene contrapuesta a la facilidad de uso; es nuestra tarea encontrar el mejor equilibrio posible.
+El próximo paso es \textbf{concebir el \textit{front-end}} que, a tenor de los requisitos que propusimos al inicio, ofrezca al usuario la interfaz más completa posible. Frecuentemente la \textbf{funcionalidad} viene contrapuesta a la \textbf{facilidad} de uso; es nuestra tarea encontrar el mejor \textbf{equilibrio} posible.
 
-Vamos a diseñar una solución enfocada al uso remoto con ayuda de un explorador de Internet, como \textit{Chrome}, \textit{Firefox} o \textit{Safari}, con lo que crearemos un servidor \textit{web}. El control del órgano queda pues estructurado de la siguiente forma:
+Vamos a diseñar una solución enfocada al uso remoto con ayuda de un \textbf{explorador} de Internet, como \textit{Chrome}, \textit{Firefox} o \textit{Safari}, con lo que crearemos un servidor \textit{web}. El control del órgano queda pues estructurado de la siguiente forma:
 
 \smallskip
 
@@ -870,9 +898,9 @@ Lo primero que haremos será especificar los casos de uso que nos enfrentarán a
 A continuación enumeramos una relación de casos de uso que deberá cubrir la interfaz de usuario:
 
 \begin{enumerate}
-	\item Identificarse en el sistema como usuario autorizado.
-	\item Salir del sistema, en el sentido de que al entrar de nuevo haya que identificarse.
-	\item Controlar la reproducción directamente, a saber:
+	\item \textbf{Identificarse} en el sistema como usuario autorizado.
+	\item \textbf{Salir} del sistema, en el sentido de que al entrar de nuevo haya que identificarse.
+	\item Controlar la \textbf{reproducción} directamente, a saber:
 	
 	\begin{enumerate}
 		\item Ver el nombre de la pieza que se está reproduciendo.
@@ -885,7 +913,7 @@ A continuación enumeramos una relación de casos de uso que deberá cubrir la i
 		\item Retroceder en la lista y reproducir la partitura anterior.
 	\end{enumerate}
 	
-	\item Gestionar listas de reproducción:
+	\item Gestionar \textbf{listas de reproducción}:
 	
 	\begin{enumerate}
 		\item Crear una nueva lista, dándole un nombre.
@@ -894,7 +922,7 @@ A continuación enumeramos una relación de casos de uso que deberá cubrir la i
 		\item Eliminar una lista.
 	\end{enumerate}
 	
-	\item Gestionar piezas musicales:
+	\item Gestionar \textbf{piezas musicales}:
 	
 	\begin{enumerate}
 		\item Cargar una nueva partitura en el sistema, dentro de una lista de reproducción.
@@ -903,21 +931,21 @@ A continuación enumeramos una relación de casos de uso que deberá cubrir la i
 		\item Borrar una pieza del sistema.
 	\end{enumerate}
 	
-	\item Gestionar asignaciones de botones del mando:
+	\item Gestionar \textbf{asignaciones} de botones del mando:
 	
 	\begin{enumerate}
 		\item Ver las asignaciones actuales.
 		\item Cambiar la lista a reproducir cuando se pulsa un botón, escogiéndola entre todas las listas.
 	\end{enumerate}
 	
-	\item Controlar básicamente la energía del sistema:
+	\item Controlar básicamente la \textbf{energía} del sistema:
 	
 	\begin{enumerate}
 		\item Apagar el sistema.
 		\item Reiniciar el sistema.
 	\end{enumerate}
 	
-	\item Escoger el idioma en que se muestra el texto, entre una lista de lenguas disponibles.
+	\item Escoger el \textbf{idioma} en que se muestra el texto, entre una lista de lenguas disponibles.
 \end{enumerate}
 
 \subsection{Modelo-vista-controlador}
@@ -937,9 +965,9 @@ Para estructurar los elementos que conformarán la interfaz, utilizaremos el pat
 \smallskip
 
 \begin{description}
-	\item[Vista] Reúne los elementos que van a proporcionar al usuario la información que requiere.
-	\item[Controlador] Comprende los módulos a los que el usuario acudirá para manipular el sistema. Eventualmente, después de realizar una operación, puede llamar a la vista para realimentar de información al usuario. 
-	\item[Modelo] Contiene los componentes más internos, abstrayendo a la vista y al controlador de la representación de los datos o la interacción con el sistema.
+	\item[Vista] Reúne los elementos que van a proporcionar al usuario la \textbf{información} que requiere.
+	\item[Controlador] Comprende los módulos a los que el usuario acudirá para \textbf{manipular} el sistema. Eventualmente, después de realizar una operación, puede llamar a la vista para realimentar de información al usuario. 
+	\item[Modelo] Contiene los componentes más internos, abstrayendo a la vista y al controlador de la \textbf{representación} de los datos o la interacción con el sistema.
 \end{description}
 
 Considerando los casos de uso y los requisitos, hemos enmarcado en el esquema modelo-vista-controlador los siguientes elementos:
@@ -960,13 +988,13 @@ A lo largo de esta sección detallaremos el comportamiento de todos los componen
 
 \subsection{Estilo de la interfaz}
 
-La visualidad es un punto importante en el diseño de interfaces gráficas, es la encargada de proporcionar una experiencia de usuario y hacer asequible la utilización del sistema. Pretendemos entregar la información requerida de forma clara y concisa, disponer fácilmente de los controles que puedan ser necesarios en cada vista, y que el estilo sea agradable y acorde a la solución que se está diseñando.
+La \textbf{visualidad} es un punto importante en el diseño de interfaces gráficas, es la encargada de proporcionar una \textbf{experiencia de usuario} y hacer asequible la utilización del sistema. Pretendemos entregar la información requerida de forma clara y concisa, disponer fácilmente de los controles que puedan ser necesarios en cada vista, y que el estilo sea \textbf{agradable} y acorde a la solución que se está diseñando.
 
-Por ello, vamos a fijarnos en la guía de estilo \textit{Material Design} de \textit{Google} \cite{material} para inspirarnos. La idea es sencilla: cada elemento de la interfaz se entiende como una hoja de papel. El diseñador maquetará la interfaz en base a hojas que se solapan, produciendo una sutil sombra cuando esto ocurre.
+Por ello, vamos a fijarnos en la guía de estilo \textbf{\textit{Material Design}} de Google \cite{material} para inspirar el diseño. La idea es sencilla: cada elemento de la interfaz se entiende como una \textbf{hoja de papel}. El diseñador maquetará la interfaz en base a hojas que se solapan, produciendo una sutil sombra cuando esto ocurre.
 
-\textit{Material design} provee una gran cantidad de componentes de control y paletas de colores. De todos ellos, escogeremos listas, menús desplegables y botones flotantes. Nos decantamos por un color marrón, que evoca tranquilidad y estabilidad, dando idea de un \textit{software} intuitivo y robusto.
+\textit{Material design} provee una gran cantidad de \textbf{componentes} de control y \textbf{paletas} de colores. De todos ellos, escogeremos listas, menús desplegables y botones flotantes. Nos decantamos por un color \textbf{marrón}, que evoca tranquilidad y \textbf{estabilidad}, dando idea de un \textit{software} intuitivo y robusto.
 
-Una vez dibujados los primeros trazos, no es necesario maquetar completamente la interfaz con una aplicación para manipular imágenes, pudiendo diseñar las vistas en \acrshort{HTML} y \acrshort{CSS}, aún sin código de programación. Pero es muy útil dibujar al menos una página que nos sirva de plantilla. La siguiente imagen es una primera versión de la maqueta, diseñada con \textit{Adobe Photoshop}:
+Una vez dibujados los primeros trazos, no es necesario maquetar completamente la interfaz con una aplicación para manipular imágenes, pudiendo diseñar las vistas en \textbf{\acrshort{HTML} y \acrshort{CSS}}, aún sin código de programación. Pero es muy útil dibujar al menos una página que nos sirva de \textbf{modelo}. La siguiente imagen es una primera versión de la maqueta, diseñada con \textbf{\textit{Adobe Photoshop}}:
 
 \smallskip
 
@@ -1001,16 +1029,16 @@ Para modelar la página adecuadamente, la consulta admitirá los siguientes par�
 
 \subsubsection{Autentificación}
 
-El módulo de autentificación recibe la contraseña introducida por el usuario, y utiliza la interfaz del modelo para validarla.
+El módulo de autentificación recibe la \textbf{contraseña} introducida por el usuario, y utiliza la interfaz del modelo para validarla.
 
-La contraseña será la de un usuario (a especificar) del sistema Linux, que provee una forma segura de almacenar contraseñas cifradas y gestionar usuarios. La verificación no se hará directamente, sino que llamaremos a un programa externo, que describiremos más abajo, en la sección \ref{subsec:applogin}, para que haga tal trabajo.
+La contraseña será la de un usuario (a especificar) del sistema \textbf{Linux}, que provee una forma segura de almacenar contraseñas cifradas y gestionar usuarios. La verificación no se hará directamente, sino que llamaremos a un \textbf{programa externo}, que describiremos más abajo, en la sección \ref{subsec:applogin}, para que haga tal trabajo.
 
-El resto de vistas y controladores de la interfaz deberán consultar si se ha iniciado sesión antes de proceder a realizar la petición correspondiente. Cuando un usuario accede al sistema con una contraseña válida, se guardará una marca en su sesión para no tener que introducirla en cada vista.
+El resto de vistas y controladores de la interfaz deberán consultar si se ha iniciado sesión antes de proceder a realizar la petición correspondiente. Cuando un usuario accede al sistema con una contraseña válida, se guardará una \textbf{marca} en su sesión para no tener que introducirla en cada vista.
 
 
 \subsubsection{Maqueta}
 
-La vista proporcionará un fondo dinámico, con varias imágenes temáticas, y un cuadro para introducir la contraseña. Al hacerlo, se enviará al controlador, que se ocupará de verificar que la clave es correcta y concederá el acceso al reproductor.
+La vista proporcionará un fondo dinámico, con varias \textbf{imágenes temáticas}, y un cuadro para introducir la contraseña. Al hacerlo, se enviará al controlador, que se ocupará de \textbf{verificar} que la clave es correcta y concederá el acceso al reproductor.
 
 \smallskip
 
@@ -1078,9 +1106,9 @@ El reproductor es la parte fundamental de la interfaz. Mostrará los siguientes 
 	\end{enumerate}
 \end{enumerate}
 
-Hay que tener en cuenta que el protocolo de comunicación establece que el reproductor del demonio no es consciente de la lista de reproducción en la base de datos. Al ordenar una reproducción se le envía los nombres de archivo, como se describe en la función \textit{player\_playlist()} del demonio. De igual forma, al consultar el estado, devuelve el nombre de la pieza que se está ejecutando, cuya lista se puede conocer por reunión natural en la base de datos, y si no se encuentra, es porque se está reproduciendo un archivo externo, o tal vez otro usuario la ha eliminado.
+Hay que tener en cuenta que el protocolo de comunicación establece que el reproductor del demonio no es consciente de la lista de reproducción en la base de datos. Al ordenar una reproducción se le envía los \textbf{nombres de archivo}. De igual forma, al consultar el estado, devuelve el nombre de la pieza que se está ejecutando, cuya lista se puede conocer por \textbf{reunión natural} en la base de datos, y si no se encuentra, es porque se está reproduciendo un archivo externo, o tal vez otro usuario la ha eliminado.
 
-Esto se hace así para evitar mantener un estado común entre el demonio y la interfaz, que podría provocar incoherencias si el cliente se desconecta repentinamente o si hay varios usuarios conectados al mismo tiempo.
+Esto se hace así para evitar mantener un \textbf{estado común} entre el demonio y la interfaz, que podría provocar \textbf{incoherencias} si el cliente se desconecta repentinamente o si hay varios usuarios conectados al mismo tiempo.
 
 \subsubsection{Maqueta}
 
@@ -1143,7 +1171,7 @@ El reproductor interacciona con el resto de la interfaz según este esquema:
 \subsection{Gestión de listas de reproducción}
 \label{subsec:listas}
 
-Una parte importante de la interfaz es facilitar la organización de la información. Las piezas musicales se clasificarán en listas de reproducción. Este módulo agrega la funcionalidad necesaria para gestionar listas.
+Una parte importante de la interfaz es facilitar la \textbf{organización} de la información. Las piezas musicales se clasificarán en \textbf{listas de reproducción}. Este módulo agrega la funcionalidad necesaria para gestionar listas.
 
 El gestor se presentará con los siguientes controles:
 
@@ -1231,7 +1259,7 @@ Los componentes implicados en la gestión de listas se relacionan de la siguient
 \subsection{Gestión de partituras}
 \label{subsec:piezas}
 
-El gestor de partituras está estrechamente relacionado con el de listas de reproducción, en tanto que realmente es el gestor de una lista concreta. Desde aquí podremos conocer el contenido de cada lista, así como renombrarla y eliminarla. Al mismo tiempo, servirá para añadir partituras, cambiar su título y borrarlas, de una forma similar a las propias listas.
+El gestor de partituras está estrechamente relacionado con el de listas de reproducción, en tanto que realmente es el \textbf{gestor de una lista} concreta. Desde aquí podremos conocer el contenido de cada lista, así como renombrarla y eliminarla. Al mismo tiempo, servirá para añadir \textbf{partituras}, cambiar su título y borrarlas, de una forma similar a las propias listas.
 
 Los controles de la interfaz serán los siguientes:
 
@@ -1326,9 +1354,9 @@ La interacción entre los componentes implicados es la siguiente:
 
 Como ya sabemos, en base al diseño general, dispondremos de un mando a distancia que permitirá iniciar la reproducción de listas de partituras según una asignación que podrá realizar el usuario.
 
-La adición o sustracción de botones compete al administrador del sistema, pero la asignación puede ser modificada por cualquier usuario. La interfaz es sencilla: se mostrará una lista de todos los botones disponibles, junto a un menú desplegable que presentará todas las listas existente, dando opción a escoger una de ellas, o ninguna.
+La adición o sustracción de botones compete al \textbf{administrador} del sistema, pero la asignación puede ser modificada por cualquier usuario. La interfaz es sencilla: se mostrará una lista de todos los botones disponibles, junto a un \textbf{menú desplegable} que presentará todas las listas existente, dando opción a escoger una de ellas, o ninguna.
 
-Recordar que esta interfaz normalmente mostrará menos botones de los que tiene el mando, ya que se debe reservar al menos dos para pausar y detener la reproducción.
+Recordar que esta interfaz normalmente mostrará \textbf{menos botones} de los que tiene el mando, ya que se debe \textbf{reservar} al menos dos para pausar y detener la reproducción.
 
 \subsubsection{Maqueta}
 
@@ -1420,15 +1448,15 @@ El diagrama de uso es más sencillo que en los casos anteriores, porque en este 
 \subsection{Soporte de idiomas}
 \label{subsec:idiomas}
 
-Uno de los requisitos especificados es que la interfaz soporte varios idiomas. Modelaremos la solución para que sea fácil tanto escoger un idioma como agregar nuevas lenguas.
+Uno de los requisitos especificados es que la interfaz soporte varios idiomas. Modelaremos la solución para que sea fácil tanto escoger un idioma como \textbf{agregar} nuevas lenguas.
 
-Para ello, utilizaremos archivos de traducción independientes que el sistema detectará automáticamente, permitiendo que añadir un idioma sea tan sencillo como agregar un fichero nuevo.
+Para ello, utilizaremos \textbf{archivos de traducción} independientes que el sistema detectará automáticamente, permitiendo que añadir un idioma sea tan sencillo como agregar un fichero nuevo.
 
-Al igual que el control de energía, el selector de idioma aparecerá como un menú desplegable en la cabecera de la aplicación, pero a diferencia de aquél, también se mostrará en la portada.
+Al igual que el control de energía, el selector de idioma aparecerá como un menú desplegable en la \textbf{cabecera} de la aplicación, pero a diferencia de aquél, también se mostrará en la portada.
 
 \subsubsection{Formato del archivo de traducción}
 
-El sistema de traducción estará basado en pares \textit{clave-contenido}. El lenguaje de los ficheros derivará del \acrshort{XML} ---\textit{\acrlong{XML}}--- y tendrá la siguiente estructura:
+El sistema de traducción estará basado en pares \textbf{clave-contenido}. El lenguaje de los ficheros derivará del \acrshort{XML} ---\textit{\acrlong{XML}}--- y tendrá la siguiente estructura:
 
 \begin{description}[style=nextline]
 	\item[translation]
@@ -1505,7 +1533,7 @@ El módulo de traducción consta de los siguientes elementos:
 
 \subsection{Navegación}
 
-Como hemos visto en las maquetas, tendremos un menú lateral que nos permitirá acceder a las vistas principales de la interfaz. Aparte quedan la portada, a la que no se podrá volver ---a menos que se cierre la sesión, lo que reiniciaría la navegación--- y el gestor de piezas de una lista, al que se accederá a través del gestor general de listas.
+Como hemos visto en las maquetas, tendremos un \textbf{menú lateral} que nos permitirá acceder a las vistas principales de la interfaz. Aparte quedan la portada, a la que no se podrá volver ---a menos que se cierre la sesión, lo que reiniciaría la navegación--- y el gestor de piezas de una lista, al que se accederá a través del gestor general de listas.
 
 El siguiente diagrama ilustra las principales posibilidades de navegación:
 
@@ -1524,9 +1552,9 @@ El siguiente diagrama ilustra las principales posibilidades de navegación:
 \subsection{Sesión}
 \label{subsec:session}
 
-La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \acrshort{HTTP} (\textit{\acrlong{HTTP}}), un modelo de conexión sin estado ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
+La comunicación entre servidor y cliente en un entorno \textit{web} utiliza el protocolo \acrshort{HTTP} (\textit{\acrlong{HTTP}}), un modelo de conexión \textbf{sin estado} ---\textit{stateless}---, una característica positiva en balance para este tipo de sistemas, pero nos limita a la hora de pretender una comunicación efectiva.
 
-Para solventar este problema, almacenaremos en el servidor una pequeña cantidad de información relativa al cliente, tal como la que sigue:
+Para solventar este problema, \textbf{almacenaremos} en el servidor una pequeña cantidad de información relativa al cliente, tal como la que sigue:
 
 \begin{enumerate}
 	\item Marca de autentificación.
@@ -1534,7 +1562,7 @@ Para solventar este problema, almacenaremos en el servidor una pequeña cantidad
 	\item Última vista ejecutada, útil para ciertos controladores.
 \end{enumerate}
 
-En aras de promover un diseño limpio y extensible, aislaremos esta pequeña funcionalidad en un módulo aparte en el modelo, y que sea independiente del lenguaje de implementación.
+En aras de promover un diseño limpio y extensible, aislaremos esta pequeña funcionalidad en un \textbf{módulo aparte} en el modelo, y que sea independiente del lenguaje de implementación.
 
 \subsubsection{Funciones}
 
@@ -1578,7 +1606,7 @@ Las funciones del modelo dedicadas a manipular la sesión son las siguientes:
 \subsection{Comunicación con el demonio}
 \label{subsec:web_demonio}
 
-Especificamos ahora el módulo que hará de modelo del servicio de reproducción, ofreciendo procedimientos para realizar las operaciones elementales sobre el reproductor. Se comunicará con el demonio a través del \textit{socket} local que implementa para tal efecto (véase el apartado \ref{subsec:daemon}), y utilizando el protocolo que describiremos en la sección \ref{sec:protocolo}.
+Especificamos ahora el módulo que hará de modelo del s\textbf{ervicio de reproducción}, ofreciendo procedimientos para realizar las operaciones elementales sobre el reproductor. Se comunicará con el demonio a través del \textbf{\textit{socket} local} que implementa para tal efecto (véase el apartado \ref{subsec:daemon}), y utilizando el protocolo que describiremos en la sección \ref{sec:protocolo}.
 
 \subsubsection{Funciones}
 
@@ -1622,9 +1650,9 @@ Como podremos ver, la interfaz de este componente actúa como tocón hacia las f
 \subsection{Comunicación con la base de datos}
 \label{subsec:web_database}
 
-La base de datos, diseñada en la sección \ref{sec:database}, es el principal nexo de unión entre el controlador y la vista. Aparte de las operaciones obvias, como insertar, modificar y eliminar partituras y listas, será utilizada al recibir el nombre de archivo que se está reproduciendo para inferir el título de la obra y la lista a la que pertenece.
+La base de datos, diseñada en la sección \ref{sec:database}, es el principal \textbf{nexo} de unión entre el controlador y la vista. Aparte de las operaciones obvias, como insertar, modificar y eliminar partituras y listas, será utilizada al recibir el nombre de archivo que se está reproduciendo para \textbf{inferir} el título de la obra y la lista a la que pertenece.
 
-Por otro lado, el controlador del mando realiza asignaciones de botones a listas, y esta información es recogida por el demonio, en el componente descrito en la sección \ref{subsec:daemon_mando}.
+Por otro lado, el controlador del mando realiza \textbf{asignaciones} de botones a listas, y esta información es recogida por el demonio, en el componente descrito en la sección \ref{subsec:daemon_mando}.
 
 \subsubsection{Funciones}
 
@@ -1757,17 +1785,17 @@ La interfaz del modelo de la base de datos es la que sigue:
 \section{Protocolo entre el control y el demonio}
 \label{sec:protocolo}
 
-Como hemos visto, la interfaz de usuario y el servicio en segundo plano se comunican a través de un socket que hace de puente entre el reproductor de la interfaz y el planificador del demonio.
+Como hemos visto, la interfaz de usuario y el servicio en segundo plano se comunican a través de un \textit{socket} que hace de puente entre el reproductor de la interfaz y el planificador del demonio.
 
-La interfaz estará basada en lenguaje natural, su diseño debe ser sencillo y debe maximizar la coherencia entre ambos subsistemas, evitando inconsistencias en supuestos como los siguientes:
+La interfaz estará basada en \textbf{lenguaje natural}, su diseño debe ser sencillo y debe maximizar la \textbf{coherencia} entre ambos subsistemas, evitando inconsistencias en supuestos como los siguientes:
 
 \begin{enumerate}
-	\item El usuario hace una petición de reproducción e inmediatamente después se desconecta.
-	\item Se elimina la lista de reproducción que se está ejecutando.
-	\item Varios usuarios controlan simultáneamente la interfaz
+	\item El usuario hace una petición de reproducción e \textbf{inmediatamente} después se desconecta.
+	\item Se \textbf{elimina} la lista de reproducción que se está ejecutando.
+	\item Varios usuarios controlan \textbf{simultáneamente} la interfaz.
 \end{enumerate}
 
-Para obtener una comunicación consistente, el demonio no guardará más estado que el del planificador, y no será consciente de la organización en listas de reproducción de la base de datos. Por su parte, la interfaz gráfica se referirá a las partituras con rutas absolutas a los archivos correspondientes a las partituras.
+Para obtener una comunicación consistente, el demonio no guardará más estado que el del \textbf{planificador}, y no será consciente de la organización en listas de reproducción de la base de datos. Por su parte, la interfaz gráfica se referirá a las partituras con \textbf{rutas absolutas} a los archivos correspondientes a las partituras.
 
 Las peticiones que describen el protocolo resultante, así como las posibles respuestas, se enumeran de la siguiente forma:
 
@@ -1820,9 +1848,17 @@ Las peticiones que describen el protocolo resultante, así como las posibles res
 
 \section{Aplicaciones auxiliares}
 
-De acuerdo con los requisitos, hemos concebido el sistema como la conjunción de tres grandes bloques: la base de datos, el demonio como \textit{back-end} y la interfaz \textit{web} como \textit{front-end}. Sin embargo, tal como están diseñados, existe una dependencia mutua total, contraproducente para la fase de implementación, donde será necesario realizar pequeñas pruebas sobre el código que vayamos construyendo.
+De acuerdo con los requisitos, hemos concebido el sistema como la conjunción de tres grandes bloques:
 
-Para verificar el desarrollo, vamos a prever la necesidad de probar los módulos críticos del diseño, a saber:
+\begin{enumerate}
+	\item La base de datos, como almacenamiento persistente.
+	\item El demonio, como \textit{back-end}.
+	\item La interfaz, como \textit{frond-end}.
+\end{enumerate}
+
+Sin embargo, tal como están diseñados, existe una \textbf{dependencia mutua} total, contraproducente para la fase de implementación, donde será necesario realizar \textbf{pequeñas pruebas} sobre el código que vayamos construyendo.
+
+Para \textbf{verificar el desarrollo}, vamos a prever la necesidad de probar los módulos críticos del diseño, a saber:
 
 \begin{enumerate}
 	\item Descodificador de archivos \acrshort{MIDI}.
@@ -1848,8 +1884,8 @@ En las secciones siguientes describiremos las soluciones que nos servirán para 
 Por otro lado, el \textit{front-end} necesita dos aplicaciones externas para distintos fines:
 
 \begin{enumerate}
-	\item El gestor de piezas (sección \ref{subsec:piezas}) requiere conocer la duración de una partitura mediante un programa que analice archivos \acrshort{MIDI}.
-	\item El componente de autentificación (dentro de la sección \ref{subsec:portada}) necesita comprobar externamente la contraseña introducida por el usuario.
+	\item El gestor de piezas (sección \ref{subsec:piezas}) requiere \textbf{validar} y conocer la \textbf{duración} de una partitura mediante un programa que analice archivos \acrshort{MIDI}.
+	\item El componente de autentificación (dentro de la sección \ref{subsec:portada}) necesita comprobar externamente la \textbf{contraseña} introducida por el usuario.
 \end{enumerate}
 
 \subsection{Información de archivo MIDI}
@@ -1862,7 +1898,7 @@ Esta aplicación cumplirá dos fines:
 	\item Servir al \textit{front-end} la duración de una partitura.
 \end{enumerate}
 
-Sencillamente, utilizará la interfaz creada por el descodificador \acrshort{MIDI} (visto en la sección \ref{subsec:daemon_midi}) para enviar el nombre de un fichero \acrshort{MIDI}, descodificarlo y mostrar en la salida estándar la información básica de una partitura:
+Sencillamente, utilizará la interfaz creada por el descodificador \acrshort{MIDI} (visto en la sección \ref{subsec:daemon_midi}) para enviar el nombre de un fichero \acrshort{MIDI}, \textbf{descodificarlo} y mostrar en la salida estándar la información básica de una partitura:
 
 \begin{enumerate}
 	\item Organización de las pistas.
@@ -1891,7 +1927,7 @@ Al utilizar simplemente la interfaz del componente \acrshort{MIDI}, éste es el 
 
 \subsection{Simulador de reproducción}
 
-El siguiente bloque a construir será el planificador (véase la sección \ref{subsec:planificador}) y la interfaz de salida (explicada en la sección \ref{subsec:output}). Ésta es una parte fundamental del planificador pero, como ya explicamos, la colocamos en un componente aparte para permitir implementar la interfaz según nuestras necesidades, bien para movernos de un órgano a otro, o bien para definir otro tipo de salida.
+El siguiente bloque a construir será el \textbf{planificador} (véase la sección \ref{subsec:planificador}) y la interfaz de \textbf{salida} (explicada en la sección \ref{subsec:output}). Ésta es una parte fundamental del planificador pero, como ya explicamos, la colocamos en un componente aparte para permitir implementar la interfaz según nuestras necesidades, bien para movernos de un órgano a otro, o bien para definir otro tipo de salida.
 
 Vamos a hacer una pequeña aplicación que nos permita verificar el funcionamiento del planificador y la interfaz de salida, de la siguiente manera:
 
@@ -1919,7 +1955,7 @@ Este programa utilizará el planificador e implementará la interfaz de salida:
 \subsection{Terminal del reproductor}
 \label{subsec:terminal}
 
-Una vez implementados los componentes críticos del demonio, crearemos un sencillo programa que haga las llamadas básicas del protocolo a través del \textit{socket}, como lo hará la interfaz gráfica. Esto nos permitirá comprobar que la estructura principal funciona correctamente, y manejar el reproductor sin la interfaz gráfica.
+Una vez implementados los componentes críticos del demonio, crearemos un sencillo programa que haga las \textbf{llamadas básicas} del protocolo a través del \textit{socket}, como lo hará la interfaz gráfica. Esto nos permitirá comprobar que la estructura principal funciona correctamente, y \textbf{manejar el reproductor} sin la interfaz gráfica.
 
 La aplicación admitirá los siguientes argumentos:
 
@@ -1960,7 +1996,7 @@ La aplicación recibe los siguientes argumentos por consola:
 	\item Contraseña introducida.
 \end{enumerate}
 
-Se verificará que la contraseña introducida corresponda a la del usuario en Linux con el nombre indicado, y el resultado se indicará como código de salida del proceso:
+Se verificará que la contraseña introducida corresponda a la del \textbf{usuario en Linux} con el nombre indicado, y el resultado se indicará como código de salida del proceso:
 
 \begin{description}
 	\item[0] Usuario y contraseña válidos.
