@@ -132,7 +132,7 @@ La clase declara los siguientes métodos:
 
 \subsubsection{Clase MidiTrack}
 
-Esta clase se modela como una colección de los eventos pertenecientes a cada pista de un archivo \aceshort{MIDI}.
+Esta clase se modela como una colección de los eventos pertenecientes a cada pista de un archivo \acrshort{MIDI}.
 
 Solo contiene un atributo intrínseco y un constructor:
 
@@ -145,7 +145,7 @@ Solo contiene un atributo intrínseco y un constructor:
 	Construye una pista a partir de un fichero abierto.
 	
 	\begin{description}
-		\item[file] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
+		\item[file : \textit{MidiFile}] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
 	\end{description}
 \end{description}
 
@@ -177,7 +177,7 @@ Los parámetros se consideran privados, ya que su semántica depende del tipo de
 	Analiza un archivo \acrshort{MIDI} en el punto en que estaba abierto, hasta encontrar un evento de final de pista.
 	
 	\begin{description}
-		\item[file] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
+		\item[file : \textit{MidiFile}] Archivo \acrshort{MIDI} abierto. Su tipo depende del sistema subyacente.
 	\end{description}
 	
 	Devuelve una lista de eventos.
@@ -1141,6 +1141,7 @@ El reproductor interacciona con el resto de la interfaz según este esquema:
 \smallskip
 
 \subsection{Gestión de listas de reproducción}
+\label{subsec:listas}
 
 Una parte importante de la interfaz es facilitar la organización de la información. Las piezas musicales se clasificarán en listas de reproducción. Este módulo agrega la funcionalidad necesaria para gestionar listas.
 
@@ -1321,6 +1322,7 @@ La interacción entre los componentes implicados es la siguiente:
 \smallskip
 
 \subsection{Asignación del mando a listas}
+\label{subsec:mando}
 
 Como ya sabemos, en base al diseño general, dispondremos de un mando a distancia que permitirá iniciar la reproducción de listas de partituras según una asignación que podrá realizar el usuario.
 
@@ -1574,6 +1576,7 @@ Las funciones del modelo dedicadas a manipular la sesión son las siguientes:
 \end{description}
 
 \subsection{Comunicación con el demonio}
+\label{subsec:web_demonio}
 
 Especificamos ahora el módulo que hará de modelo del servicio de reproducción, ofreciendo procedimientos para realizar las operaciones elementales sobre el reproductor. Se comunicará con el demonio a través del \textit{socket} local que implementa para tal efecto (véase el apartado \ref{subsec:daemon}), y utilizando el protocolo que describiremos en la sección \ref{sec:protocolo}.
 
@@ -1695,15 +1698,16 @@ La interfaz del modelo de la base de datos es la que sigue:
 		\item[idplaylist] Identificador único de lista.
 	\end{description}
 	
-	\item[db\_insert\_score (idplaylist, name) : \textit{integer}]
+	\item[db\_insert\_score (idplaylist, name, duration) : \textit{integer}]
 	Inserta una nueva partitura en la base de datos, dentro de una lista de reproducción
 	
 	\begin{description}
 		\item[idplaylist] Identificador único de la lista que contendrá a la pieza.
 		\item[name] Título de la obra insertada.
+		\item[duration] Duración de la partitura, en segundos.
 	\end{description}
 	
-	Devuelve el ID de la pieza insertada.
+	Devuelve la pieza insertada en una estructura \textit{score}.
 	
 	\item[db\_get\_score (idscore) : \textit{score}]
 	Obtiene una partitura por ID.
@@ -1713,14 +1717,6 @@ La interfaz del modelo de la base de datos es la que sigue:
 	\end{description}
 	
 	Devuelve la estructura \textit{score} correspondiente, o un valor nulo si no se encuentra.
-	
-	\item[db\_set\_score\_duration (idscore, duration)]
-	Establece la duración de una pieza.
-	
-	\begin{description}
-		\item[idscore] Identificador único de partitura.
-		\item[duration] Duración de la pieza, en segundos.
-	\end{description}
 	
 	\item[db\_find\_score (source) ]
 	Busca una partitura por el nombre de archivo.
@@ -1921,6 +1917,7 @@ Este programa utilizará el planificador e implementará la interfaz de salida:
 \smallskip
 
 \subsection{Terminal del reproductor}
+\label{subsec:terminal}
 
 Una vez implementados los componentes críticos del demonio, crearemos un sencillo programa que haga las llamadas básicas del protocolo a través del \textit{socket}, como lo hará la interfaz gráfica. Esto nos permitirá comprobar que la estructura principal funciona correctamente, y manejar el reproductor sin la interfaz gráfica.
 

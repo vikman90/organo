@@ -11,6 +11,67 @@ En el demonio, nuestra máxima prioridad será la eficiencia, mientras que en la
 
 \section{Planificación}
 
+En base a nuestro objetivo final, este proyecto está estrechamente relacionado con el de Mikel Aguayo Fernández, que abordará la parte relacionada con \textit{hardware}.
+
+Nuestro diseño es genérico para cualquier órgano pero \textbf{específico para la plataforma} \textit{hardware}. Por tanto, hay una parte del sistema que no se puede diseñar hasta conocer el proyecto de la \acrshort{PCB}. Para realizar una correcta planificación es necesario tener en cuenta qué parte de nuestro diseño depende del de Mikel Aguayo.
+
+\subsection{Dependencias entre tareas}
+
+Esencialmente tenemos los siguientes puntos en común:
+
+\begin{enumerate}
+	\item Ponemos en común los requisitos, para entonces clasificarlos entre nuestros proyectos.
+	\item El otro proyecto necesita el análisis realizad sobre el órgano.
+	\item El nuestro, a su vez, depende del diseño que se haga de la \acrshort{PCB}.
+	\item La verificación vuelve a poner en común nuestros trabajos.
+\end{enumerate}
+
+La siguiente figura descompone a \textit{grosso modo} las tareas e ilustra las dependencias encontradas:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/planificacion}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:planificacion} Diagrama de dependencia de tareas.}
+\end{figure} 
+
+\smallskip
+
+Esto significa que la \textbf{planificación temporal} de las tareas se esbozará de la siguiente forma:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim=50 420 50 50,width=\linewidth*3/4]{capitulo5/plan_gantt}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:plan_gantt} Diagrama de Gantt básico.}
+\end{figure} 
+
+\smallskip
+
+\subsection{Planificación prevista}
+
+Conocidas las tareas básicas a realizar, proponemos la siguiente planificación para todos los bloques a desarrollar en el sistema. Hemos asignado principalmente las tareas por \textbf{semanas}, aunque algunas de ellas se podrán hacer en común por su simplicidad, y otras deberemos \textbf{descomponerlas} en prototipo e implementación final.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim= 50 50 50 50,width=\linewidth]{capitulo5/gantt}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:gantt} Diagrama de Gantt para planificación.}
+\end{figure} 
+
+\smallskip
+
+Como podemos ver, el primer paso es \textbf{analizar} el funcionamiento y la mecánica del órgano para permitir a Mikel continuar su trabajo. Mientras él diseña la \acrshort{PCB}, nosotros comenzamos el diseño de los módulos que no dependen de ésta. Tan pronto como recibamos su diseño, podremos desarrollar el resto del sistema.
+
 \section{Servicio del reproductor}
 
 Este bloque compone el \textit{back-end} del sistema. Comprende una gran cantidad de elementos técnicos y hace uso de numerosas funciones del sistema operativo. Vamos a escribirlo casi por completo en lenguaje C, por las siguientes razones:
@@ -213,13 +274,13 @@ Por último, la clase \code{MetaEvent} hereda de \code{MidiEvent} y, de acuerdo 
 			\item $d_0[7:6] = 1 \Rightarrow 25 \; fps$
 			\item $d_0[7:6] = 2 \Rightarrow 30 \; fps$
 		\end{itemize}
-		
+
 		\item Número de horas ($d_0[5:0]$).
 		\item Número de minutos ($d_1$).
 		\item Número de segundos ($d_2$).
 		\item Número de cuadros ($d_3$).
 	\end{enumerate}
-	
+
 	\item[\code{time(self)}]
 	Devuelve la marca de compás en una lista, de la siguiente forma:
 	
@@ -297,10 +358,11 @@ Aparte del resto de transformaciones obvias, en pro de la velocidad de ejecució
 \end{enumerate}
 
 \subsection{Planificador}
+\label{subsec:impl_planificador}
 
 El planificador es la parte más crítica del sistema: debe cronometrar y ejecutar los eventos del archivo que está abierto, y atender a las llamadas declaradas en la interfaz.
 
-El procedimiento básico es sencillo: cada evento tiene una marca de tiempo respecto al evento anterior. El sistema debe "dormir" el tiempo indicado ejecutar el evento, y avanzar al siguiente, hasta la marca de fin de pista.
+El procedimiento básico es sencillo: cada evento tiene una marca de tiempo respecto al evento anterior. El sistema debe ''dormir'' el tiempo indicado ejecutar el evento, y avanzar al siguiente, hasta la marca de fin de pista.
 
 Solo vamos a atender cuatro tipos de evento:
 
@@ -394,7 +456,7 @@ El paso siguiente es implantar el algoritmo en C con los correspondientes añadi
 
 Como hemos podido deducir del diseño, nos decantamos por la segunda opción, considerando que todas las hebras tendrían que sincronizarse con la interfaz de salida, haciendo más llamadas de las necesarias. Además, las llamadas al sistema para retrasar la ejecución, así como las dedicadas a sincronizar la exclusión mutua, desfasarían las pistas, provocando una interpretación musical incorrecta.
 
-Ya que el procesador del \textit{Raspberry Pi} solo tiene un núcleo, no vamos a ganar tiempo dividiendo el proceso en hebras, si sabemos manejar correctamente las pistas. Para ello, diseñamos el algoritmo descrito en la sección \ref{subsec:planificador}, que requerirá una sola hebra, que llamaremos "hebra de reproducción".
+Ya que el procesador del \textit{Raspberry Pi} solo tiene un núcleo, no vamos a ganar tiempo dividiendo el proceso en hebras, si sabemos manejar correctamente las pistas. Para ello, diseñamos el algoritmo descrito en la sección \ref{subsec:planificador}, que requerirá una sola hebra, que llamaremos ''hebra de reproducción''.
 
 El planificador define su interfaz de la siguiente manera:
 
@@ -493,7 +555,7 @@ El planificador puede ser llamado por el servidor de \textit{socket}, el control
 
 Además, debemos tener en cuenta posibles \textbf{usos ilegales} de la hebra de reproducción, como iniciarla, pausarla o detenerla varias veces consecutivas. Para evitar esto, como hemos descrito, las funciones públicas de control comprueban el estado antes de actuar.
 
-A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable "bandera"} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
+A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable ''bandera''} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
 
 Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán un \textbf{\acrshort{mutex}} que monitoriza las llamadas, haciendo que toda función deba esperar a que termine cualquier otra que estuviera funcionando.
 
@@ -503,15 +565,15 @@ Hacemos esto así para que el valor ''por defecto'' sea 1, evitando problemas si
 
 \subsection{Salida GPIO}
 
-Esta parte del programa supone el "puente" entre el planificador y la \acrshort{PCB}, transformará instrucciones de activación y desactivación de notas en señales lógicas que emitiremos por el \acrshort{GPIO}. 
+Esta parte del programa supone el ''puente'' entre el planificador y la \acrshort{PCB}, transformará instrucciones de activación y desactivación de notas en señales lógicas que emitiremos por el \acrshort{GPIO}. 
 
-Este módulo se diseñó de forma muy flexible para que se pudiera adaptar fácilmente a cualquier órgano, o incluso se pudiera dirigir a otra interfaz, como tal vez la salida estándar ---de hecho, en el simulador de reproducción (sección \ref{subsec:simulador_reproduccion}) redefiniremos la interfaz para que así sea---.
+Este módulo se diseñó de forma muy flexible para que se pudiera adaptar fácilmente a cualquier órgano, o incluso se pudiera dirigir a otra interfaz, como tal vez la salida estándar ---de hecho, en el simulador de reproducción (sección \ref{subsec:simulador_reproduccion}) redefiniremos el funcionamiento para que así sea---.
 
 Todas las implementaciones deben tener en común el hecho de almacenar el estado de todas las notas del instrumento. Las llamadas a \code{output\_noteon()} y \code{output\_noteoff()} cambiarán ese estado, y \code{output\_update()} volcará efectivamente esta información en la salida.
 
 \subsubsection{Prototipo}
 
-Inicialmente hicimos una "prueba de concepto" en Python para entender el funcionamiento de los registros de desplazamiento. Como ya explicamos en la sección de análisis (\ref{subsec:conexion_mecanica}), cada registro está dedicado a un componente del órgano, pero todos funcionan igual.
+Inicialmente hicimos una ''prueba de concepto'' en Python para entender el funcionamiento de los registros de desplazamiento. Como ya explicamos en la sección de análisis (\ref{subsec:conexion_mecanica}), cada registro está dedicado a un componente del órgano, pero todos funcionan igual.
 
 La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como ejemplo el famoso \textit{Himno a la alegría} de Ludwig van Beethoven:
 
@@ -560,9 +622,9 @@ Cualquier acorde no sería más que una combinación de bits. Todo lo que tenemo
 Para emitir un pulso en el registro, actuamos de la siguiente forma, de acuerdo al manual técnico de los registros:
 
 \begin{enumerate}
-	\item Escribir "1" en el puerto llamando a \code{output()}.
+	\item Escribir ''1'' en el puerto llamando a \code{output()}.
 	\item Esperar 100 \textit{ns} con una llamada a \code{sleep()}.
-	\item Escribir "0" en el puerto.
+	\item Escribir ''0'' en el puerto.
 \end{enumerate}
 
 \subsubsection{Implementación final}
@@ -655,10 +717,10 @@ Los puertos \acrshort{GPIO} son pines físicos del \acrshort{SOCA}, y se puede a
 		\cline{1-1} Base + 16 & \\
 		\cline{1-1} Base + 20 & \\
 		\hline Base + 24 & Reservado \\
-		\hline Base + 28 & \multirow{2}{*}{Poner a "1"} \\
+		\hline Base + 28 & \multirow{2}{*}{Poner a ''1''} \\
 		\cline{1-1} Base + 32 & \\
 		\hline Base + 36 & Reservado \\
-		\hline Base + 40 & \multirow{2}{*}{Poner a "0"} \\
+		\hline Base + 40 & \multirow{2}{*}{Poner a ''0''} \\
 		\cline{1-1} Base + 44 & \\
 		\hline \multicolumn{2}{|c|}{...} \\
 		\hline 
@@ -669,7 +731,7 @@ Los puertos \acrshort{GPIO} son pines físicos del \acrshort{SOCA}, y se puede a
 
 \smallskip
 
-El controlador de \acrshort{GPIO} utiiza registros de 32-\textit{bit}. Para obtener un puntero a una dirección de memoria física, tan solo necesitamos hacer una llamada a \code{mmap(file = "dev/mem", offset = 0x20200000)} \cite{soii}. A partir de ahí, podemos acceder a cada registro con los desplazamientos adecuados. Hay un banco de registros para poner a "1", escribiendo un 1 lógico en el \textit{bit} correspondiente al número de puerto, y otro para poner a "0", escribiendo un 1 lógico en el \textit{bit} adecuado.
+El controlador de \acrshort{GPIO} utiiza registros de 32-\textit{bit}. Para obtener un puntero a una dirección de memoria física, tan solo necesitamos hacer una llamada a \code{mmap(file = ''dev/mem'', offset = 0x20200000)} \cite{soii}. A partir de ahí, podemos acceder a cada registro con los desplazamientos adecuados. Hay un banco de registros para poner a ''1'', escribiendo un 1 lógico en el \textit{bit} correspondiente al número de puerto, y otro para poner a ''0'', escribiendo un 1 lógico en el \textit{bit} adecuado.
 
 De esta forma logramos la mayor eficiencia, tanto por el acceso directo a memoria como la posibilidad de escribir en todas las pistas más el reloj en una sola operación de escritura.
 
@@ -725,20 +787,19 @@ En primer lugar, \code{uart\_init()} abre la comunicación con el puerto en seri
 
 Para iniciar el \textbf{bucle de recepción} implementamos \code{uart\_loop()}, que simplemente crea una hebra y la inicia en \code{uart\_run()}. Como adelantamos en la fase de análisis (sección \ref{analisis_mando}), el descodificador envía en primer lugar el \textbf{número de serie} del mando, que comparamos con el número de serie registrado en tiempo de compilación. 
 
-A continuación leemos el \textbf{código del botón}, codificado como ya describimos, y seguimos adelante según este esquema para un mando de cuatro botones:
+A continuación leemos el \textbf{código del botón}, codificado como ya describimos, y seguimos adelante según este esquema para un mando de dos botones:
 
 \begin{description}
 	\item[Botón 1] Inicia la lista de reproducción asignada al botón 1.
 	\item[Botón 2] Reproduce la lista asignada al botón 2.
-	\item[Botón 3] Pausa la reproducción, o la reanuda.
-	\item[Botón 4] Detiene la ejecución completamente.
+	\item[Ambos] Pausa la reproducción, o la reanuda.
 \end{description}
 
 Para reproducir una lista, escribimos el código en una función auxiliar, \code{uart\_playlist()}, que se comunica con la \textbf{base de datos} en busca de una lista de reproducción asignada, y los nombres de archivo correspondientes, para generar un \textit{array} de rutas de fichero y llamar a \code{player\_start()}.
 
 Por otro lado, la función de \textbf{pausa/reanudar} llama a la función \code{uart\_pause()}, encargada de consultar el estado del planificador y actuar en consecuencia: si estaba funcionando llama a \code{player\_pause()}, y si estaba pausado ejecuta \code{player\_resume()}; en otro caso no realiza ninguna acción.
 
-Por último, el botón para \textbf{detener} simplemente hace llamar a \code{player\_stop()}, cuyo funcionamiento es inocuo si el reproductor ya estaba parado.
+La función para \textbf{detener} está implementada aunque actualmente no se utiliza. Simplemente hace llamar a \code{player\_stop()}, cuyo funcionamiento es inocuo si el reproductor ya estaba parado.
 
 \subsection{Comunicación con la base de datos}
 
@@ -787,7 +848,7 @@ Ambas funciones utilizan un \textit{array} de banderas (\textit{flags}) para ind
 
 La función principal de la hebra de control es \code{periph\_run()}, que implementa un bucle para atender los eventos y definir el estado siguiente. La implementación de esta función sigue la especificación del diagrama de la figura \ref{fig:engineer}.
 
-Cuando entra en modo Ingeniería, llama a la función del planificador \code{player\_engineer\_enter()}, que lo aísla de la salida del \acrshort{GPIO}, dejándolo libre para actuar sobre él con las llamadas a bajo nivel \code{output\_noteon()} y \code{output\_noteoff()}.
+Cuando entra en modo Ingeniería, llama a la función \code{player\_engineer\_enter()} del planificador, que lo aísla de la salida del \acrshort{GPIO}, dejándolo libre para actuar sobre él con las llamadas a bajo nivel \code{output\_noteon()} y \code{output\_noteoff()}.
 
 Al final del bucle, el subproceso se bloquea esperando que el usuario actúe y el \textit{callback} correspondiente señale el semáforo.
 
@@ -880,9 +941,69 @@ El demonio es llamado por el proceso \code{init} (que está empezando a ser reem
 Para manejar los permisos adecuadamente, crearemos un usuario de sistema, de uso exclusivo para el demonio. Su \acrshort{UID} y su \acrshort{GID} serán los que reciba el ejecutable al iniciar el servicio.
 
 \subsection{Seguridad}
+\label{subsec:seg_demonio}
+
+Un servicio es un programa que funcionará en segundo plano sin interacción directa con el usuario. Incluso, a menos que éste sea un administrador del sistema, su existencia suele pasar inadvertida al resto de usuarios. Es muy importante que se mantenga en funcionamiento y con capacidad de respuesta, pues en caso de bloquearse no basta con cerrar una ventana y volver a abrirla, es más, podría bloquear a otras aplicaciones.
+
+Cualquier detalle de diseño o implementación puede ser decisivo a la hora de obtener un resultado seguro y fiable. Para ello, puliremos toda la programación relativa a la entrada de datos. Otra parte importante es la seguridad respecto a la concurrencia, ya abordada en la construcción del planificador, y que afinaremos a continuación.
+
+\subsection{Desbordamiento de la memoria de entrada}
+
+En este caso, dado que la recepción de órdenes viene dada por una aplicación, además, de implementación propia, no será necesario filtrarla tanto como haremos en el \textit{front-end}. Sin embargo, es necesario acotar el riesgo de que, bien por intrusión, bien por un error de programación, recibamos una cantidad inesperada de datos.
+
+El desbordamiento de memoria de entrada ---\textit{buffer overflow}--- se produce cuando una función de lectura acepta una cadena mayor que la memoria que tenía reservada. Esto puede dar si, por ejemplo, la única condición de parada es recibir el carácter de fin de cadena (0).
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth]{capitulo5/stack}
+		\par\end{centering}
+	\smallskip
+	\caption[Pila de aplicación en Linux]{\label{fig:stack} Pila de aplicación en Linux. \cite{zanero_cs}}
+\end{figure} 
+
+\smallskip
+
+Linux administra la pila en orden \textbf{descendente} (hacia direcciones de memoria menores). En cada llamada a función, se almacena el puntero de instrucción actual ---\acrshort{EIP}, \textit{\acrlong{EIP}}--- Si el \textit{buffer} de recepción está emplazado en la pila y se intenta escribir más allá de su longitud declarada, se sobrescribirá cualquier variable antes declarada. En el peor caso se modificará el puntero de instrucción guardado, causando una \textbf{violación de segmento} a la hora de retornar a la función anterior.
+
+Más aún, este riesgo podría ser aprovechado por un \textbf{intruso} para modificar las instrucciones del programa, accediendo ilegalmente al sistema.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/3]{capitulo5/disaster_girl}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:disaster_girl} ¿Y si cambiamos el puntero de instrucción?}
+\end{figure} 
+
+\smallskip
+
+La \textbf{solución} adoptada es utilizar una cantidad razonable de memoria y limitar la cadena de entrada acotando tanto la recepción en la llamada al sistema \code{recv()} como la comparación de cadenas, usando \code{strncmp()} en lugar de \code{strcmp()}. Nuestro sistema utiliza \textit{buffers} de 4 \textit{KB}, memoria más que suficiente para recibir una lista de reproducción de tamaño considerable.
+
 \subsubsection{Permisos de usuario}
+
+Otra capa de seguridad se implanta utilizando permisos de usuario en el sistema de archivos de Linux, sobre el que descansa gran parte de la seguridad de este sistema operativo. Creamos el usuario \textbf{\code{organ}} y su grupo correspondiente, que serán dueños del proceso demonio y del \textit{socket}, con dos objetivos:
+
+\begin{enumerate}
+	\item Solo los usuarios autorizados (pertenecientes al grupo \code{organ}) podrán utilizar el \textit{socket}.
+	
+	\item En caso de intrusión, el servicio no podrá hacer en el sistema más cambios que los autorizados.
+\end{enumerate}
+
+Hay una excepción a tener en cuenta: el modo Ingeniería requiere\textbf{ apagar y reiniciar} el sistema. El programa \code{shutdown} requiere permisos de \textbf{superusuario}, pero es muy inseguro mantener el proceso con tales privilegios para tener esa capacidad.
+
+Este problema se corrige modificando el archivo \code{/etc/sudoers}, que almacena la lista de usuarios que tienen permiso para utilizar la orden \code{sudo}. En él añadiremos al grupo \code{organ}, pero solo con capacidad de ejecutar \code{shutdown}, ningún otro programa.
+
 \subsubsection{Conexiones simultáneas}
-\subsubsection{Compatibilidad con MIDI estándar}
+
+El núcleo de control del demonio es el planificador, que tiene una hebra independiente para reproducir piezas musicales. Los problemas de seguridad concurrente encontrados fueron descritos más arriba (sección \ref{subsec:impl_planificador}).
+
+Sin embargo, surge un nuevo problema: sus funciones públicas pueden ser llamadas desde cualquier otro módulo, y cada uno de ellos funciona en una \textbf{hebra} distinta. Si dos funciones del planificador son ejecutadas simultáneamente se puede producir una \textbf{inconsistencia} o una condición de carrera.
+
+Por ello, toda función pública está protegida por un \textbf{cerrojo} de exclusión mutua, a modo de monitor del módulo, que hace que cualquier subproceso que intente acceder deba esperar a que termine cualquier otra función que se esté ejecutando.
 
 \subsection{Pre-instalación}
 
@@ -892,7 +1013,9 @@ El \textit{script} es muy sencillo y hace lo siguiente:
 
 \begin{enumerate}
 	\item Instala la biblioteca cliente de \textbf{MySQL} para C, incluyendo las cabeceras.
-	\item Crea un usuario y grupo de sistema, llamados \textbf{''organ''}, que poseerán el proceso del demonio y el \textit{socket}.
+	\item Crea un usuario y grupo de sistema, llamados \code{organ}, que poseerán el proceso del demonio y el \textit{socket}.
+	\item Agrega al usuario por defecto del \textit{Raspberry Pi} al grupo \code{organ}.
+	\item Declara en el archivo \code{/etc/sudoers} permiso del grupo \code{organ} para ejecutar \code{shutdown}.
 	\item Descarga la biblitoeca \textbf{WiringPi} del repositorio de su desarrollador, y la compila.
 	\item Crea las carpetas \textbf{bin} y \textbf{obj}, para alojar los archivos compilados.
 \end{enumerate}
@@ -1050,25 +1173,53 @@ El traductor es el módulo en el que delegamos todo el texto que aparecerá en l
 
 Un ejemplo para un ''Hola Mundo'' en dos idiomas sería el siguiente:
 
-\begin{verbatim}
-	<translation code="es" language="Español">
-	    <string name="hello">¡Hola Mundo!</string>
-	</translation>
+\begin{Verbatim}[commandchars=\\\{\}]
+	\color{blue}<translation \color{red}code\color{black}=\color{violet}"es" \color{red}language\color{black}=\color{violet}"Español"\color{blue}>
+	    \color{blue}<string \color{red}name\color{black}=\color{violet}"hello"\color{blue}>\color{black}¡Hola Mundo!\color{blue}</string>
+	\color{blue}</translation>
 
-	<translation code="it" language="Italiano">
-	    <string name="hello>Ciao Mondo!</string>
-	</translation>
-\end{verbatim}
+	\color{blue}<translation \color{red}code\color{black}=\color{violet}"it" \color{red}language\color{black}=\color{violet}"Italiano"\color{blue}>
+		\color{blue}<string \color{red}name\color{black}=\color{violet}"hello"\color{blue}>\color{black}Ciao Mondo!\color{blue}</string>
+	\color{blue}</translation>
+\end{Verbatim}
 
 El programa en PHP busca todos los archivos existentes en la carpeta de traducciones con \code{glob()} y los interpreta con ayuda de la función \code{simplexml\_load\_file()}. A continuación los guarda en una lista global, denominada \code{translators}, a acceder por todas las funciones que la requieran.
 
-El hecho de leer todos los archivos de lenguaje se explica en el \textbf{menú desplegable} que se mostrará en la barra de cabecera, y presenta todos los idiomas disponibles. Cada opción está vinculada al \textbf{controlador}, que lanza la orden \code{language} con el código de idioma como parámetro.
+El hecho de leer todos los archivos de lenguaje se explica en el \textbf{menú desplegable} que se mostrará en la barra de cabecera, y presenta todos los idiomas disponibles, con el siguiente aspecto:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_repr_idiomas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_repr_idiomas} Vista del menú desplegable de idiomas.}
+\end{figure} 
+
+\smallskip
+
+Cada opción está vinculada al \textbf{controlador}, que lanza la orden \code{language} con el código de idioma como parámetro.
 
 \subsection{Control de energía}
 
 Una de las funciones de la interfaz sería controlar el reinicio y el apagado del \textit{Raspberry Pi}. Esta acción solo se puede llevar a cabo con la orden correspondiente de Linux, y con permiso de superusuario.
 
-La implementación es tan sencilla como mostrar en la cabecera un \textbf{menú desplegable} con ambas opciones, cada una llama a controlador con una acción diferente:
+La implementación es tan sencilla como mostrar en la cabecera un \textbf{menú desplegable} con ambas opciones:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_repr_apagar}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_repr_apagar} Vista del menú desplegable de control de energía.}
+\end{figure} 
+
+\smallskip
+
+Cada uno de estos elementos llama a controlador con una acción diferente:
 
 \begin{description}
 	\item[shutdown] Hace ejecutar la función \code{shutdown()}, que solo llama a \code{sudo shutdown now}.
@@ -1105,6 +1256,8 @@ Si se aprueba el acceso, llamamos a \code{set\_auth()} para registrarlo en la se
 \end{figure} 
 
 \smallskip
+
+Por razones de seguridad, la utilidad de autentificación \textbf{retrasa} la ejecución 2 segundos en caso de recibir una contraseña incorrecta, atenuando la efectividad de un \textbf{ataque por fuerza bruta}.
 
 \subsection{Navegación}
 
@@ -1144,37 +1297,760 @@ Todas las funciones definidas están descritas en la sección \ref{subsec:web_da
 
 \subsection{Conexión al demonio}
 
-Si el demonio implantaba un servidor de \textit{socket}, nosotros vamos a escribir un \textbf{cliente} que se conecte a él.
+Si el demonio implantaba un servidor de \textit{socket}, nosotros vamos a escribir un \textbf{cliente} que se conecte a él. El código de inicio utiliza las funciones \code{socket\_create()} y \code{socket\_connect()} para establecer una conexión con el \textit{socket} del demonio, sito en \code{/run/organ.sock}.
 
-\subsubsection{Prototipo}
-\subsubsection{Implementación}
+El resto de funciones simplemente adaptan la llamada correspondiente a una orden que siga el \textbf{protocolo} descrito en la sección \ref{sec:protocolo}. Las interfaz de las funciones se desglosó en la sección \ref{subsec:web_demonio}, donde diseñamos este módulo.
+
+\code{driver\_play()} recibe una lista de reproducción (obtenida de la base de datos) y el índice de la primera pieza. Entonces genera la cadena de nombres de archivo, empezando por la partitura indicada, y envía la cadena al demonio.
+
+\code{driver\_pause()}, \code{driver\_resume()} y \code{driver\_stop()} simplemente transmiten la orden procedente y reciben el mensaje de retorno, que indica si se ha realizado correctamente la operación. Los casos típicos de fallo son:
+
+\begin{enumerate}
+	\item Tener un estado incompatible con la llamada (e.g. pausar si estaba detenido).
+	\item Estar en modo Ingeniería.
+\end{enumerate}
+
+Por último, \code{driver\_status()} lanza una consulta y devuelve los datos recibidos tal cual en un array con el siguiente contenido:
+
+\begin{enumerate}
+	\item Palabra de estado, en mayúscula ---como dicta el protocolo---.
+	\item Ruta absoluta de la pieza que se está reproduciendo (si procede).
+\end{enumerate}
 
 \subsection{Reproductor}
+
+Ésta es la página principal del administrador, desde la que podremos controlar la reproducción del órgano. Tendrá la funcionalidad básica de cualquier reproductor.
+
 \subsubsection{Vista}
+
+La página se genera en función de una consulta hacia el \textbf{demonio} para conocer su estado, mediante \code{driver\_status()}. En caso de estar reproduciendo o en pausa, también recibimos la ruta absoluta del archivo MIDI en curso. Probablemente sea una pieza almacenada en la base de datos y, por consiguiente, perteneciente a una lista. O bien sea un archivo puntualmente ejecutado por consola.
+
+Si el reproductor recibe un nombre de archivo, lo busca en la base de datos e infiere inferir la lista que se está reproduciendo. Pueden ocurrir dos cosas:
+
+\begin{enumerate}
+	\item Si el archivo está registrado, muestra el título y la lista de reproducción correpondiente.
+	\item Si no es encuentra el fichero, aparece el nombre de archivo y no se muestra ninguna lista.
+\end{enumerate}
+
+El resto de controles aparecen a razón del estado. A continuación vemos una captura del reproductor:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_reproductor}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_reproductor} Vista del reproductor.}
+\end{figure} 
+
+\smallskip
+
+Para cambiar la partitura a reproducir, podemos desplazar con los botones adelante/atrás, o bien seleccionar un elemento de la lista.
+
 \subsubsection{Controlador}
+
+El grueso del controlador de este módulo está compuesto por llamadas a funciones JavaScript que se comunican dinámicamente con el servidor utilizando \acrshort{AJAX}, para obtener una respuesta eficiente y evitar recargar la página. Cada botón está asignado a una función diferente:
+
+\begin{description}
+	\item[\code{resume()}] Reanudar la reproducción.
+	\item[\code{pause()}] Pasar programa.
+	\item[\code{stop()}] Detener completamente.
+	\item[\code{previous()}] Siguiente pista, circularmente.
+	\item[\code{next()}] Pista anterior, circularmente.
+\end{description}
+
+\code{pause()}, \code{resume()} y \code{stop()} hacen una petición de tipo \acrshort{AJAX} a pequeñas aplicaciones PHP específicas a tal efecto, que simplemente transmiten la orden al demonio mediante el \textit{socket}. Después, modifican los controles según corresponda ---ocultar un botón, mostrar otro, etc.---
+
+\code{previous()} y \code{next()}, para los botones adelante/atrás, realizan peticiones completas para reproducir una lista, empezando por una pista distinta. La reproducción se hace en ciclo, por tanto, la pieza que sucede a la última es la primera.
+
+Este mismo mecanismo se utiliza cuando se pulsa sobre un elemento de la lista, que llama a la función de JavaScript \code{play()}. Todas ellas hacen al servidor una petición del tipo: 
+
+\begin{center}
+	\code{control.php ? action=play \& idplaylist=X \& idscore=Y}
+\end{center}
+
+La parte del control en PHP recibe la orden, consulta en la base de datos la lista de archivos y la envía al demonio a través del \textit{socket}.
 
 \subsection{Gestión de listas y piezas}
+\label{subsec:impl_gestor}
+
+Esta parte de la aplicación nos permite administrar las piezas almacenadas en el sistema, crear y modificar listas de reproducción, y gestionar las partituras que contienen.
+
 \subsubsection{Vista}
+
+El módulo consta de dos vistas: una para ver las listas existente y crear nuevas, y otra para gestionar las piezas contenidas en cada lista, a la que accedemos desde la primera página.
+
+El gestor de listas consiste esencialmente en una tabla que muestra las listas que hemos creado, nos da a conocer el nombre y el número de piezas contenidas. Además proporciona un botón para reproducir directamente la lista. La página muestra también un botón para insertar una lista nueva.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_listas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_listas} Vista del gestor de listas.}
+\end{figure} 
+
+\smallskip
+
+Para generar esta página, la aplicación hace una consulta a la \textbf{base de datos} llamando a \code{db\_get\_playlists()}, que devuelve un \textit{array} con todas las listas almacenadas. Hacer clic en cualquier lista nos lleva a la vista siguiente, para gestionarla.
+
+Para \textbf{crear una lista}, el botón correspondiente llama a una función JavaScript, \code{add()}, que hace aparecer una \textbf{ventana modal} con un pequeño formulario para que introduzcamos el nombre de la nueva lista:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_ins_lista}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_ins_lista} Diálogo para crear una lista.}
+\end{figure} 
+
+\smallskip
+
+Por \textbf{seguridad}, el campo es obligatorio y está limitado a 255 caracteres, la misma longitud que la columna de la base de datos que almacenará esta información. Aún así, el \textbf{controlador} realizará una segunda comprobación cuando reciba los datos.
+
+El \textbf{administrador de piezas} es una vista similar al gestor de listas, pero en cambio muestra el contenido de cada lista. Se accede de forma normal haciendo clic en una lista de reproducción, que llama a esta vista con esta sintaxis:
+
+\begin{center}
+	\code{playlist.php ? idplaylist=X}
+\end{center}
+
+Esta página busca la lista indicada por ID en la base de datos y extrae su contenido mediante la función \code{db\_get\_playlist()}. A partir de esta información genera una tabla en la que a cada partitura le corresponde una fila, y nos da a conocer el título y la duración, también aparece un vínculo para descargar la pieza en formato \acrshort{MIDI}, un botón para cambiar el título y otro para eliminarla. 
+
+La cabecera de la sección provee controles que permiten renombrar y borrar la lista, así como añadir una nueva pieza. Esta zona soporta ''\textbf{arrastrar y soltar}'' para añadir piezas fácilmente. La vista tiene el siguiente aspecto:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_piezas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_piezas} Vista del administrador de piezas.}
+\end{figure} 
+
+\smallskip
+
+Para \textbf{añadir una partitura} tenemos un botón de tipo \code{<input type=''file''>}, que tiene un comportamiento aislado por el navegador por razones de seguridad, y ni siquiera se puede cambiar su estilo. Por ello, este control está oculto y en su lugar aparece un botón  estándar, programado para transmitir la función \code{click()} cuando el usuario pulse sobre él. Al hacerlo, aparece un pequeño explorador para seleccionar un archivo, filtrado por formato \acrshort{MIDI}.
+
+El vínculo para \textbf{descargar} enlaza al archivo correspondiente en el servidor, pero éste guarda el archivo con un nombre numérico para evitar colisiones. Por esta razón, se indica en el vínculo el \textbf{nombre de la pieza} para guardar el archivo descargado, si el navegador lo soporta.
+
+Por último, existen varias \textbf{ventanas modales}, cada una correspondiente a un diálogo que se hará aparecer cuando el usuario haga clic en el botón correspondiente, mediante sencillas funciones JavaScript. En el caso de renombrar, el cuadro de texto adquiere el título actual de la pieza o de la lista, y adquiere el foco del teclado para agilizar la operación.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_elim_lista}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_elim_lista} Diálogo para eliminar una lista.}
+\end{figure} 
+
+\smallskip
+
 \subsubsection{Controlador}
 
+La mayor parte del controlador para este módulo consiste en pequeñas funciones de acceso a la base de datos. Su sintaxis está descrita en en las secciones \ref{subsec:listas} y \ref{subsec:piezas}:
+
+\code{new\_playlist()}, \code{rename\_playlist()} y \code{rename\_score()} alteran la base de datos llamando a la función del modelo del mismo nombre. En todos los casos, se verifica que el título exista, si es mayor que el campo de la base de datos que lo almacena, será truncado.
+
+\code{delete\_score()} borra una pieza de la base de datos y del almacenamiento. La función \code{delete\_playlist()} elimina una lista de la base de datos, pero antes debe obtener los nombres de archivos contenidos y eliminarlos. Ya que las listas están enlazadas a las piezas por \textbf{llave externa}, las tuplas correspondientes a las piezas contenidas en la lista se eliminarán automáticamente.
+
+\code{new\_score()} inserta una pieza en una lista. Recibe el parámetro \code{idplaylist} y el archivo \acrshort{MIDI}. En primer lugar comprueba el formato del archivo y su tamaño ---se descartan archivos mayores de 1 \textit{MB}--- y utiliza la aplicación \textit{Midinfo} (descrita en la sección \ref{subsec:midinfo}) para conocer su duración y verificar su formato. Para \textbf{evitar colisiones} de nombres, el archivo se guardará con un nombre igual a su identificador en la base de datos. La inserción se hace en dos pasos:
+
+\begin{enumerate}
+	\item Se inserta la tupla mediante \code{db\_insert\_score()}, que crea el elemento asignando como título el nombre original de archivo, pero establece otro nombre de almacenamiento único.
+	
+	\item Se mueve el archivo recibido a la carpeta específica para contener partituras, con el nombre de archivo que indica la base de datos.
+\end{enumerate}
+
+Como hemos explicado en la vista, hay dos métodos para subir archivos, aunque ambos llaman a la misma función del controlador:
+
+\begin{enumerate}
+	\item Seleccionando un archivo \acrshort{MIDI} en el explorador que aparece al pulsar el botón para añadir una pieza. El archivo se envía en el formulario de manera normal. Solo se permite seleccionar un fichero y, de fallar, recibiremos un mensaje de error indicando los motivos.
+	
+	\item Arrastrando uno o varios archivos a la sección central de la vista. Esto activa la función \code{ondrop()} de JavaScript, que no puede acceder al elemento \code{<input>} del formulario mediante \acrshort{DOM} y añadir el archivo recibido, por motivos de seguridad. En cambio, utiliza \acrshort{AJAX} para hacer dinámicamente un envío por cada archivo. Ya que \acrshort{AJAX} es, por definición, asíncrono, enviaría todos los archivos simultáneamente. Para evitarlo, establecemos un \textit{callback} al recibir la respuesta, que haga transmitir el archivo siguiente. La implementación es similar a una función recursiva. Si un archivo falla, es descartado silenciosamente.
+\end{enumerate}
+
+Este segundo método permite enviar muchos archivos y puede tardar algún tiempo, aunque la interfaz siga respondiendo. Mientras se están subiendo archivos aparece una ventana emergente que muestra qué fichero está en curso:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_ins_pieza}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_ins_pieza} Progreso de inserción de piezas.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Asignación del mando}
+
+Una vez creadas las listas, tendremos la posibilidad de asignarlas a un botón del mando a distancia. La base de datos almacena esta información y permite que sea consultada directamente por el demonio, que será el que reciba las pulsaciones del mando.
+
 \subsubsection{Vista}
+
+Esta página muestra una tabla con todos los botones contemplados en el mando, y la lista que tiene asignada cada uno. Este dato viene dado en un menú desplegable que da a escoger entre todas las listas recogidas en la base de datos, o dejar el botón sin asignar.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_mando}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_mando} Vista del gestor del mando.}
+\end{figure} 
+
+\smallskip
+
 \subsubsection{Controlador}
+
+Para establecer un vínculo entre un botón y una lista, el controlador ejecuta la función \code{set\_shortcut()}. Como se describió en la sección \ref{subsec:mando} de diseño, recibe el identificador de botón y de lista.
+
+El controlador hace patente la asignación en la base de datos llamando a la función del modelo, \code{db\_set\_shortcut()}, dejando automáticamente la información compartible hacia el servicio de reproducción.
 
 \subsection{Seguridad}
 \label{subsec:web_seguridad}
-\subsubsection{Inyección de código SQL}
-\subsubsection{Inyección de código shell}
-\subsubsection{Permisos de superusuario}
 
+Si en el \textit{back-end} los detalles de seguridad que nos preocupaban son esencialmente los relacionados con incompatibilidades del formato \acrshort{MIDI}, permisos de usuario y gestión de la concurrencia, ahora debemos atender escrupulosamente la \textbf{entrada de datos} provenientes del usuario que, de forma intencional o no, podría causar un error en el sistema.
+
+En el \textit{front-end} implantaremos dos capas de seguridad:
+
+\begin{enumerate}
+	\item Una primera capa en la \textbf{vista}, para informar inmediatamente de un error en un formulario.
+	\item Otra capa en el \textbf{controlador}, para evitar errores más complejos o un conjunto de datos forzado.
+\end{enumerate}
+
+\subsubsection{Cadenas de entrada}
+
+Los formularios de la aplicación proveen \textbf{campos de texto} para introducir ciertos datos, como el nombre de una partitura. La información llega a la base de datos, cuyos campos están limitados, generalmente a 255 \textit{bytes}, y son obligatorios.
+
+Para conseguir la mayor efectividad, los campos \code{<input>} tienen marcadas estas condiciones, para alertar al usuario. Sin embargo, pueden ser forzados fácilmente con las \textbf{funciones de depuración} del explorador. Dichas condiciones son comprobadas de nuevo en el \textbf{controlador}; en caso de no cumplirse, se muestra un error.
+
+\subsubsection{Formato de archivo MIDI}
+
+El único tipo de archivo aceptado para guardar partituras en el sistema es el formato \acrshort{MIDI}. De manera similar al caso anterior, el explorador desplegado a la hora de añadir partituras filtra los archivos por extensión, pero esta medida es fácilmente sorteable.
+
+Como especificamos más arriba (sección \ref{subsec:impl_gestor}), el controlador del gestor de piezas llama al \textbf{analizador} de archivos \acrshort{MIDI} antes de insertar el fichero. Si la aplicación no reconoce el archivo \textbf{completamente}, devuelve un error y se descarta.
+
+\subsubsection{Inyección de código SQL}
+
+Un error de programación muy común al comunicar el controlador con el modelo es \textbf{concatenar} una orden con la entrada del usuario. Por ejemplo, para buscar un usuario en la base de datos para autentificar:
+
+\begin{center}
+	\code{SELECT id FROM user WHERE nick = '\$X' AND password = '\$Y'}
+\end{center}
+
+Si el usuario escribe en el campo de contraseña el siguiente texto:
+
+\begin{center}
+	\code{' OR 1=1;}
+\end{center}
+
+Entonces el gestor de bases de datos recibirá la siguiente cadena:
+
+\begin{center}
+	\code{SELECT id FROM user WHERE nick = 'foo' AND password = '' OR 1=1;'}
+\end{center}
+
+Teniendo en cuenta que todo lo que sucede al punto y coma es descartado, la base de datos devolverá el usuario \textbf{independientemente} de la contraseña. De igual forma, un usuario malintencionado podría eliminar tuplas o tablas enteras de la base de datos.
+
+Esto se evita \textbf{filtrando} todas las cadenas de entrada del usuario, descartando caracteres especiales que puedan producir efectos nocivos. La implementación del modelo de la base de datos se ha hecho con \textbf{sentencias preparadas}, que realizan esta acción automáticamente.
+
+Como medida adicional, las \textbf{credenciales} de usuario cedidas a la aplicación PHP solo tienen permisos para alterar el \textbf{contenido} de las tablas, no para modificar las propias tablas.
+
+\subsubsection{Inyección de código shell}
+
+En nuestro caso particular de \textbf{autentificación}, el controlador recibe la contraseña del usuario y llama a la aplicación externa para verificarla. El método para transmitir la clave es como argumento de llamada:
+
+\begin{center}
+	\code{/usr/local/bin/organ-login ''pi'' ''\$pass''}
+\end{center}
+
+Un ejemplo de inyección de código podría ser escribir la siguiente ''contraseña'':
+
+\begin{center}
+	\code{'' || sudo shutdown now || ''}
+\end{center}
+
+Dando como resultado la siguiente instrucción de consola:
+
+\begin{center}
+	\code{/usr/local/bin/organ-login ''pi'' '''' || sudo shutdown now || ''''}
+\end{center}
+
+Este riesgo es real en nuestra aplicación, pues tenemos permiso de \textit{root} para apagar el sistema. La solución a este problema es similar a la del caso anterior: \textbf{filtrar la entrada} del usuario, en este caso usaremos la función \code{escapeshellargs()} de PHP.
+
+\subsubsection{Permisos de usuario}
+
+Para que nuestra aplicación funcione correctamente, el servidor \textit{web} necesita acceder a los siguientes recursos externos del sistema:
+
+\begin{enumerate}
+	\item \textit{Socket} de comunicación hacia el \textit{back-end}.
+	\item \textit{Socket} para acceder a la base de datos.
+	\item Directorio de almacenamiento de archivos \acrshort{MIDI}.
+	\item Aplicación \code{organ-login} (como root) para autentificar al usuario.
+	\item Orden \code{shutdown} (como \textit{root})para apagar el sistema
+\end{enumerate}
+
+El primer y el quinto caso se comparten con el demonio, es por esto que el usuario del servidor Apache, \code{www-data}, pertenece al grupo \code{organ}, al que pertenece el \textit{socket}. Además, como explicamos en la sección de seguridad del demonio (\ref{subsec:seg_demonio}), este grupo tiene permiso para ejecutar \code{sudo shutdown}, por lo que la aplicación \textit{web} hereda este permiso.
+
+El directorio donde se guardarán las partituras (\code{/home/pi/midis}) se considera una carpeta \textbf{pública}, de forma que tiene \textbf{permisos de escritura} para todos los usuarios. Por supuesto, el acceso a cualquier usuario del sistema está \textbf{acotado} por otras medidas de seguridad.
+
+La utilidad de \textbf{autentificación} requiere permisos de administrador. Aún así, no será necesario solicitar elevación explícitamente porque utiliza la característica \textbf{\textit{setuid}}, que hace que se ejecute siempre con permisos de \textit{root}.
+
+Por último, el acceso al \textit{socket} de la \textbf{base de datos} es público, siempre que se conecte de forma \textbf{local}. El resto de la seguridad de MySQL descansa sobre la gestión de usuarios y contraseñas, para la cual tenemos un usuario dedicado, como describiremos a continuación.
 
 \section{Base de datos}
 
+Como hemos adelantado, utilizaremos una base de datos para organizar la información persistente del sistema, con el objetivo de mantener la información consistente y estructurada. Hemos debatido entre dos motores muy interesantes:
+
+\begin{description}
+	\item[MySQL] Es un gestor muy popular, multiusuario, con arquitectura cliente-servidor. Su motor de tablas \textbf{InnoDB} soporta transacciones \acrshort{ACID} e integridad referencial. \cite{wiki_innodb}
+	
+	\item[SQLite] Se implementa como una biblioteca de programación y también es compatible con \acrshort{ACID}. Es mucho más rápida que MySQL en lectura y escritura pero más ineficiente en acceso multiusuario.
+\end{description}
+
+El hecho de que un gestor de bases de datos sea compatible con \acrshort{ACID} ---\acrlong{ACID}--- garantiza que las transacciones son \underline{atómicas} (o todas o ninguna), \underline{consistentes} (mantienen la integridad del sistema), \underline{aisladas} (frente a accesos concurrentes) y \underline{persistentes} (los cambios se mantienen. \cite{wiki_acid}
+
+SQLite es una opción muy buena en aplicaciones sencillas y mono-usuario, al ser una biblioteca se integra directamente en el programa y, si bien su implementación del lenguaje \acrshort{SQL} es \textbf{limitada} ---no provee integridad referencial ni soporta chequeo de datos---, es muy veloz gestionando información.
+
+Sin embargo, SQLite gestiona el acceso concurrente bloqueando completamente la base de datos. En cambio, MySQL modela esta característica de una forma más compleja, bloqueando solo la tupla necesaria. Ya que el servidor \textit{web} soporta multi-usuario, y el uso será compartido con el demonio, mientras que el volumen de datos a tratar es muy pequeño, decidimos que \textbf{MySQL es la mejor opción} en este caso.
+
+\subsection{Tablas}
+
+Para diseñar la base de datos, tal como mostramos en la figura \ref{fig:bd_rel} del capítulo anterior, hemos utilizado \textbf{MySQL Workbench}, una aplicación especialmente diseñada para trabajar con el motor MySQL. Una vez descrito el esquema, genera el código \acrshort{SQL} que define nuestra base de datos.
+
+Este archivo se incluye en el \textbf{instalador} y se ejecuta después de instalarse previamente el servidor de bases de datos MySQL. Las tablas contenidas, de acuerdo al diseño, son las siguientes:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline idplaylist & INTEGER & Llave primaria & Identificador de lista \\ 
+		\hline name & VARCHAR(255) & & Nombre de la lista \\ 
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:db_playlist} Tabla playlist.}
+\end{center}
+
+\smallskip
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline idscore & INTEGER & Llave primaria & Identificador de partitura \\ 
+		\hline \multirow{2}{*}{playlist} & \multirow{2}{*}{INTEGER} & Obligatorio & \multirow{2}{*}{Lista contenedora} \\
+		\cline{3-3} & & Referencia a Playlist & \\
+		\hline source & VARCHAR(255) & & Nombre de archivo MIDI \\
+		\hline name & VARCHAR(255) & & Título de la pieza \\
+		\hline duration & INTEGER & & Duración en segundos \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:db_score} Tabla Score.}
+\end{center}
+
+\smallskip
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline idshortcut & INTEGER & Llave primaria & Identificador de botón \\ 
+		\hline playlist & INTEGER & & Referencia a Playlist \\ 
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:db_playlist} Tabla Shortcut.}
+\end{center}
+
+\smallskip
+
+\subsection{Privilegios}
+
+El acceso al \acrshort{SGBD} está limitado por defecto al \textbf{sistema local} (\textit{localhost}). No es un problema, ya que las dos aplicaciones que accederán a la base de datos conviven en la misma máquina. Esto, además, es una capa extra de \textbf{seguridad}.
+
+El servicio MySQL se instala con un usuario llamado \textbf{\code{root}} que, como su nombre sugiere, posee permisos totales sobre todo el sistema, una opción poco recomendable. Por ello, aunque será \code{root} quien cree la base de datos, insertará además un usuario con permisos de \textbf{manipulación} de datos (\acrshort{CRUD}: \textit{\acrlong{CRUD}}) sobre la base de datos concreta para gestionar el sistema.
+
+En conclusión, existirán dos usuarios:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \textbf{Usuario} & \textbf{Origen} & \textbf{Permisos} & \textbf{Esquema} \\ 
+		\hline root & localhost & Totales & Todos \\
+		\hline organo & localhost & \acrshort{CRUD} & Organo \\ 
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:db_permisos} Permisos sobre la base de datos.}
+\end{center}
+
+\smallskip
+
+Solo el segundo de ellos se dará a conocer al demonio y a la interfaz, con la contraseña correspondiente.
+
+\subsection{Datos iniciales}
+
+A \textit{priori}, la base de datos estará prácticamente en blanco, a excepción de la tabla cuya inserción no está contemplada en el diseño de la interfaz: la asignación de botones a listas. Un usuario podrá modificar los vínculos, pero solo un administrador podrá añadir botones si, por ejemplo, adquirimos un nuevo mando con más controles.
+
+Tal como previmos en el \textit{back-end}, utilizaremos un mando con dos botones, cada uno podrá asignarse a una lista. Por tanto, inicialmente se insertarán dos tuplas:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \textbf{idshortcut} & \textbf{playlist} \\ 
+		\hline 1 & NULL \\
+		\hline 2 & NULL \\ 
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:db_shorcut_tuplas} Datos iniciales de la tabla Shortcut.}
+\end{center}
+
+\smallskip
+
+Después de crear listas de ejemplo y agregar algunas piezas, hacemos una consulta para comprobar si los datos coinciden con la información introducida:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_sql}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_sql} Consulta de las piezas contenidas en la base de datos.}
+\end{figure} 
+
+\smallskip
+
 \section{Aplicaciones auxiliares}
+
+He aquí la implementación de los programas diseñados para fines de verificación y soporte a módulos. Se trata en su mayoría de aplicaciones muy sencillas que cubrirán las funciones mínimas que no se han implantado en los subsistemas principales.
+
 \subsection{Información de archivo MIDI}
+
+Como se describió en la sección \ref{subsec:midinfo} de diseño, este programa tiene dos objetivos:
+
+\begin{enumerate}
+	\item Comprobar el funcionamiento del analizador \acrshort{MIDI}.
+	\item Enviar la duración de una pieza a la interfaz \textit{web}.
+\end{enumerate}
+
+El programa recibe como argumento un \textbf{nombre de archivo}, que presuntamente corresponde a una partitura compatible, y utiliza la biblioteca implementada para analizar el archivo.
+
+La naturaleza de la función en cuestión, \code{midi\_init()}, hace que el fichero sea analizado completamente, y recibamos una \textbf{estructura de datos} con toda la información extraída, a excepción de los mensajes exclusivos, no utilizados en este proyecto.
+
+La aplicación devuelve al usuario una serie de datos tales como éstos:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo5/cap_midinfo}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_midinfo} Captura del visor de archivos MIDI.}
+\end{figure} 
+
+\smallskip
+
+Existe una opción, \code{--duration}, que hace mostrar solamente la duración de la pieza, y la emite como un número \textbf{entero}, redondeando a la unidad. Ésta será la opción utilizada por la \textbf{interfaz \textit{web}} cuando insertemos un nuevo archivo.
+
+En caso de error de lectura, se imprime un mensaje de error y se finaliza con código 1. Esto además es útil al \textit{front-end} para garantizar que todo archivo subido corresponde efectivamente a una partitura \acrshort{MIDI}.
+
 \subsection{Simulador de reproducción}
 \label{subsec:simulador_reproduccion}
-\subsection{Terminal del reproductor}
+
+Este programa se diseñó para probar el planificador y la estructura de la salida, dos módulos que van de la mano y conforman el núcleo del demonio. En realidad es una \textbf{reimplementación} del prototipo del planificador que escribimos en Python, pero ahora trabaja con el planificador final.
+
+La salida de datos, diseñada en la sección \ref{subsec:output} es una \textbf{interfaz} utilizada por el planificador, que evita la necesidad de modificarlo de manera alguna cuando nos movamos de un órgano a otro. Sus funciones públicas coinciden en su mayor parte con las instrucciones del protocolo \acrshort{MIDI}.
+
+En este caso vamos a simular más exactamente el órgano de la Parroquia de la Encarnación de Santa Fe que el prototipo de la \acrshort{PCB}, en tanto que éste solo abordará 7 notas en cada canal. En resumen tendremos esta estructura:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \textbf{Pista} & \textbf{Extensión} & \textbf{Comienzo} & \textbf{Descripción} \\ 
+		\hline 1 & 49 notas & 36 (\textit{Do-2}) & Teclado barroco \\
+		\hline 2 & 49 notas & 36 (\textit{Do-2}) & Teclado romántico \\
+		\hline 2 & 12 notas & 36 (\textit{Do-1}) & Pedalier \\
+		\hline 2 & 49 notas & 36 (\textit{Do-4}) & Registros \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:miditest_map} Asignación de notas en el simulador de reproducción.}
+\end{center}
+
+\smallskip
+
+El simulador funcionará en consola, de forma que, en lugar de volcar la información en los puertos \acrshort{GPIO}, lo haremos hacia la \textbf{salida estándar}. A continuación mostramos una captura del programa:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_miditest}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_miditest} Captura del visor de archivos MIDI.}
+\end{figure} 
+
+\smallskip
+
+Como podemos comprobar, el planificador comienza realizando una función de limpieza (\textit{Panic}), escribiendo ceros en todas las notas. A continuación, de acuerdo a la partitura, se activan \textit{Mi-4} en la pista 0, \textit{Do-3} en la pista 1 y \textit{Do-1} en la pista 2 (pedal).
+
+Después del tiempo correspondiente a una \textbf{negra}, se apagan las notas de las pistas 0 y 1 (teclados), manteniéndose la del pedal, para repetirse un instante después. En efecto, las dos primeras notas de la \textit{Oda a la Alegría} de Beethoven son \textbf{unísonas}.
+
+Este es el único de los programas escritos en C que, por su naturaleza, \textbf{no se instalará} en el sistema de archivos, ya que no tiene más finalidad que depurar el sistema.
+
+\subsection{Terminal del reproductor}.
+
+De acuerdo a la sección \ref{subsec:terminal}, se implementaría un programa que nos permita comunicarnos con el demonio a través de la \textbf{consola}.
+
+Esta aplicación abre un \textit{socket} cliente para comunicarse con el demonio, al que transmite las órdenes recibidas desde la consola, utilizando las mismas órdenes que especificamos en el protocolo.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_terminal}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:cap_terminal} Captura del controlador por terminal.}
+\end{figure} 
+
+\smallskip
+
 \subsection{Comprobación de contraseña}
 \label{subsec:aux_login}
+
+Para autorizar la entrada a la interfaz gráfica, se ha decidido utilizar la seguridad de Linux, ya que utiliza la función de resumen (\textit{hash}) junto a una serie de \textit{bits} aleatorios (\textit{salt}) para almacenarla.
+
+Nuestro programa utilizará la \textbf{\acrshort{API} de criptografía} de Linux para comprobar si una contraseña es válida. Ya que la clave no está almacenada como tal, sino solo un \textit{hash}, procederemos de la forma que sigue:
+
+\begin{enumerate}
+	\item La aplicación recibe un nombre de usuario y una contraseña.
+	\item Buscamos en el sistema el usuario indicado, y obtenemos el \textit{hash} de su clave.
+	\item Encriptamos la contraseña recibida con el mismo algoritmo y la misma sal.
+	\item Comparamos ambos resúmenes: si coinciden, autentificamos al usuario.
+\end{enumerate}
+
+El programa devuelve un \textbf{código de error} si el usuario no existe o la clave no es válida. En este último caso, retrasa la ejecución 2 segundos, para dificultar un \textbf{ataque por fuerza bruta}.
+
+El acceso al fichero de usuarios (\code{/etc/shadow}), utilizado por la utilidad de \textbf{autentificación}, requiere permisos de administrador. Aún así, tenemos la seguridad de que este programa no hará cambios en el sistema, y produce un \textbf{retraso} si recibe una contraseña que no coincide con el usuario. Con estas premisas instalamos la aplicación con la característica \textbf{\textit{setuid}}, que hace que se ejecute siempre con permisos de \textit{root}.
+
 \subsection{Instalador del servidor}
+
+El demonio incluye un \textit{Makefile} y un \textit{script} de preinstalación para ser compilado e instalado sin dificultad. La puesta en marcha de la interfaz y la base de datos requiere de una serie de pasos que, por simplicidad, reuniremos en un \textit{script} que lo haga automáticamente.
+
+Las acciones que realiza son las siguientes:
+
+\begin{enumerate}
+	\item Instala el sistema MySQL, el servidor Apache y el lenguaje PHP.
+	\item Añade el usuario de Apache, \code{www-data}, al grupo \code{organ}.
+	\item Genera el archivo de configuración del sitio \textit{web} desde una plantilla:
+	
+	\begin{enumerate}
+		\item Establece un nombre del sitio ---que puede ser \textit{localhost}---.
+		\item Selecciona el directorio raíz del sitio, y sus permisos.
+		\item Crea un vínculo para la carpeta contenedora de archivos \acrshort{MIDI}.
+	\end{enumerate}
+	
+	\item Ejecuta el archivo \acrshort{SQL} para crear la base de datos.
+	\item Crea la carpeta raíz de la interfaz y el directorio de ficheros \acrshort{MIDI}.
+\end{enumerate}
+
+\section{Resultado de la implementación}
+
+Al término de la fase de implementación hemos obtenido todo el sistema \textit{software} en distintos módulos y aplicaciones, que darán a la \acrshort{PCB} todo el soporte especificado en los requisitos.
+
+\subsection{Módulos}
+
+Si bien el diseño del sistema ha distinguido entre \textit{front-end}, \textit{back-end} y base de datos, a la hora de implementarlo hemos separado el código en tres bloques:
+
+\begin{description}
+	\item[Controlador] Incluye el demonio y las aplicaciones auxiliares. En definitiva, todo aquello implementado en código para compilar.
+	\item[Administrador] Comprende la interfaz \textit{web} y la base de datos.
+	\item[Prototipos] Programas escritos para realizar pruebas sobre los módulos anteriores.
+\end{description}
+
+\subsubsection{Controlador}
+
+Este bloque, que se encuentra en la rama \textbf{\textit{driver}} del desarrollo, contiene todo el código a compilar del demonio y los programas auxiliares. Se clasifican de la siguiente manera:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Aplicación}} & \multicolumn{1}{c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Declaración}} & \multicolumn{1}{c|}{\textbf{Definición}} \\ 
+		\hline \multirow{9}{*}{\textbf{Demonio}} & Base de datos & database.h & database.c \\
+		\cline{2-4} & Salida & output.h & gpio.c \\
+		\cline{2-4} & MIDI & midi.h & midi.c \\
+		\cline{2-4} & Principal & & organd.c \\
+		\cline{2-4} & Ingeniería & peripherals.h & peripherals.c \\
+		\cline{2-4} & Planificador & player.h & player.c \\
+		\cline{2-4} & Socket & socket.h & socket.c \\
+		\cline{2-4} & UART & uart.h & uart.c \\
+		\cline{2-4} & Constantes & values.h & \\
+		\hline \textbf{Autentificación} & Principal & & login.c \\
+		\hline \textbf{Información MIDI} & Principal & & midinfo.c \\
+		\hline \multirow{2}{*}{\textbf{Simulador}} & Salida & (output.h) & monitor.c \\
+		\cline{2-4} & Principal & & test.c \\
+		\hline \textbf{Terminal} & Principal & & organ.c \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:archivos_driver} Relación de módulos en el controlador.}
+\end{center}
+
+\smallskip
+
+\subsubsection{Administrador}
+
+El administrador incluye esencialmente todos los módulos relacionados con la programación \textit{web}, además de la base de datos. Los bloques de programación son los siguientes:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Vista}} & \multicolumn{1}{c|}{\textbf{Controlador}} & \multicolumn{1}{c|}{\textbf{Modelo}} \\ 
+		\hline \multirow{2}{*}{\textbf{Portada}} & index.php & control.php & \\
+		& index.js & & \\
+		\hline \multirow{4}{*}{\textbf{Reproductor}} & player.php & control.php & \\
+		& player.js & pause.php & \\
+		& & resume.php & \\
+		& & stop.php & \\
+		\hline \multirow{2}{*}{\textbf{Listas}} & playlists.php & control.php & \\
+		& playlists.js & & \\
+		\hline \multirow{2}{*}{\textbf{Piezas}} & playlist.php & control.php & \\
+		& playlist.js & & \\
+		\hline \multirow{2}{*}{\textbf{Mando}} & remote.php & control.php & \\
+		& remote.js & & \\
+		\hline \textbf{Energía} & & control.php & \\
+		\hline \textbf{Base de datos} & & & database.php \\
+		\hline \textbf{Demonio} & & & driver.php \\
+		\hline \textbf{Sesión} & & & session.php \\
+		\hline \textbf{Traducción} & & & translator.php \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:archivos_manager} Relación de módulos en el administrador.}
+\end{center}
+
+\smallskip
+
+Además hemos añadido los siguientes archivos de soporte:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|l|}
+		\hline \multicolumn{1}{|c|}{\textbf{Recurso}} & \multicolumn{1}{c|}{\textbf{Archivos}}  \\ 
+		\hline Plantillas HTML & templates.php \\
+		\hline Constantes & values.php \\
+		\hline Hoja de estilos & styles.css \\
+		\hline \multirow{3}{*}{Traducciones} & english.xml \\
+		& italian.xml \\
+		& spanish.xml \\
+		\hline Base de datos & organo.sql \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:archivos_manager} Archivos de soporte al administrador.}
+\end{center}
+
+\smallskip
+
+\subsection{Líneas de código}
+
+Agrupamos todos los módulos y contamos las líneas de código para conocer la relación entre los 10 lenguajes utilizados y el grosor de cada uno de los tres bloques principales. Del código fuente no hemos tenido en cuenta las líneas vacías:
+
+\smallskip
+
+\begin{center}
+	\begin{tabular}{|l|r|r|r|r|}
+		\hline & \textbf{Controlador} & \textbf{Administrador} & \textbf{Prototipos} & \textbf{Total} \\ 
+		\hline \textbf{C} & 2062 & & 498 & 2560 \\
+		\hline \textbf{PHP} & & 1051 & & 1051 \\
+		\hline \textbf{Python} &  &  & 541 & 541 \\
+		\hline \textbf{CSS} & & 460 & & 460 \\
+		\hline \textbf{JavaScript} & & 263 & & 263 \\
+		\hline \textbf{XML} & & 180 & & 180 \\
+		\hline \textbf{Shell} & 122 & 36 & & 158 \\
+		\hline \textbf{Makefile} & 86 &  & 10 & 96 \\
+		\hline \textbf{SQL} & & 68 & & 68 \\
+		\hline \textbf{Processing} & & & 25 & 25 \\
+		\hline \textbf{Total} & 2270 & 2058 & 1074 & \textbf{5402} \\
+		\hline 
+	\end{tabular}
+	\smallskip
+	\captionof{table}{\label{tab:lineas} Recuento de líneas de código.}
+\end{center}
+
+\smallskip
+
+Esta información se representa gráficamente de la siguiente manera:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim=50 180 50 50,width=\linewidth]{capitulo5/lineas}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:lineas} Distribución del código fuente.}
+\end{figure} 
+
+\smallskip
+
+Podemos ver que la mayor parte del código está en \textbf{lenguaje C} y pertenece al \textbf{controlador}, existiendo una cantidad menor de código para los prototipos. Le sigue PHP en el administrador, mientras que Python ha sido el lenguaje más utilizado para prototipos.
+
+Si agrupamos los datos en función de los bloques, obtenemos la siguiente gráfica:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim=50 180 50 50,width=\linewidth]{capitulo5/lineas_modulos}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:lineas_modulos} Distribución del código fuente por módulos.}
+\end{figure} 
+
+\smallskip
+
+El mayor coste en lo que a código se refiere ha sido el \textbf{controlador}, al que sigue de cerca el administrador.
+
+Por último, mostramos la gráfica que agrupa las líneas de código en función del lenguaje:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[clip=true,trim=50 150 50 50,width=\linewidth]{capitulo5/lineas_lenguajes}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:lineas_lenguajes} Distribución del código fuente por lenguaje.}
+\end{figure} 
+
+\smallskip
+
+El lenguaje más utilizado en este proyecto ha sido C con amplia diferencia. A pesar de que es un lenguaje de bajo nivel, con mayor coste de implementación y es fácil cometer errores con él, sobre todo utilizando aritmética de punteros, podremos ver en el capítulo que sigue que ha merecido la pena, tanto por su eficiencia como su capacidad de modularización.

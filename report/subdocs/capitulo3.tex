@@ -20,7 +20,7 @@ El instrumento instalado en la Parroquia de la Encarnación de Santa Fe es en re
 
 \smallskip
 
-Para funcionar, el órgano se alimenta de aire. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien follando mientras el organista tocaba. Hoy día el fuelle ha sido sustituído por una bomba eléctrica.
+Para funcionar, el órgano se alimenta de aire. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien accionándolo mientras el organista tocaba. Hoy día el fuelle ha sido sustituído por una bomba eléctrica.
 
 \smallskip
 
@@ -622,14 +622,14 @@ Los datos de entrada a nuestro sistema consisten en archivos \acrshort{MIDI}, ta
 
 \subsection{Bloque de cabecera}
 
-El bloque de cabecera es siempre el primero, empieza por la firma "MThd" e incluye la siguiente información:
+El bloque de cabecera es siempre el primero, empieza por la firma ''MThd'' e incluye la siguiente información:
 
 \smallskip
 
 \begin{center}
 	\begin{tabular}{|l|l|l|}
 		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
-		\hline 4 bytes & Firma & "MThd" \\ 
+		\hline 4 bytes & Firma & ''MThd'' \\ 
 		\hline 4 bytes & Tamaño & 6 \\ 
 		\hline 2 bytes & Formato & 0--2 \\ 
 		\hline 2 bytes & Número de pistas & 1--65535 \\ 
@@ -664,7 +664,7 @@ Una pista consta de una cabecera y de una lista de eventos, que termina con el m
 \begin{center}
 	\begin{tabular}{|l|l|l|}
 		\hline \multicolumn{1}{|c|}{\textbf{Longitud}} & \multicolumn{1}{c|}{\textbf{Descripción}} & \multicolumn{1}{c|}{\textbf{Valor}} \\
-		\hline 4 bytes & Firma & "MTrk" \\ 
+		\hline 4 bytes & Firma & ''MTrk'' \\ 
 		\hline 4 bytes & Tamaño & 0-65535 \\  
 		\hline 
 	\end{tabular}
