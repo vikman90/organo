@@ -1,10 +1,21 @@
 
-\chapter{Análisis del sistema.}
+\chapter{Análisis del sistema}
 \label{cap:capitulo_3}
 
-En este capítulo vamos a detallar el funcionamiento todos los elementos analizados y utilizados para la elaboración del proyecto.
+\begin{quote}
+	\small \flushright ''\textit{Esto es más simple que el mecanismo de un botijo.}'' \\
+	--- Profesor Miguel Delgado Calvo-Flores (2011).
+\end{quote}
 
-\section{Órgano de la Parroquia de la Encarnación}
+\vspace{8em}
+
+Como paso previo al diseño del sistema, deberemos conocer con detalle todos los elementos con los que va a interactuar nuestro sistema, así como plantear diferentes alternativas de cara al desarrollo del \textit{software}.
+
+En primer lugar estudiaremos el órgano de la Parroquia de la Encarnación, desde los teclados hasta su mecánica. A continuación conoceremos el diseño del \textit{hardware} que nos servirá para controlar el instrumento. Después estudiaremos algunas alternativas disponibles como soporte de programación, y por último analizaremos en profundidad el formato de archivo \acrshort{MIDI}.
+
+\newpage
+
+\section{Órgano de la Parroquia de Santa Fe}
 
 El instrumento instalado en la Parroquia de la Encarnación de Santa Fe es en realidad un doble órgano artesanal construido en dos fases: En 1775 se instaló el primer órgano, de estilo \textbf{barroco}, obra del organero Pedro Ghys. Posteriormente, a principios de la década de 1830, el francés Guillermo D'Enoyer lo amplía añadiendo un órgano \textbf{romántico}, con un segundo teclado y nuevos sonidos, pero todo el mecanismo es independiente del primer instrumento.
 
@@ -12,7 +23,7 @@ El instrumento instalado en la Parroquia de la Encarnación de Santa Fe es en re
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo3/consola}
+		\includegraphics[width=\linewidth]{capitulo3/consola}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:consola} Consola del órgano.}
@@ -20,7 +31,7 @@ El instrumento instalado en la Parroquia de la Encarnación de Santa Fe es en re
 
 \smallskip
 
-Para funcionar, el órgano se alimenta de aire. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien accionándolo mientras el organista tocaba. Hoy día el fuelle ha sido sustituido por una \textbf{bomba eléctrica}.
+Para funcionar, el órgano se alimenta de \textbf{aire}. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien accionándolo mientras el organista tocaba. Hoy día el fuelle ha sido sustituido por una \textbf{bomba eléctrica}.
 
 \smallskip
 
@@ -40,7 +51,7 @@ Los entresijos del órgano barroco, el más grande, está construidos en dos pla
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/romantico}
+		\includegraphics[width=\linewidth*3/4]{capitulo3/romantico}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:romantico} Tubos del órgano romántico.}
@@ -54,7 +65,7 @@ En la planta de arriba se encuentra la esencia del instrumento: alrededor de \te
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/barroco}
+		\includegraphics[width=\linewidth*3/4]{capitulo3/barroco}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:barroco} Tubos del órgano barroco.}
@@ -66,6 +77,7 @@ La parte más importante del órgano es el llamado \textbf{secreto}, una galerí
 
 La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y \textbf{diseñar el modelo en 3D} con el \textit{software} \textit{SolidWorks}.
 
+\newpage
 \subsection{Teclados}
 
 Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondiente al órgano barroco, y otro más abajo, que sobresale del primero, para el órgano romántico, de la misma extensión.
@@ -111,7 +123,7 @@ Cada \textbf{tecla blanca} tiene unas medidas ligeramente diferentes en su parte
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=0 0 360 150, width=\linewidth/2]{capitulo3/blanca_modelo}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/blanca_modelo}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:blanca_modelo} Medidas de una tecla blanca.}
@@ -125,7 +137,7 @@ Las \textbf{teclas negras}, en cambio, son más cortas y más delgadas, sobresal
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=50 50 50 50, width=\linewidth/2]{capitulo3/negra_modelo}
+		\includegraphics[width=\linewidth*2/3]{capitulo3/negra_modelo}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:negra_modelo} Medidas de una tecla negra.}
@@ -263,6 +275,8 @@ A continuación mostramos las medidas de longitud tomadas durante el análisis.
 
 \smallskip
 
+\newpage
+
 \section{PCB de control}
 
 La placa de circuito impreso es la solución a los requisitos \textit{hardware} aportada por el \textbf{proyecto de Mikel Aguayo Fernández} \cite{mikel}. Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. Actualmente disponemos de un \textbf{prototipo} de la placa con un número limitado de salidas.
@@ -346,7 +360,7 @@ El \textit{pedalier} representa una escala musical, con los pedales bajos simila
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_pedalier}
+		\includegraphics[width=\linewidth]{capitulo3/pcb_pedalier}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:pcb_pedalier} Interfaz entre la PCB y el pedalier.}
@@ -364,7 +378,7 @@ La mecánica a utilizar será diferente y, probablemente, algo más compleja, pe
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_registros}
+		\includegraphics[width=\linewidth]{capitulo3/pcb_registros}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:pcb_registros} Interfaz entre la PCB y las palancas de registros.}
@@ -463,10 +477,10 @@ Un codificador rotatorio es un componente electrónico consistente en un \textbf
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/4]{capitulo3/EC11J}
+		\includegraphics[width=\linewidth/4]{capitulo3/rotary}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:EC11J} Codificador rotatorio EC11J.}
+	\caption{\label{fig:rotary} Codificador rotatorio EC11J.}
 \end{figure} 
 
 \smallskip
@@ -477,10 +491,10 @@ La información nos viene dada por tres canales: uno para el pulsador y dos para
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/3]{capitulo3/rotary}
+		\includegraphics[width=\linewidth/3]{capitulo3/rotary_signal}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:rotary} Código de señales utilizado por el codificador rotatorio.}
+	\caption{\label{fig:rotary_signal} Código de señales utilizado por el codificador rotatorio.}
 \end{figure} 
 
 \smallskip
@@ -557,13 +571,15 @@ El siguiente gráfico muestra la \textbf{frecuencia de respuesta} de este zumbad
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_perifericos}
+		\includegraphics[width=\linewidth]{capitulo3/pcb_perifericos}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:pcb_perifericos} Interfaz entre la PCB y los periféricos.}
 \end{figure} 
 
 \smallskip
+
+\newpage
 
 \section{Plataforma Arduino}
 
@@ -608,6 +624,8 @@ Esta placa tiene, entre muchas otras ventajas, la posibilidad de recibir \textbf
 
 El hecho de utilizar un microcontrolador nos permite desarrollar \textit{software} sencillo y trabajar a bajo nivel sin dificultades. Además, al no disponer de sistema operativo su funcionamiento es determinista, siendo más fácil desarrollar \textit{software} en \textbf{tiempo-real}.
 
+\newpage
+
 \section{SBC Rasberry Pi}
 
 El \textit{Raspberry Pi} es un \textbf{ordenador} de placa única ---\acrshort{PCB} (\textit{\acrlong{SBC}})---, más potente que un microcontrolador y con \textbf{sistema operativo} basado en Linux. Se alimenta por \textit{USB} y se puede controlar con teclado y ratón, o bien desde red mediante \acrshort{SSH}. 
@@ -627,8 +645,6 @@ El corazón de este computador es un \textbf{\acrshort{SOCA}} (\textit{\acrlong{
 \smallskip
 
 \subsection{Especificaciones técnicas}
-
-La siguiente tabla ilustra las principales características del \textit{Raspberry Pi}:
 
 \smallskip
 
@@ -658,9 +674,37 @@ La siguiente tabla ilustra las principales características del \textit{Raspberr
 
 \smallskip
 
+\subsection{Sistema operativo}
+
+A pesar de su reducido tamaño, \textit{Raspberry Pi} no es un microcontrolador, sino un \textbf{microcomputador}, con una cantidad notable de recursos \textit{hardware} y potencia de cálculo suficiente para albergar \textbf{múltiples procesos} funcionando concurrentemente. Esto hace necesario el uso de un sistema operativo.
+
+Podemos encontrar varios sistemas operativos compatibles con este computador, pero nosotros vamos a utilizar el sistema oficial: \textbf{\textit{Raspbian}}, una distribución basada en \textit{Debian}, que incorpora el núcleo \textbf{GNU/Linux} para la plataforma \textit{ARMv6}.
+
+La introducción de un sistema operativo flexibiliza enormemente la gestión de los recursos \textit{hardware} de un ordenador y garantiza la \textbf{convivencia} equitativa de todos los procesos. Por contra, esto significa que ninguna aplicación podrá utilizar la \acrshort{CPU} a tiempo completo, ni se garantiza tiempo-real.
+
+El \textit{BCM2835} posee un \textbf{temporizador} de 1 \textit{MHz}. A pesar de esta velocidad, cada vez que se agote el tiempo de espera de un proceso, éste no es llamado inmediatamente, sino que se lleva a la cola de procesos. Esto garantiza un uso adecuado de los recursos \textit{software} al tiempo que hace imposible realizar comunicaciones síncronas a alta velocidad mediante programación.
+
+Además, la versión utilizada del núcleo Linux es \textbf{apropiativa} ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
+
+En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
+
 \subsection{Pines de E/S}
 
 Como hemos adelantado, la \acrshort{PCB} se conectará al \textit{Raspberry} a través de los conectores \acrshort{GPIO} (\textit{\acrlong{GPIO}}). Todos ellos se utilizarán de forma \textbf{genérica}, excepto el receptor del mando a distancia, que se comunica con la interfaz \textit{RS-232} y debe conectarse al \textbf{\acrshort{UART}} mediante el pin dedicado a tal periférico.
+
+El siguiente esquema ilustra las conexiones entre la \acrshort{PCB} y el \textit{Raspberry Pi}:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth]{capitulo3/pcb_gpio}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:pcb_gpio} Pines de conexión de la PCB con el Raspberry.}
+\end{figure}
+
+\smallskip
 
 La asignación de pines es la que sigue:
 
@@ -696,33 +740,7 @@ La asignación de pines es la que sigue:
 
 \smallskip
 
-El siguiente esquema ilustra las conexiones entre la \acrshort{PCB} y el \textit{Raspberry Pi}:
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/pcb_gpio}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:pcb_gpio} Pines de conexión de la PCB con el Raspberry.}
-\end{figure} 
-
-\smallskip
-
-\subsection{Sistema operativo}
-
-A pesar de su reducido tamaño, \textit{Raspberry Pi} no es un microcontrolador, sino un \textbf{microcomputador}, con una cantidad notable de recursos \textit{hardware} y potencia de cálculo suficiente para albergar \textbf{múltiples procesos} funcionando concurrentemente. Esto hace necesario el uso de un sistema operativo.
-
-Podemos encontrar varios sistemas operativos compatibles con este computador, pero nosotros vamos a utilizar el sistema oficial: \textbf{\textit{Raspbian}}, una distribución basada en \textit{Debian}, que incorpora el núcleo \textbf{GNU/Linux} para la plataforma \textit{ARMv6}.
-
-La introducción de un sistema operativo flexibiliza enormemente la gestión de los recursos \textit{hardware} de un ordenador y garantiza la \textbf{convivencia} equitativa de todos los procesos. Por contra, esto significa que ninguna aplicación podrá utilizar la \acrshort{CPU} a tiempo completo, ni se garantiza tiempo-real.
-
-El \textit{BCM2835} posee un \textbf{temporizador} de 1 \textit{MHz}. A pesar de esta velocidad, cada vez que se agote el tiempo de espera de un proceso, éste no es llamado inmediatamente, sino que se lleva a la cola de procesos. Esto garantiza un uso adecuado de los recursos \textit{software} al tiempo que hace imposible realizar comunicaciones síncronas a alta velocidad mediante programación.
-
-Además, la versión utilizada del núcleo Linux es \textbf{apropiativa} ---\textit{preemptive}---, lo que significa que una rutina en modo \textit{kernel} puede bloquearse para dar paso a un servicio de interrupción, incluso que una interrupción puede verse bloqueada por otra de mayor prioridad (interrupciones anidadas).
-
-En conclusión, el uso de un sistema operativo de este tipo, a pesar de ser de gran utilidad, no garantiza sincronismo ni que una espera solicitada sea tan exacta como se pide.
+\newpage
 
 \section{Formato de archivo MIDI}
 \label{sec:fmto_midi}
@@ -894,6 +912,8 @@ Los tipos de meta-evento estándar son los siguientes:
 
 Las notas en \acrshort{MIDI} se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
 
+\newpage
+
 \section{Esquema de interconexión general}
 
 Todos los elementos que hemos descrito conformarán la parte \textit{hardware} del sistema y establecerán una conexión cuyos extremos son el \textbf{computador} \textit{Raspberry Pi} y los \textbf{mecanismos} que interactuarán con la consola del órgano.
@@ -916,5 +936,5 @@ La \acrshort{PCB} incorpora una \textbf{fuente de alimentación} para el \textit
 
 El resto de \textbf{periféricos} de la placa nos serán de utilidad para desarrollar un sistema que cumplirá todos los requisitos contemplados en el capítulo \ref{cap:capitulo_2}.
 
-\clearpage{\cleardoublepage}
+\newpage
 \clearpage{\pagestyle{empty}\cleardoublepage}

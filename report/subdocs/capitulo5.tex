@@ -1,5 +1,10 @@
-\chapter{Implementación del sistema.}
+\chapter{Implementación}
 \label{cap: capitulo_5}
+
+\begin{quote}
+	\small \flushright ''\textit{Hay varias formas de hacer las cosas, y una de ellas es hacerlas bien.}'' \\
+	--- Profesora Mª Amparo Vila Miranda (2010).
+\end{quote}
 
 A lo largo de este capítulo vamos a explicar cómo hemos llevado a cabo el proceso de implementación del sistema, partiendo del diseño especificado en las páginas anteriores.
 
@@ -8,6 +13,8 @@ Todos los bloques se han implantado con una filosofía similar, teniendo en cuen
 Debemos tener también en cuenta que el servicio podrá ser utilizado por \textbf{varios usuarios} a la vez ---incluso varios componentes--- y el planificador, si bien no requiere características de tiempo-real estricto, es necesario que responda adecuadamente a los tiempos marcados por la partitura.
 
 En el demonio, nuestra máxima prioridad será la \textbf{eficiencia}, mientras que en la interfaz \textit{web} nos centraremos en la \textbf{accesibilidad}.
+
+\newpage
 
 \section{Planificación}
 
@@ -71,6 +78,8 @@ Conocidas las tareas básicas a realizar, proponemos la siguiente planificación
 \smallskip
 
 Como podemos ver, el primer paso es \textbf{analizar} el funcionamiento y la mecánica del órgano para permitir a Mikel continuar su trabajo. Mientras él diseña la \acrshort{PCB}, nosotros comenzamos el \textbf{diseño} de los módulos que no dependen de ésta. Tan pronto como recibamos su diseño, podremos desarrollar el resto del sistema.
+
+\newpage
 
 \section{Servicio del reproductor}
 
@@ -210,9 +219,9 @@ Otra de las clases a implementar es \code{MidiEvent}, que representa cada uno de
 	\item[pitch\code{(self)}]
 	Devuelve el valor del \textit{pitch-bend} uniendo los parámetros:
 	
-	\begin{center}
-		$p_1 \; | \; (p_2 << 7)$
-	\end{center}
+	\begin{equation}
+		pitch = p_1 \; | \; (p_2 << 7)
+	\end{equation}
 	
 	\item[parseEvents(file)]
 	Método de clase. Analiza todos los eventos de la pista actual en el archivo (\code{file}) hasta encontrar el meta-evento \code{END\_OF\_TRACK}. Su funcionamiento es el siguiente:
@@ -259,9 +268,9 @@ Por último, la clase \code{MetaEvent} hereda de \code{MidiEvent} y, de acuerdo 
 	\item[\code{tempo(self)}]
 	Calcula el \textit{tempo} en \textit{$\mu s / \quarternote$}. Este valor ocupa 3 \textit{bytes}, que se acuñan así:
 	
-	\begin{center}
-		($d_0 << 16) \; | \; (d_1 << 8) \; | \; d_2$
-	\end{center}
+	\begin{equation}
+		(d_0 << 16) \; | \; (d_1 << 8) \; | \; d_2
+	\end{equation}
 	
 	\item[\code{offset(self)}]
 	Devuelve el desplazamiento temporal en una lista con el siguiente contenido:
@@ -438,9 +447,9 @@ El prototipo nos sirvió para extraer dos objeciones:
 \begin{enumerate}
 	\item El \textbf{retraso} ($\Delta$) del evento es \textbf{inversamente proporcional} al \textit{tempo} y a la división de tiempo, indicada en la cabecera del archivo. Así pues, como el \textit{tempo} se expresa invertido, la espera se calcula de la siguiente forma:
 	
-	\begin{center}
-		$retraso \; (\mu s)  = \frac{\Delta \; (ticks) \; \times \; tempo \; (\mu s / \quarternote)}{division \; (ticks / \quarternote)}$
-	\end{center}
+	\begin{equation}
+		retraso \; (\mu s)  = \frac{\Delta \; (ticks) \; \times \; tempo \; (\mu s / \quarternote)}{division \; (ticks / \quarternote)}
+	\end{equation}
 	
 	\item La semántica para \textbf{desactivar una nota} no solo se hace con un evento NOTE\_OFF, sino que algunas piezas lo especifican con un evento NOTE\_ON con velocidad 0. Esto resulta útil para ahorrar espacio de almacenamiento, repitiendo el mismo tipo de evento.
 \end{enumerate}
@@ -551,6 +560,14 @@ Además, el módulo implementa los siguientes elementos de forma \textbf{estáti
 	
 \end{description}
 
+\subsubsection{Metrónomo y velocidad}
+
+Todas las partituras tienen una \textbf{marca de \textit{tempo}}, es decir, la velocidad a la que se reproducen. Esto se indica mediante el \textbf{meta-evento} correspondiente, habitualmente en la primera pista.
+
+El planificador debe tener en cuenta este dato para reproducir correctamente la pieza. Si no se especificase el \textit{tempo}, se toma \textbf{por defecto} $\quarternote=120$, o $\quarternote=0.5 \;s$.
+
+La interfaz de salida permite marcar \textbf{pulsos de metrónomo} para marcar el \textit{tempo} mediante un \acrshort{led} o un zumbador. Para controlar el tiempo, el planificador incorpora una \textbf{pista extra} compuesta por negras (\quarternote). Cuando se agota su \textit{delta}, en lugar de volcarlas a en la salida mediante \code{output\_noteon()}, las indica llamando a \code{output\_metronome()}.
+
 \subsubsection{Concurrencia}
 
 El planificador puede ser llamado por el servidor de \textit{socket}, el controlador del mando o el gestor del modo Ingeniería en cualquier momento, y en cualquier punto del reproductor. Esto puede llegar a generar \textbf{condiciones de carrera}, o incluso bloquear el sistema si dos módulos pretenden llevar a cabo acciones al mismo tiempo.
@@ -577,16 +594,16 @@ Todas las implementaciones deben tener en común el hecho de almacenar el estado
 
 Inicialmente hicimos una \textbf{prueba de concepto} en Python para entender el funcionamiento de los registros de desplazamiento. Como ya explicamos en la sección de análisis (\ref{subsec:conexion_mecanica}), cada registro está dedicado a un componente del órgano, pero todos funcionan igual.
 
-La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como \textbf{ejemplo} el famoso \textit{Himno a la alegría} de Ludwig van Beethoven:
+La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como \textbf{ejemplo} el famoso fragmento de la \textit{Oda a la alegría} de Ludwig van Beethoven:
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=20 580 20 30,width=\linewidth*3/4]{capitulo5/beethoven_1voz}
+		\includegraphics[clip=true,trim=20 580 20 30,width=\linewidth]{capitulo5/beethoven_1voz}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:beethoven_1voz} Fragmento del Himno a la Alegría de Beethoven.}
+	\caption{\label{fig:beethoven_1voz} Fragmento de la Oda a la Alegría de Beethoven.}
 \end{figure}
 
 \smallskip
@@ -965,7 +982,7 @@ Es muy importante que se mantenga en funcionamiento y con \textbf{capacidad de r
 
 Cualquier detalle de diseño o implementación puede ser decisivo a la hora de obtener un resultado \textbf{seguro y fiable}. Para ello, puliremos toda la programación relativa a la \textbf{entrada de datos}. Otra parte importante es la seguridad respecto a la concurrencia, ya abordada en la construcción del planificador, y que afinaremos a continuación.
 
-\subsection{Desbordamiento de la memoria de entrada}
+\subsubsection{Desbordamiento de la memoria de entrada}
 
 En este caso, dado que la recepción de órdenes viene dada por una aplicación, además, de implementación propia, no será necesario filtrarla tanto como haremos en el \textit{front-end}. Sin embargo, es necesario \textbf{acotar el riesgo} de que, bien por intrusión, bien por un error de programación, recibamos una cantidad inesperada de datos.
 
@@ -975,7 +992,7 @@ El desbordamiento de memoria de entrada ---\textit{buffer overflow}--- se produc
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo5/stack}
+		\includegraphics[width=\linewidth]{capitulo5/stack}
 		\par\end{centering}
 	\smallskip
 	\caption[Pila de aplicación en Linux]{\label{fig:stack} Pila de aplicación en Linux. \cite{zanero_cs}}
@@ -991,7 +1008,7 @@ Más aún, este riesgo podría ser aprovechado por un \textbf{intruso} para modi
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/3]{capitulo5/disaster_girl}
+		\includegraphics[width=\linewidth/2]{capitulo5/disaster_girl}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:disaster_girl} ¿Y si cambiamos el puntero de instrucción?}
@@ -999,7 +1016,7 @@ Más aún, este riesgo podría ser aprovechado por un \textbf{intruso} para modi
 
 \smallskip
 
-La \textbf{solución} adoptada es utilizar una cantidad razonable de memoria y limitar la cadena de entrada acotando tanto la \textbf{recepción} en la llamada al sistema \code{recv()} como la \textbf{comparación} de cadenas, usando \code{strncmp()} en lugar de \code{strcmp()}. Nuestro sistema utiliza \textit{buffers} de \textbf{4 \textit{KB}}, memoria más que suficiente para recibir una lista de reproducción de tamaño considerable.
+La \textbf{solución} adoptada es utilizar una cantidad razonable de memoria y limitar la cadena de entrada acotando tanto la \textbf{recepción} en la llamada al sistema \code{recv()} como la \textbf{comparación} de cadenas, usando \code{strncmp()} en lugar de \code{strcmp()}. Nuestro sistema utiliza \textit{buffers} de \textbf{4 \textit{KiB}}, memoria más que suficiente para recibir una lista de reproducción de tamaño considerable.
 
 \subsubsection{Permisos de usuario}
 
@@ -1069,6 +1086,8 @@ Las carpetas utilizadas como destino de instalación son las siguientes:
 	\item[/etc/init.d] \textit{Script} de inicio del servicio.
 \end{description}
 
+\newpage
+
 \section{Interfaz web}
 
 Es ahora el momento de abordar la construcción del \textit{back-end} del sistema. Como ya sabemos, será un servidor \acrshort{HTTP}. Hemos tenido en cuenta las siguientes \textbf{alternativas} como lenguajes de programación para el servidor:
@@ -1076,12 +1095,12 @@ Es ahora el momento de abordar la construcción del \textit{back-end} del sistem
 \begin{itemize}
 	\item \textbf{C/C++ con \acrshort{CGI}}. Sería la solución más rápida en tiempo de ejecución, por ser lenguajes compilados. A cambio, la programación sería mucho más lenta, porque trabajamos a más bajo nivel.
 	
-	\item \textbf{PHP 5}. Es quizás la opción más popular, es un lenguaje interpretado y diseñado para entornos \textit{web}.
+	\item \textbf{\acrshort{PHP} 5}. Es quizás la opción más popular, es un lenguaje interpretado y diseñado para entornos \textit{web}.
 	
 	\item \textbf{Python 3 con la biblioteca Django}. También es un lenguaje interpretado, la biblioteca Django tiene una estructura más complicada, diseñada para sitios complejos.
 \end{itemize}
 
-Estudiadas las tres opciones, consideramos que la mejor es \textbf{PHP}, por equilibrar rendimiento y comodidad de programación. En el capítulo posterior probaremos el tiempo de ejecución de las páginas, que es más que aceptable.
+Estudiadas las tres opciones, consideramos que la mejor es \textbf{\acrshort{PHP}}, por equilibrar rendimiento y comodidad de programación. En el capítulo posterior probaremos el tiempo de ejecución de las páginas, que es más que aceptable.
 
 El servidor generará una página \textbf{\acrshort{HTML} 5}, la última versión del estándar. La estética se escribirá en \textbf{\acrshort{CSS} 3}. En el lado del cliente, siempre es necesario actuar sobre una página generada, donde utilizaremos \textbf{JavaScript} para acceder a ella a través de \acrshort{DOM} ---\textit{\acrlong{DOM}}---.
 
@@ -1090,7 +1109,7 @@ Además, debemos almacenar las cadenas constantes en archivos, dependiendo del i
 En resumen usaremos las siguientes tecnologías:
 
 \begin{enumerate}
-	\item PHP 5.4, como lenguaje de programación.
+	\item \acrshort{PHP} 5.4, como lenguaje de programación.
 	\item \acrshort{HTML} 5, como lenguaje de marcado.
 	\item \acrshort{CSS} 3, para las hojas de estilos.
 	\item \acrshort{XML}, para almacenar información estática.
@@ -1099,14 +1118,14 @@ En resumen usaremos las siguientes tecnologías:
 
 \subsection{Estructura principal}
 
-Vamos a organizar los archivos de una forma limpia y fácil de acceder. Para ello, en la carpeta raíz tendremos los archivos PHP correspondientes a las vistas, y otro para el control. Cada \textbf{vista} se implementará en un archivo diferente, para facilitar la consulta. Ya que el \textbf{controlador} recibirá datos privados, se implementará en un solo archivo.
+Vamos a organizar los archivos de una forma limpia y fácil de acceder. Para ello, en la carpeta raíz tendremos los archivos \acrshort{PHP} correspondientes a las vistas, y otro para el control. Cada \textbf{vista} se implementará en un archivo diferente, para facilitar la consulta. Ya que el \textbf{controlador} recibirá datos privados, se implementará en un solo archivo.
 
 El resto de ficheros se clasificarán de las siguientes carpetas:
 
 \begin{description}
-	\item[ajax] Páginas PHP de uso exclusivo para \acrshort{AJAX}.
+	\item[ajax] Páginas \acrshort{PHP} de uso exclusivo para \acrshort{AJAX}.
 	\item[images] Imágenes para la página.
-	\item[lib] Bibliotecas PHP, para el modelo y para la vista.
+	\item[lib] Bibliotecas \acrshort{PHP}, para el modelo y para la vista.
 	\item[scripts] Código JavaScript a cargar por las páginas.
 	\item[styles] Hojas de estilos en cascada, en \acrshort{CSS}.
 	\item[translations] Ficheros de traducción, en \acrshort{XML}.
@@ -1159,7 +1178,7 @@ De esta forma se evita que el explorador o eventualmente un motor de búsqueda c
 
 Este módulo implementa el modelo de la sesión para permitir que todos los parámetros a almacenar sean accedidos por el resto de archivos a través de funciones, evitando errores lógicos. La interfaz está descrita en la sección \ref{subsec:session}, del capítulo de diseño.
 
-La sesión de usuario es una \textbf{\textit{cookie}} gestionada por el intérprete de PHP, que se incluye en la cabecera \acrshort{HTTP} al principio del programa, llamando a \code{session\_start()}. A partir de ahí, tenemos acceso a la variable global \code{\_SESSION}, un \textit{array} del que utilizaremos tres claves:
+La sesión de usuario es una \textbf{\textit{cookie}} gestionada por el intérprete de \acrshort{PHP}, que se incluye en la cabecera \acrshort{HTTP} al principio del programa, llamando a \code{session\_start()}. A partir de ahí, tenemos acceso a la variable global \code{\_SESSION}, un \textit{array} del que utilizaremos tres claves:
 
 \begin{description}
 	\item[auth] Tiene el valor 1 si el usuario se ha autentificado. Se escribe con \code{set\_auth()} y \code{unset\_auth()} y se consulta con \code{get\_auth()}.
@@ -1201,7 +1220,7 @@ Un ejemplo para un ''Hola Mundo'' en dos idiomas sería el siguiente:
 	\color{blue}</translation>
 \end{Verbatim}
 
-El programa en PHP busca todos los archivos existentes en la carpeta de traducciones con \code{glob()} y los interpreta con ayuda de la función \code{simplexml\_load\_file()}. A continuación los guarda en una lista global, denominada \code{translators}, a acceder por todas las funciones que la requieran.
+El programa en \acrshort{PHP} busca todos los archivos existentes en la carpeta de traducciones con \code{glob()} y los interpreta con ayuda de la función \code{simplexml\_load\_file()}. A continuación los guarda en una lista global, denominada \code{translators}, a acceder por todas las funciones que la requieran.
 
 El hecho de leer todos los archivos de lenguaje se explica en el \textbf{menú desplegable} que se mostrará en la barra de cabecera, y presenta todos los idiomas disponibles, con el siguiente aspecto:
 
@@ -1250,6 +1269,7 @@ Ambas llamadas devuelven un \textbf{código de retorno} (0 en caso de éxito o 1
 Recordar que el usuario del servidor Apache (www-data) no posee por defecto privilegios para realizar cambios que afecten al equipo. Por ello modificaremos el sistema para concederle tales permisos, como explicaremos más adelante, en la sección \ref{subsec:web_seguridad}.
 
 \subsection{Portada}
+\label{subsec:impl_portada}
 
 La portada constituye la primera página que se muestra al acceder al sistema. La \textbf{vista} incluye un fondo de pantalla dinámico, que cambia a intervalos de tiempo regulares.
 
@@ -1267,7 +1287,7 @@ Si se aprueba el acceso, llamamos a \code{set\_auth()} para registrarlo en la se
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_login_error}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_login_error}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_login_error} Formulario de entrada con mensaje de error.}
@@ -1287,7 +1307,7 @@ La función de la plantilla que la crea, \code{html\_navigation()}, utiliza el I
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_navigation}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_navigation}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_navigation} Barra lateral de navegación.}
@@ -1299,9 +1319,9 @@ La función de la plantilla que la crea, \code{html\_navigation()}, utiliza el I
 
 De manera análoga a como hicimos en el demonio para comunicarnos con la base de datos independientemente del motor utilizado, en la interfaz dedicaremos un módulo a conectarnos a la base de datos MySQL.
 
-La estructura de datos que más utilizaremos serán \textbf{mapas asociativos} (\textit{arrays} con claves), ya que son la estructura subyacente en los objetos de PHP y, por consiguiente, más eficientes.
+La estructura de datos que más utilizaremos serán \textbf{mapas asociativos} (\textit{arrays} con claves), ya que son la estructura subyacente en los objetos de \acrshort{PHP} y, por consiguiente, más eficientes.
 
-Nuestro módulo establecerá una conexión con la base de datos, creando un objeto \code{mysqli}, la nueva versión del cliente MySQL para PHP. Las credenciales y el nombre de esquema quedan predefinidos mediante constantes. En caso de \textbf{error}, se mostrará un mensaje con \code{html\_error()}, y no podremos continuar hasta que solucionemos el problema.
+Nuestro módulo establecerá una conexión con la base de datos, creando un objeto \code{mysqli}, la nueva versión del cliente MySQL para \acrshort{PHP}. Las credenciales y el nombre de esquema quedan predefinidos mediante constantes. En caso de \textbf{error}, se mostrará un mensaje con \code{html\_error()}, y no podremos continuar hasta que solucionemos el problema.
 
 Todas las funciones definidas están descritas en la sección \ref{subsec:web_database} de diseño. El \textbf{procedimiento habitual} para ejecutar una sentencia es el siguiente:
 
@@ -1347,7 +1367,7 @@ La página se genera en función de una consulta hacia el \textbf{demonio} para 
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_reproductor}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_reproductor}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_reproductor} Vista del reproductor.}
@@ -1376,7 +1396,7 @@ El grueso del controlador de este módulo está compuesto por llamadas a funcion
 	\item[\code{next()}] Pista anterior, circularmente.
 \end{description}
 
-\code{pause()}, \code{resume()} y \code{stop()} hacen una petición de tipo \acrshort{AJAX} a pequeñas aplicaciones PHP específicas a tal efecto, que simplemente transmiten la orden al demonio mediante el \textit{socket}. Después, modifican los controles según corresponda ---ocultar un botón, mostrar otro, etc.---
+\code{pause()}, \code{resume()} y \code{stop()} hacen una petición de tipo \acrshort{AJAX} a pequeñas aplicaciones \acrshort{PHP} específicas a tal efecto, que simplemente transmiten la orden al demonio mediante el \textit{socket}. Después, modifican los controles según corresponda ---ocultar un botón, mostrar otro, etc.---
 
 \code{previous()} y \code{next()}, para los botones adelante/atrás, realizan \textbf{peticiones completas} para reproducir una lista, empezando por una pista distinta. La reproducción se hace en ciclo, por tanto, la pieza que sucede a la última es la primera.
 
@@ -1386,7 +1406,7 @@ Este mismo mecanismo se utiliza cuando se pulsa sobre un elemento de la lista, q
 	\code{control.php ? action=play \& idplaylist=\$X \& idscore=\$Y}
 \end{center}
 
-La parte del control en PHP recibe la orden, consulta en la base de datos la lista de archivos y la envía al demonio a través del \textit{socket}.
+La parte del control en \acrshort{PHP} recibe la orden, consulta en la base de datos la lista de archivos y la envía al demonio a través del \textit{socket}.
 
 \subsection{Gestión de listas y piezas}
 \label{subsec:impl_gestor}
@@ -1403,7 +1423,7 @@ El gestor de listas consiste esencialmente en una \textbf{tabla} que muestra las
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_listas}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_listas}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_listas} Vista del gestor de listas.}
@@ -1443,7 +1463,7 @@ La cabecera de la sección provee controles que permiten renombrar y borrar la l
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_piezas}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_piezas}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_piezas} Vista del administrador de piezas.}
@@ -1461,7 +1481,7 @@ Por último, existen varias \textbf{ventanas modales}, cada una correspondiente 
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_elim_lista}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_elim_lista}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_elim_lista} Diálogo para eliminar una lista.}
@@ -1477,7 +1497,7 @@ La mayor parte del controlador para este módulo consiste en pequeñas funciones
 
 \code{delete\_score()} borra una pieza de la base de datos y del almacenamiento. La función \code{delete\_playlist()} elimina una lista de la base de datos, pero antes debe obtener los nombres de archivos contenidos y eliminarlos. Ya que las listas están enlazadas a las piezas por \textbf{llave externa}, las tuplas correspondientes a las piezas contenidas en la lista se eliminarán automáticamente.
 
-\code{new\_score()} inserta una pieza en una lista. Recibe el parámetro \code{idplaylist} y el archivo \acrshort{MIDI}. En primer lugar comprueba el formato del archivo y su tamaño ---se descartan archivos mayores de 1 \textit{MB}--- y utiliza la aplicación \textit{Midinfo} (descrita en la sección \ref{subsec:midinfo}) para conocer su duración y verificar su formato. Para \textbf{evitar colisiones} de nombres, el archivo se guardará con un nombre igual a su identificador en la base de datos. La inserción se hace en dos pasos:
+\code{new\_score()} inserta una pieza en una lista. Recibe el parámetro \code{idplaylist} y el archivo \acrshort{MIDI}. En primer lugar comprueba el formato del archivo y su tamaño ---se descartan archivos mayores de 1 \textit{MiB}--- y utiliza la aplicación \textit{Midinfo} (descrita en la sección \ref{subsec:midinfo}) para conocer su duración y verificar su formato. Para \textbf{evitar colisiones} de nombres, el archivo se guardará con un nombre igual a su identificador en la base de datos. La inserción se hace en dos pasos:
 
 \begin{enumerate}
 	\item Se inserta la tupla mediante \code{db\_insert\_score()}, que crea el elemento asignando como título el nombre original de archivo, pero establece otro nombre de almacenamiento único.
@@ -1497,7 +1517,7 @@ Como hemos explicado en la vista, hay \textbf{dos métodos} para subir archivos,
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_ins_pieza}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_ins_pieza}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_ins_pieza} Progreso de inserción de piezas.}
@@ -1519,7 +1539,7 @@ Esta página muestra una \textbf{tabla} con todos los botones contemplados en el
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_mando}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_mando}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_mando} Vista del gestor del mando.}
@@ -1568,7 +1588,7 @@ Un error de programación muy común al comunicar el controlador con el modelo e
 Si el usuario escribe en el campo de contraseña el siguiente texto:
 
 \begin{center}
-	\code{' OR 1=1;}
+	\framebox[\textwidth/4][c]{\code{' OR 1=1;}}
 \end{center}
 
 Entonces el gestor de bases de datos recibirá la siguiente cadena:
@@ -1581,7 +1601,7 @@ Teniendo en cuenta que todo lo que sucede al punto y coma es descartado, la base
 
 Esto se evita \textbf{filtrando} todas las cadenas de entrada del usuario, descartando caracteres especiales que puedan producir efectos nocivos. La implementación del modelo de la base de datos se ha hecho con \textbf{sentencias preparadas}, que realizan esta acción automáticamente.
 
-Como medida adicional, las \textbf{credenciales} de usuario cedidas a la aplicación PHP solo tienen permisos para alterar el \textbf{contenido} de las tablas, no para modificar las propias tablas.
+Como medida adicional, las \textbf{credenciales} de usuario cedidas a la aplicación \acrshort{PHP} solo tienen permisos para alterar el \textbf{contenido} de las tablas, no para modificar las propias tablas.
 
 \subsubsection{Inyección de código shell}
 
@@ -1594,7 +1614,7 @@ En nuestro caso particular de \textbf{autentificación}, el controlador recibe l
 Un ejemplo de inyección de código podría ser escribir la siguiente ''contraseña'':
 
 \begin{center}
-	\code{'' || sudo shutdown now || ''}
+	\framebox[\textwidth/2][c]{\code{'' || sudo shutdown now || ''}}
 \end{center}
 
 Dando como resultado la siguiente instrucción de consola:
@@ -1603,7 +1623,7 @@ Dando como resultado la siguiente instrucción de consola:
 	\code{/usr/local/bin/organ-login ''pi'' '''' || sudo shutdown now || ''''}
 \end{center}
 
-Este riesgo es real en nuestra aplicación, pues tenemos permiso de \textit{root} para apagar el sistema. La solución a este problema es similar a la del caso anterior: \textbf{filtrar la entrada} del usuario, en este caso usaremos la función \code{escapeshellargs()} de PHP.
+Este riesgo es real en nuestra aplicación, pues tenemos permiso de \textit{root} para apagar el sistema. La solución a este problema es similar a la del caso anterior: \textbf{filtrar la entrada} del usuario, en este caso usaremos la función \code{escapeshellargs()} de \acrshort{PHP}.
 
 \subsubsection{Permisos de usuario}
 
@@ -1624,6 +1644,8 @@ El directorio donde se guardarán las partituras (\code{/home/pi/midis}) se cons
 La utilidad de \textbf{autentificación} requiere permisos de administrador. Aún así, no será necesario solicitar elevación explícitamente porque utiliza la característica \textbf{\textit{setuid}}, que hace que se ejecute siempre con permisos de \textit{root}.
 
 Por último, el acceso al \textit{socket} de la \textbf{base de datos} es público, siempre que se conecte de forma \textbf{local}. El resto de la seguridad de MySQL descansa sobre la gestión de usuarios y contraseñas, para la cual tenemos un usuario dedicado, como describiremos a continuación.
+
+\newpage
 
 \section{Base de datos}
 
@@ -1651,7 +1673,7 @@ Este archivo se incluye en el \textbf{instalador} y se ejecuta después de insta
 
 \begin{center}
 	\begin{tabular}{|l|l|l|l|}
-		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\ 
 		\hline idplaylist & INTEGER & Llave primaria & Identificador de lista \\ 
 		\hline name & VARCHAR(255) & & Nombre de la lista \\ 
 		\hline 
@@ -1666,7 +1688,7 @@ Este archivo se incluye en el \textbf{instalador} y se ejecuta después de insta
 
 \begin{center}
 	\begin{tabular}{|l|l|l|l|}
-		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
 		\hline idscore & INTEGER & Llave primaria & Identificador de partitura \\ 
 		\hline \multirow{2}{*}{playlist} & \multirow{2}{*}{INTEGER} & Obligatorio & \multirow{2}{*}{Lista contenedora} \\
 		\cline{3-3} & & Referencia a Playlist & \\
@@ -1685,7 +1707,7 @@ Este archivo se incluye en el \textbf{instalador} y se ejecuta después de insta
 
 \begin{center}
 	\begin{tabular}{|l|l|l|l|}
-		\hline \textbf{Campo} & \textbf{Tipo} & \textbf{Restricciones} & \textbf{Descripción} \\ 
+		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
 		\hline idshortcut & INTEGER & Llave primaria & Identificador de botón \\ 
 		\hline playlist & INTEGER & & Referencia a Playlist \\ 
 		\hline 
@@ -1755,6 +1777,8 @@ Después de crear listas de ejemplo y agregar algunas piezas, hacemos una consul
 \end{figure} 
 
 \smallskip
+
+\newpage
 
 \section{Aplicaciones auxiliares}
 
@@ -1880,7 +1904,7 @@ El demonio incluye un \textit{Makefile} y un \textit{script} de preinstalación 
 Las acciones que realiza son las siguientes:
 
 \begin{enumerate}
-	\item Instala el sistema MySQL, el servidor Apache y el lenguaje PHP.
+	\item Instala el sistema MySQL, el servidor Apache y el lenguaje \acrshort{PHP}.
 	\item Añade el usuario de Apache, \code{www-data}, al grupo \code{organ}.
 	\item Genera el archivo de configuración del sitio \textit{web} desde una plantilla:
 	
@@ -1893,6 +1917,8 @@ Las acciones que realiza son las siguientes:
 	\item Ejecuta el archivo \acrshort{SQL} para crear la base de datos.
 	\item Crea la carpeta raíz de la interfaz y el directorio de ficheros \acrshort{MIDI}.
 \end{enumerate}
+
+\newpage
 
 \section{Resultado de la implementación}
 
@@ -2005,7 +2031,7 @@ Agrupamos todos los módulos y contamos las líneas de código para conocer la r
 	\begin{tabular}{|l|r|r|r|r|}
 		\hline & \textbf{Controlador} & \textbf{Administrador} & \textbf{Prototipos} & \textbf{Total} \\ 
 		\hline \textbf{C} & 2062 & & 498 & 2560 \\
-		\hline \textbf{PHP} & & 1051 & & 1051 \\
+		\hline \textbf{\acrshort{PHP}} & & 1051 & & 1051 \\
 		\hline \textbf{Python} &  &  & 541 & 541 \\
 		\hline \textbf{CSS} & & 460 & & 460 \\
 		\hline \textbf{JavaScript} & & 263 & & 263 \\
@@ -2029,7 +2055,7 @@ Esta información se representa gráficamente de la siguiente manera:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*2/3]{capitulo5/lineas}
+		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*3/4]{capitulo5/lineas}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas} Distribución del código fuente.}
@@ -2037,7 +2063,7 @@ Esta información se representa gráficamente de la siguiente manera:
 
 \smallskip
 
-Podemos ver que la mayor parte del código está en \textbf{lenguaje C} y pertenece al \textbf{controlador}, existiendo una cantidad menor de código para los prototipos. Le sigue PHP en el administrador, mientras que Python ha sido el lenguaje más utilizado para prototipos.
+Podemos ver que la mayor parte del código está en \textbf{lenguaje C} y pertenece al \textbf{controlador}, existiendo una cantidad menor de código para los prototipos. Le sigue \acrshort{PHP} en el administrador, mientras que Python ha sido el lenguaje más utilizado para prototipos.
 
 Si agrupamos los datos en función de los bloques, obtenemos la siguiente gráfica:
 
@@ -2045,7 +2071,7 @@ Si agrupamos los datos en función de los bloques, obtenemos la siguiente gráfi
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*2/3]{capitulo5/lineas_modulos}
+		\includegraphics[clip=true,trim=10 340 410 50,width=\linewidth*3/4]{capitulo5/lineas_modulos}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas_modulos} Distribución del código fuente por módulos.}
@@ -2061,7 +2087,7 @@ Por último, mostramos la gráfica que agrupa las líneas de código en función
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=10 330 400 50,width=\linewidth*2/3]{capitulo5/lineas_lenguajes}
+		\includegraphics[clip=true,trim=10 330 400 50,width=\linewidth*3/4]{capitulo5/lineas_lenguajes}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:lineas_lenguajes} Distribución del código fuente por lenguaje.}
@@ -2070,3 +2096,6 @@ Por último, mostramos la gráfica que agrupa las líneas de código en función
 \smallskip
 
 El \textbf{lenguaje más utilizado} en este proyecto ha sido C con amplia diferencia. A pesar de que es un lenguaje de bajo nivel, con mayor coste de implementación y es fácil cometer errores con él, sobre todo utilizando aritmética de punteros, podremos ver en el capítulo que sigue que ha merecido la pena, tanto por su \textbf{eficiencia} como su capacidad de \textbf{modularización}.
+
+\newpage
+\clearpage{\pagestyle{empty}\cleardoublepage}
