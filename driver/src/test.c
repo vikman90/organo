@@ -22,6 +22,12 @@ int main(int argc, char **argv) {
 	}
 
 	path = (char *)malloc(strlen(argv[1]) + 1);
+	
+	if (!path) {
+		perror("Fallo de memoria");
+		return EXIT_FAILURE;
+	}
+	
 	strcpy(path, argv[1]);
 
 	if (player_start(&path, 1, 0)) {

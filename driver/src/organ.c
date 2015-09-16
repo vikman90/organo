@@ -51,12 +51,12 @@ int main(int argc, char **argv) {
 
 		// Get absolute path
 
-		if (argv[2][1] == '/')
-			strcpy(path, argv[2]);
+		if (!strncmp(argv[2], "/", 1))
+			strncpy(path, argv[2], BUFFER_LENGTH - 1);
 		else {
-			getcwd(path, BUFFER_LENGTH);
-			strcat(path, "/");
-			strcat(path, argv[2]);
+			getcwd(path, BUFFER_LENGTH - 1);
+			strncat(path, "/", BUFFER_LENGTH - strlen(path) - 1);
+			strncat(path, argv[2], BUFFER_LENGTH - strlen(path) - 1);
 		}
 
 		fd = open(path, O_RDONLY);

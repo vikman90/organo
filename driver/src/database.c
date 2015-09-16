@@ -50,11 +50,23 @@ int db_query(char ***scores, int idshortcut) {
 
 	nrows = mysql_num_rows(result);
 	*scores = (char **)malloc(nrows * sizeof(char*));
+	
+	if (!(*scores))
+		return -1;
 
 	for (i = 0; i < nrows; i++) {
 		MYSQL_ROW row = mysql_fetch_row(result);
 
 		(*scores)[i] = (char *)malloc(strlen(row[0]) + strlen(SCORE_HOME) + 1);
+		
+		if (!(*scores)[i]) {
+			while (i > 0)
+				free((*scores)[i--]);
+			
+			free(*scores);
+			return -1;
+		}
+		
 		strcpy((*scores)[i], SCORE_HOME);
 		strcat((*scores)[i], row[0]);
 	}

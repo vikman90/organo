@@ -82,6 +82,12 @@ int midifile_init(midifile_t *score, const char *path) {
 	// Read tracks
 
 	score->tracks = (midievent_t **)malloc(sizeof(midievent_t *) * score->ntracks);
+	
+	if (!score->tracks) {
+		close(fd);
+		return -1;
+	}
+		
 
 	for (i = 0; i < score->ntracks; i++) {
 		if (parse(score->tracks + i, fd) < 0) {
@@ -115,6 +121,10 @@ int parse(midievent_t **first, int fd) {
 	lseek(fd, 4, SEEK_CUR);
 
 	current = (midievent_t *)malloc(sizeof(midievent_t));
+	
+	if (!current)
+		return -1;
+	
 	*first = current;
 
 	while (1) {
@@ -145,9 +155,22 @@ int parse(midievent_t **first, int fd) {
 		} else if (value == METAEVENT) {
 			current->type = value;
 			current->metaevent = (metaevent_t *)malloc(sizeof(metaevent_t));
+			
+			if (!current->metaevent) {
+				current->next = NULL;
+				return -1;
+			}
+			
 			read(fd, &current->metaevent->type, 1);
 			current->metaevent->length = varlen(fd);
 			current->metaevent->data = (char *)malloc(current->metaevent->length);
+			
+			if (!current->metaevent->data) {
+				current->next = NULL;
+				return -1;
+			}
+				
+			
 			read(fd, current->metaevent->data, current->metaevent->length);
 
 			if (current->metaevent->type == END_OF_TRACK) {
@@ -170,6 +193,10 @@ int parse(midievent_t **first, int fd) {
 		}
 
 		current->next = (midievent_t *)malloc(sizeof(midievent_t));
+		
+		if (!current->next)
+			return -1;
+		
 		current = current->next;
 	}
 

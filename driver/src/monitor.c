@@ -22,17 +22,12 @@
 static const char OFFSET[] = { 36, 36, 24, 60 };
 static const char LENGTH[] = { 49, 49, 12, 26 };
 
-static char state[NOTES];	// Length: notes
-static char **channel;		// Pointers to initial sections of each channel into state
+static char state[NOTES];		// Length: notes
+static char *channel[NTRACKS];	// Pointers to initial sections of each channel into state
 
 int output_init() {
 	unsigned int i;
 	int offset = 0;
-
-	channel = (char **)malloc(NTRACKS * sizeof(char *));
-
-	if (!channel)
-		return -1;
 
 	for (i = 0; i < NTRACKS; i++) {
 		channel[i] = &state[offset];
@@ -43,7 +38,6 @@ int output_init() {
 }
 
 void output_destroy() {
-	free(channel);
 }
 
 void output_noteon(int track, int note) {
