@@ -158,6 +158,9 @@ function new_playlist() {
     if (!isset($_POST['name']))
         html_error('args');
 
+    if (strlen($_POST['name']) == 0)
+        html_error('name_blank');
+
     $id = db_insert_playlist($_POST['name']);
     html_redirect("playlist.php?idplaylist=$id");
 }
@@ -167,6 +170,9 @@ function rename_playlist() {
 
     if (!(isset($_POST['name']) and isset($_POST['idplaylist'])))
         html_error('args');
+
+    if (strlen($_POST['name']) == 0)
+        html_error('name_blank');
 
     if (!db_get_playlist($_POST['idplaylist']))
         html_error('args');
@@ -232,6 +238,9 @@ function rename_score() {
 
     if (!(isset($_POST['name']) and isset($_POST['idscore'])))
         html_error('args');
+
+    if (strlen($_POST['name']) == 0)
+        html_error('name_blank');
 
     if (!db_get_score($_POST['idscore']))
         html_error('args');

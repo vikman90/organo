@@ -20,7 +20,7 @@ if (isset($_GET['idplaylist']))
     $playlist = db_get_playlist($_GET['idplaylist']);
 
 if ($playlist === null)
-    html_error('args');
+    html_error('list_not_found');
 
 set_page("playlist.php?idplaylist={$_GET['idplaylist']}");
 
