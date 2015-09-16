@@ -57,4 +57,6 @@
     <string name="engineer">Modo Ingeniería</string>
     <string name="wait">Espere</string>
     <string name="uploading">Subiendo archivos...</string>
+    <string name="error_list_not_found">Lista de reproducción no encontrada.</string>
+    <string name="error_score_not_found">Pieza no encontrada.</string>
 </translation>

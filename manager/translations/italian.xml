@@ -57,4 +57,6 @@
     <string name="engineer">Modo Ingegneria</string>
     <string name="wait">Attendere prego</string>
     <string name="uploading">Caricamento dei file...</string>
+    <string name="error_list_not_found">Playlist non trovato.</string>
+    <string name="error_score_not_found">Brano non trovato.</string>
 </translation>

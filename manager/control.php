@@ -128,7 +128,7 @@ function play() {
     $playlist = db_get_playlist($_GET['idplaylist']);
 
     if (!$playlist)
-        html_error('args');
+        html_error('list_not_found');
 
     if (count($playlist['scores']) < 1)
         html_error('playlist_empty');
@@ -169,7 +169,7 @@ function rename_playlist() {
         html_error('args');
 
     if (!db_get_playlist($_POST['idplaylist']))
-        html_error('args');
+        html_error('list_not_found');
 
     db_rename_playlist($_POST['idplaylist'], $_POST['name']);
     html_redirect('playlist.php?idplaylist=' . $_POST['idplaylist']);
@@ -184,7 +184,7 @@ function delete_playlist() {
     $playlist = db_get_playlist($_POST['idplaylist']);
 
     if (!$playlist)
-        html_error('args');
+        html_error('list_not_found');
 
     foreach ($playlist['scores'] as $score) {
         db_delete_score($score['id']);
@@ -208,7 +208,7 @@ function new_score() {
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
 
     if (!db_get_playlist($_POST['idplaylist']))
-        html_error('args');
+        html_error('list_not_found');
 
     if (!($ext == 'mid' or $ext == 'midi'))
         html_error('file_type');
@@ -234,7 +234,7 @@ function rename_score() {
         html_error('args');
 
     if (!db_get_score($_POST['idscore']))
-        html_error('args');
+        html_error('score_not_found');
 
     db_rename_score($_POST['idscore'], $_POST['name']);
     html_redirect(last_page());
@@ -249,7 +249,7 @@ function delete_score() {
     $score = db_get_score($_POST['idscore']);
 
     if (!$score)
-        html_error('args');
+        html_error('score_not_found');
 
     unlink(SCORE_DIR . '/' . $score['source']);
     db_delete_score($score['id']);
