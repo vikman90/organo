@@ -14,70 +14,7 @@ Debemos tener también en cuenta que el servicio podrá ser utilizado por \textb
 
 En el demonio, nuestra máxima prioridad será la \textbf{eficiencia}, mientras que en la interfaz \textit{web} nos centraremos en la \textbf{accesibilidad}.
 
-\newpage
 
-\section{Planificación}
-
-En base a nuestro objetivo final, este proyecto está estrechamente relacionado con el de Mikel Aguayo Fernández, que abordará la parte relacionada con \textit{hardware}.
-
-Nuestro diseño es genérico para cualquier órgano pero \textbf{específico para la plataforma} \textit{hardware}. Por tanto, hay una parte del sistema que no se puede diseñar hasta conocer el proyecto de la \acrshort{PCB}. Para realizar una correcta planificación es necesario tener en cuenta qué parte de nuestro diseño depende del de Mikel Aguayo.
-
-\subsection{Dependencias entre tareas}
-
-Esencialmente tenemos los siguientes puntos en común:
-
-\begin{enumerate}
-	\item Compartimos inicialmente los \textbf{requisitos}, para entonces clasificarlos entre nuestros proyectos.
-	\item El otro proyecto necesita el \textbf{análisis} realizado sobre el órgano.
-	\item El nuestro, a su vez, depende del \textbf{diseño} que se haga de la \acrshort{PCB}.
-	\item La \textbf{verificación} vuelve a poner en común nuestros trabajos.
-\end{enumerate}
-
-La siguiente figura descompone a \textit{grosso modo} las tareas e ilustra las \textbf{dependencias} encontradas:
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo5/planificacion}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:planificacion} Diagrama de dependencia de tareas.}
-\end{figure} 
-
-\smallskip
-
-Esto significa que la \textbf{planificación temporal} de las tareas se esbozará de la siguiente forma:
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=50 420 50 50,width=\linewidth*3/4]{capitulo5/plan_gantt}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:plan_gantt} Diagrama de Gantt básico.}
-\end{figure} 
-
-\smallskip
-
-\subsection{Planificación prevista}
-
-Conocidas las tareas básicas a realizar, proponemos la siguiente planificación para todos los bloques a desarrollar en el sistema. Hemos asignado principalmente las tareas por \textbf{semanas}, aunque algunas de ellas se podrán hacer en común por su simplicidad, y otras deberemos \textbf{descomponerlas} en prototipo e implementación final.
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=20 50 50 50,width=\linewidth]{capitulo5/gantt}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:gantt} Diagrama de Gantt para planificación.}
-\end{figure} 
-
-\smallskip
-
-Como podemos ver, el primer paso es \textbf{analizar} el funcionamiento y la mecánica del órgano para permitir a Mikel continuar su trabajo. Mientras él diseña la \acrshort{PCB}, nosotros comenzamos el \textbf{diseño} de los módulos que no dependen de ésta. Tan pronto como recibamos su diseño, podremos desarrollar el resto del sistema.
 
 \newpage
 
