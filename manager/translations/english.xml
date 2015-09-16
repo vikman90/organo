@@ -59,4 +59,5 @@
     <string name="uploading">Uploading files...</string>
     <string name="error_list_not_found">Playlist not found.</string>
     <string name="error_score_not_found">Score not found.</string>
+    <string name="error_name_blank">Name field empty.</string>
 </translation>

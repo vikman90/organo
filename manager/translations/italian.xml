@@ -59,4 +59,5 @@
     <string name="uploading">Caricamento dei file...</string>
     <string name="error_list_not_found">Playlist non trovato.</string>
     <string name="error_score_not_found">Brano non trovato.</string>
+    <string name="error_name_blank">Nome vuoto.</string>
 </translation>

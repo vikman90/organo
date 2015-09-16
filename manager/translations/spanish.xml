@@ -59,4 +59,5 @@
     <string name="uploading">Subiendo archivos...</string>
     <string name="error_list_not_found">Lista de reproducción no encontrada.</string>
     <string name="error_score_not_found">Pieza no encontrada.</string>
+    <string name="error_name_blank">No se ha especificado el nombre.</string>
 </translation>
