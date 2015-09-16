@@ -172,6 +172,10 @@ static int play(char *arg, int loop) {
 	}
 
 	playlist = (char **)malloc(sizeof(char *) * n);
+	
+	if (!playlist)
+		return -1;
+	
 	arg = strtok(arg, " ");
 
 	for (i = 0; i < n; i++) {
@@ -179,6 +183,15 @@ static int play(char *arg, int loop) {
 
 		if (arg) {
 			playlist[i] = malloc(strlen(arg) + 1);
+			
+			if (!playlist[i]) {
+				while (i > 0)
+					free(playlist[--i]);
+				
+				free(playlist);
+				return -1;
+			}
+			
 			strcpy(playlist[i], arg);
 		} else
 			break;
