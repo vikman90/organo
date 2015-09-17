@@ -259,9 +259,31 @@ A pesar de que Python es un lenguaje \textbf{interpretado}, la biblioteca para a
 
 \section{Interfaz web}
 
-La interfaz principal está implementada como un servicio \textit{web} sito en el propio \textit{Raspberry Pi}. 
+La interfaz principal está implementada como un servicio \textit{web} sito en el propio \textit{Raspberry Pi}. Como cualquier servidor estándar, escucha el \textbf{puerto 80} del protocolo \acrshort{TCP} a través de la interfaz de red.
 
 Uno de los pasos previos a las pruebas de validación es configurar el módulo \acrshort{PHP} en \textbf{modo \textit{development}} (desarrollo), para recibir información y alertas que nos permitirán detectar errores eficazmente.
+
+\subsection{Red de área local}
+
+El sistema no está ideado para ser utilizado desde Internet, pero sí en una red de área local sencilla, bien a través de cable o bien conectando un adaptador WiFi por \acrshort{USB}.
+
+Sin embargo, nuestro \textit{Raspberry Pi} va a estar \textbf{conectado a Internet} durante la fase de desarrollo, tanto para descargar los paquetes necesarios y recibir actualizaciones como para facilitar la verificación. Conectaremos el dispositivo a nuestro \textit{router} mediante un cable \textit{Ethernet} directo.
+
+Para \textbf{recibir conexiones} \acrshort{HTTP} desde Internet, es necesario configurar el router y \textbf{desviar el puerto \acrshort{TCP} 80} hacia la dirección \acrshort{IP} que hayamos asignado al \textit{Raspberry Pi}. 
+
+En lugar de hacer esto, vamos a crear una \textbf{segunda red local} a la que dirigiremos todos los puertos de entrada, convirtiéndola en una \textbf{zona desmilitarizada} (\acrshort{DMZ}, \textit{\acrlong{DMZ}}). La \textbf{red doméstica} quedará al otro lado del \textit{firewall} del \textit{router}.
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo6/network}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:network} Diagrama de red conectada al Raspberry Pi.}
+\end{figure}
+
+\smallskip
 
 \subsection{Requisitos}
 
