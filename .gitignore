@@ -21,3 +21,4 @@ report/*.alg
 report/*.tps
 report/*.ist
 report/*.txss
+report/**/*.mp4
