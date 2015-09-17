@@ -917,21 +917,21 @@ Las notas en \acrshort{MIDI} se indican numéricamente, en base 0, asignando val
 
 Todos los elementos que hemos descrito conformarán la parte \textit{hardware} del sistema y establecerán una conexión cuyos extremos son el \textbf{computador} \textit{Raspberry Pi} y los \textbf{mecanismos} que interactuarán con la consola del órgano.
 
-A continuación presentamos un diagrama que describe a \textit{grosso modo} la \textbf{conexión lógica} entre todos los elementos \textit{hardware}:
+A continuación presentamos un diagrama que describe a \textit{grosso modo} la \textbf{conexión lógica} entre todos los elementos contemplados:
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*2/3]{capitulo3/hardware}
+		\includegraphics[width=\linewidth*3/4]{capitulo3/general}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:hardware} Conexión lógica entre los elementos hardware.}
+	\caption{\label{fig:general} Conexión lógica entre los elementos hardware.}
 \end{figure} 
 
 \smallskip
 
-La \acrshort{PCB} incorpora una \textbf{fuente de alimentación} para el \textit{Raspberry}, que está conectada mediante la interfaz \acrshort{GPIO}. Las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
+La \acrshort{PCB} está conectada mediante la interfaz \acrshort{GPIO}. Las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
 
 El resto de \textbf{periféricos} de la placa nos serán de utilidad para desarrollar un sistema que cumplirá todos los requisitos contemplados en el capítulo \ref{cap:capitulo_2}.
 

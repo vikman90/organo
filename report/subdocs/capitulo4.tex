@@ -2,7 +2,7 @@
 \label{cap: capitulo_4}
 
 \begin{quote}
-	\small \flushright ''\textit{Esa es la diferencia entre un diseño pata negra y una papa frita.}'' \\
+	\small \flushright ''\textit{Esa es la diferencia entre un diseño pata negra y otro papa frita.}'' \\
 	--- Profesor Andrés María Roldán Aranda (2009).
 \end{quote}
 
@@ -14,13 +14,15 @@ En este capítulo vamos a detallar cómo hemos concebido la solución a los requ
 
 \section{Planteamiento}
 
-Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un \textbf{reproductor de archivos \acrshort{MIDI}}, que recibe el fichero y lo envía a la \acrshort{PCB} a través del \acrshort{GPIO}. Por supuesto, la reproducción estará controlada por el usuario:
+Como idea más abstracta, el \textit{software} que tenemos que diseñar consiste en un \textbf{reproductor de archivos \acrshort{MIDI}}, que recibe el fichero y lo envía a la \acrshort{PCB} a través del \acrshort{GPIO}. Por supuesto, la reproducción estará controlada por el usuario.
+
+Este esquema representa la idea de funcionamiento general:
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/idea}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/idea}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:idea} Planteamiento inicial.}
@@ -40,13 +42,15 @@ Luego, dividiremos el sistema en cuatro grandes bloques. Respecto al de \textbf{
 
 Atendiendo a los requisitos del primer controlador, decidimos enfocar la solución como una \textbf{interfaz \textit{web}} con un servidor. De esta forma podemos llegar fácilmente a cualquier sistema operativo de escritorio, incluso es fácilmente adaptable a \textbf{dispositivos móviles}.
 
-Además de atender peticiones de control remoto, hay que atender las señales del mando a distancia y manejar los controles de la \acrshort{PCB}. Un microcontrolador como \textit{Arduino} difícilmente será capaz de realizar tantas funciones simultáneas. Este motivo, sumado a la idea de la interfaz \textit{web} nos hacen decantarnos por el \textbf{\textit{Raspberry Pi}}.
+Además de atender peticiones de control remoto, hay que atender las señales del mando a distancia y manejar los controles de la \acrshort{PCB}. Un microcontrolador como \textit{Arduino} difícilmente será capaz de realizar tantas funciones simultáneas. Este motivo, sumado a la idea de la interfaz \textit{web} nos hacen \textbf{decantarnos por el \textit{Raspberry Pi}}.
 
 Sin embargo, el reproductor no puede funcionar dentro de un servidor \textit{web}, ya que éstos atienden peticiones sin estado, y se cierran automáticamente después de devolver la información. Por ello, vamos a diseñar el reproductor como un \textbf{demonio} de Linux, junto con sus módulos auxiliares.
 
-En último lugar, necesitamos \textbf{almacenar información} de los archivos \acrshort{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una \textbf{base de datos} nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+Este programa, además de gestionar la reproducción de archivos \acrshort{MIDI}, proporcionará la interfaz de \textbf{control reducido}, para manejar la mecánica desde la \acrshort{PCB}. Además, despachará las órdenes del \textbf{mando a distancia}.
 
-\newpage
+En último lugar, necesitamos \textbf{almacenar información} sobre los archivos \acrshort{MIDI}, listas de reproducción y asignaciones del mando en memoria persistente. Una \textbf{base de datos} nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+
+\bigskip
 
 \section{Demonio del reproductor}
 
@@ -89,7 +93,7 @@ El siguiente diagrama de clases ilustra la \textbf{estructura de datos} completa
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo4/uml_midi}
+		\includegraphics[width=\linewidth]{capitulo4/uml_midi}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:uml_midi} Diagrama de clases para el módulo MIDI.}
@@ -540,7 +544,7 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/sched}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/sched}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:sched} Diagrama de estados del planificador.}
@@ -551,7 +555,7 @@ Para gestionar su funcionamiento, el planificador utiliza una pequeña cantidad 
 \begin{description}
 	\item[Activo] En funcionamiento, reproduciendo activamente una partitura.
 	\item[Pausado] No reproduce, mantiene el estado del órgano en el módulo de salida.
-	\item[Parado] En espera. Es el estado inicial.
+	\item[Detenido] En espera. Es el estado inicial.
 	\item[Ingeniero] Bloqueado, en modo Ingeniería. Ha cedido el control del módulo de salida.
 \end{description}
 
@@ -640,7 +644,7 @@ Este diagrama muestra las \textbf{transiciones} entre los estados:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo4/engineer}
+		\includegraphics[width=\linewidth]{capitulo4/engineer}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:engineer} Máquina de estados de la interfaz reducida.}
@@ -649,9 +653,14 @@ Este diagrama muestra las \textbf{transiciones} entre los estados:
 \smallskip
 
 \begin{description}
-	\item[OFF] Estado inicial, modo Ingeniería apagado. Mostrará el estado del reproductor.
-	\item[MENU] Ofrece la opción de entrar en el modo Ingeniería.
-	\item[ON] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales
+	\item[Reproductor] Estado inicial, muestra el estado del reproductor.
+	\item[Menú ingeniería] Ofrece la opción de entrar en el modo Ingeniería.
+	\item[Modo Ingeniería] Modo Ingeniería activado, los subestados dependen de la pista y la nota actuales.
+	\item[Menú metrónomo] Muestra y permite alterar el estado del metrónomo.
+	\item[Menú energía] Deja entrar al menú de control de energía.
+	\item[Reiniciar] Da la opción de reiniciar el sistema al pulsar el botón.
+	\item[Apagar] Apaga el equipo si se pulsa el botón.
+	\item[Volver] Permite retornar al menú anterior.
 \end{description}
 
 \subsubsection{Funciones públicas}
@@ -849,7 +858,7 @@ Una vez hecho esto, el modelo resultante es el siguiente:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true, trim=390 340 390 340, width=\linewidth*3/4]{capitulo4/bd_rel}
+		\includegraphics[width=\linewidth]{capitulo4/bd_rel}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:bd_rel} Modelo relacional.}
@@ -898,7 +907,7 @@ Vamos a diseñar una solución enfocada al uso remoto con ayuda de un \textbf{ex
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo4/despliegue}
+		\includegraphics[width=\linewidth*3/4]{capitulo4/despliegue}
 		\par\end{centering}
 	\smallskip
 	\caption[Comunicación entre el cliente y el software del sistema]{\label{fig:despliegue} Comunicación entre el cliente y el software del sistema. \cite{svg_raspberry}}

@@ -92,41 +92,21 @@ La solución a estos problemas fue \textbf{diseñar} un pequeño circuito electr
 
 \smallskip
 
-De acuerdo a la fórmula de un divisor de tensión resistivo \cite{wiki_divtension}, a la en el pin RX de \textit{Raspberry} tendremos:
+De acuerdo a la fórmula de un divisor de tensión resistivo \cite{wiki_divtension}, a la salida en el pin RX de \textit{Raspberry} tendremos:
 
-\smallskip
 
 \begin{equation}
 	V_{out} = V_{in} \times \frac{R_2}{R_1 + R_2} = 5 \; V \times \frac{2 \; K\Omega}{3 \; K\Omega} = 3,\stackrel{\frown}{3} \; V
 \end{equation}
 
-\smallskip
 
 Por otro lado, con la resistencia junto al \acrshort{led}, la corriente está muy por debajo del límite de 50 \textit{mA}, según la \textbf{ley de Ohm} \cite{wiki_ohm}:
-
-\smallskip
 
 \begin{equation}
 	I = \frac{V}{R} = \frac{3.3 \; V}{100 \; \Omega} = 33 \; mA
 \end{equation}
 
-\smallskip
-
 El resultado fue el siguiente: \textit{Raspberry} alimenta a Arduino, y se comunica mediante el \acrshort{UART} con un circuito de seguridad para asegurar el voltaje de la señal. Además, tenemos un indicador luminoso para verificar el metrónomo.
-
-La conexión tiene este aspecto:
-
-\smallskip
-
-\begin{figure}[H]
-	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo6/proto_uart}
-		\par\end{centering}
-	\smallskip
-	\caption{\label{fig:proto_uart} Placa de prueba entre Arduino y Raspberry.}
-\end{figure} 
-
-\smallskip
 
 Por simplicidad, programamos una batería de pruebas para que Arduino suplantara al mando generando distintas cadenas aleatorias, variando los siguientes parámetros:
 
@@ -141,21 +121,37 @@ El despachador de \acrshort{UART} del servicio atiende correctamente las señale
 
 Si eventualmente llegan menos \textit{bytes} de los 10 previstos, el programa sigue esperando el resto (otra pulsación), entonces detecta una \textbf{corrupción} de datos y vacía el \textit{buffer}. Es importante tener este improbable supuesto en cuenta para no bloquear indefinidamente el receptor.
 
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo6/proto_uart}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:proto_uart} Placa de prueba entre Arduino y Raspberry.}
+\end{figure} 
+
+\smallskip
+
 \subsubsection{Funcionamiento continuado}
 
 Es importante comprobar que el demonio es estable y se mantiene activo durante un tiempo considerable. Para ello, hemos dejado el sistema reproduciendo una lista repetidamente durante casi 40 horas, manteniendo el funcionamiento y el uso de memoria.
+
+A continuación, mostramos una captura de pantalla de la aplicación \code{top}, que detalla el \textbf{uso de recursos} del servicio en segundo plano:
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo6/cap_top}
+		\includegraphics[width=\linewidth]{capitulo6/cap_top}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_top} Uso de recursos del sistema.}
 \end{figure} 
 
 \smallskip
+
+El programa muestra que el demonio en funcionamiento consume un \textbf{1,3\% de \acrshort{CPU}} y \textbf{5,27 \textit{MiB} de memoria} RAM, entre privada y compartida.
 
 \subsection{Rendimiento}
 
@@ -238,7 +234,7 @@ La siguiente imagen ilustra los datos obtenidos:
 
 \smallskip
 
-El \textbf{ancho de pulso} que tenemos que enviar para actualizar los registros de desplazamiento es de 100 \textit{ns}. Los datos más relevantes son los siguientes:
+Los datos más relevantes son los siguientes:
 
 \smallskip
 

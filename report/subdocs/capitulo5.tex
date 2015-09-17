@@ -94,6 +94,20 @@ Por otro lado, también sabemos que ciertos valores, como el \textit{delta} de c
 
 Además, podemos ver que todos los tipos de evento se numeran a partir de $80_{16}$, o sea, su \textit{bit} más significativo es 1. Si el analizador buscara un tipo de evento y encontrara un valor por debajo de este número, significa que el archivo está \textbf{obviando el tipo} de evento, y está indicando los parámetros ---cuyo tope es 127---.
 
+El \textbf{algoritmo de análisis} consiste, pues en recorrer el archivo por \textbf{pistas}, y clasificar cada evento según su tipo. El \textbf{flujo de trabajo} es el siguiente:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth]{capitulo5/flujo_parser}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:flujo_parser} Diagrama de flujo del analizador.}
+\end{figure}
+
+\smallskip
+
 \subsubsection{Prototipo}
 
 En primer lugar hacemos una implementación sencilla en Python, que nos permita comprobar que hemos aplicado correctamente los conceptos.
@@ -161,19 +175,7 @@ Otra de las clases a implementar es \code{MidiEvent}, que representa cada uno de
 	\end{equation}
 	
 	\item[parseEvents(file)]
-	Método de clase. Analiza todos los eventos de la pista actual en el archivo (\code{file}) hasta encontrar el meta-evento \code{END\_OF\_TRACK}. Su funcionamiento es el siguiente:
-	
-	\smallskip
-	
-	\begin{figure}[H]
-		\noindent \begin{centering}
-			\includegraphics[width=\linewidth*2/3]{capitulo5/flujo_parser}
-			\par\end{centering}
-		\smallskip
-		\caption{\label{fig:flujo_parser} Diagrama de flujo del analizador.}
-	\end{figure}
-	
-	\smallskip
+	Método de clase. Analiza todos los eventos de la pista actual en el archivo (\code{file}), de acuerdo al diagrama de la figura \ref{fig:flujo_parser} hasta encontrar el meta-evento \code{END\_OF\_TRACK}.
 	
 	\item[\code{varlen(file)}]
 	Es una función auxiliar privada que recibe el archivo (\code{file}) apuntando a un campo de longitud variable (véase la figura \ref{fig:varlen}) y devuelve su valor.
@@ -252,7 +254,7 @@ Ya que es una prueba de concepto, el analizador emitirá un \textit{log} con  to
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo5/cap_parser}
+		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_parser}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_parser} Salida del prototipo del analizador.}
@@ -331,7 +333,7 @@ El algoritmo se estructurará según el siguiente diagrama:
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo5/flujo_planificacion}
+		\includegraphics[width=\linewidth]{capitulo5/flujo_planificacion}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:flujo_planificacion} Diagrama de flujo del planificador (simple).}
@@ -371,7 +373,7 @@ La salida es muy simple: muestra para cada evento el cambio producido y el estad
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth/2]{capitulo5/cap_pytest}
+		\includegraphics[width=\linewidth*2/3]{capitulo5/cap_pytest}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_pytest} Captura de pantalla del prototipo.}
@@ -531,13 +533,13 @@ Todas las implementaciones deben tener en común el hecho de almacenar el estado
 
 Inicialmente hicimos una \textbf{prueba de concepto} en Python para entender el funcionamiento de los registros de desplazamiento. Como ya explicamos en la sección de análisis (\ref{subsec:conexion_mecanica}), cada registro está dedicado a un componente del órgano, pero todos funcionan igual.
 
-La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como \textbf{ejemplo} el famoso fragmento de la \textit{Oda a la alegría} de Ludwig van Beethoven:
+La idea es conseguir ver en los \acrshort{led}s la interpretación de una pieza conocida y fácilmente reconocible. Hemos tomado como \textbf{ejemplo} el famoso fragmento de la \textit{Oda a la Alegría} de Ludwig van Beethoven:
 
 \smallskip
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[clip=true,trim=20 580 20 30,width=\linewidth]{capitulo5/beethoven_1voz}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/beethoven_1voz}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:beethoven_1voz} Fragmento de la Oda a la Alegría de Beethoven.}
@@ -1043,6 +1045,18 @@ El servidor generará una página \textbf{\acrshort{HTML} 5}, la última versió
 
 Además, debemos almacenar las cadenas constantes en archivos, dependiendo del idioma del usuario; para esto usaremos archivos \textbf{\acrshort{XML}}. Otra tecnología que nos resultará útil es \textbf{\acrshort{AJAX}} ---\textit{\acrlong{AJAX}}---, para que JavaScript haga consultas al servidor sin recargar la página completa.
 
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth/2]{capitulo5/ajax}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:ajax} Funcionamiento de AJAX.}
+\end{figure} 
+
+\newpage
+
 En resumen usaremos las siguientes tecnologías:
 
 \begin{enumerate}
@@ -1072,7 +1086,21 @@ El resto de ficheros se clasificarán de las siguientes carpetas:
 
 A medida que construimos la maqueta en \acrshort{HTML} y \acrshort{CSS}, fuimos conscientes de qué trozos de código se repetían, totalmente o con un ligero cambio, lo que nos ayudó a crear una \textbf{biblioteca de plantillas}, que podríamos denominar ''rutinas de vista''.
 
-En ella hemos escrito las siguientes funciones:
+Para conseguir un resultado acorde al diseño estético, vamos a maquetar las páginas \acrshort{HTML} de forma homogénea, siguiento esta estructura:
+
+\smallskip
+
+\begin{figure}[H]
+	\noindent \begin{centering}
+		\includegraphics[width=\linewidth*3/4]{capitulo5/html}
+		\par\end{centering}
+	\smallskip
+	\caption{\label{fig:htnl} Maquetación de la página HTML.}
+\end{figure}
+
+\smallskip
+
+En este módulo hemos escrito las siguientes funciones:
 
 \begin{description}[style=nextline]
 	\item[\code{html\_open(id, refresh)}]
@@ -1354,8 +1382,6 @@ Esta parte de la aplicación nos permite administrar las piezas almacenadas en e
 
 El módulo consta de \textbf{dos vistas}: una para ver las \textbf{listas} existente y crear nuevas, y otra para gestionar las \textbf{piezas} contenidas en cada lista, a la que accedemos desde la primera página.
 
-El gestor de listas consiste esencialmente en una \textbf{tabla} que muestra las listas que hemos creado, nos da a conocer el nombre y el número de piezas contenidas. Además proporciona un botón para \textbf{reproducir} directamente la lista. La página muestra también un botón para \textbf{insertar} una lista nueva.
-
 \smallskip
 
 \begin{figure}[H]
@@ -1368,11 +1394,11 @@ El gestor de listas consiste esencialmente en una \textbf{tabla} que muestra las
 
 \smallskip
 
+El gestor de listas consiste esencialmente en una \textbf{tabla} que muestra las listas que hemos creado, nos da a conocer el nombre y el número de piezas contenidas. Además proporciona un botón para \textbf{reproducir} directamente la lista. La página muestra también un botón para \textbf{insertar} una lista nueva.
+
 Para generar esta página, la aplicación hace una consulta a la \textbf{base de datos} llamando a \code{db\_get\_playlists()}, que devuelve un \textit{array} con todas las listas almacenadas. Hacer clic en cualquier lista nos lleva a la vista siguiente, para gestionarla.
 
 Para \textbf{crear una lista}, el botón correspondiente llama a una función JavaScript, \code{add()}, que hace aparecer una \textbf{ventana modal} con un pequeño formulario para que introduzcamos el nombre de la nueva lista.
-
-Por \textbf{seguridad}, el campo es obligatorio y está limitado a 255 caracteres, la misma longitud que la columna de la base de datos que almacenará esta información. Aún así, el \textbf{controlador} realizará una segunda comprobación cuando reciba los datos.
 
 \smallskip
 
@@ -1385,6 +1411,8 @@ Por \textbf{seguridad}, el campo es obligatorio y está limitado a 255 caractere
 \end{figure} 
 
 \smallskip
+
+Por \textbf{seguridad}, el campo es obligatorio y está limitado a 255 caracteres, la misma longitud que la columna de la base de datos que almacenará esta información. Aún así, el \textbf{controlador} realizará una segunda comprobación cuando reciba los datos.
 
 El \textbf{administrador de piezas} es una vista similar al gestor de listas, pero en cambio muestra el contenido de cada lista. Se accede de forma normal haciendo clic en una lista de reproducción, que llama a esta vista con esta sintaxis:
 
@@ -1410,9 +1438,7 @@ La cabecera de la sección provee controles que permiten renombrar y borrar la l
 
 Para \textbf{añadir una partitura} tenemos un botón de tipo \code{<input type=''file''>}, que tiene un comportamiento aislado por el navegador por razones de seguridad, y ni siquiera se puede cambiar su estilo. Por ello, este control está oculto y en su lugar aparece un botón  estándar, programado para transmitir la función \code{click()} cuando el usuario pulse sobre él. Al hacerlo, aparece un pequeño explorador para seleccionar un archivo, filtrado por formato \acrshort{MIDI}.
 
-El vínculo para \textbf{descargar} enlaza al archivo correspondiente en el servidor, pero éste guarda el archivo con un nombre numérico para evitar colisiones. Por esta razón, se indica en el vínculo el \textbf{nombre de la pieza} para guardar el archivo descargado, si el navegador lo soporta.
-
-Por último, existen varias \textbf{ventanas modales}, cada una correspondiente a un diálogo que se hará aparecer cuando el usuario haga clic en el botón correspondiente, mediante sencillas funciones JavaScript. En el caso de renombrar, el cuadro de texto adquiere el título actual de la pieza o de la lista, y adquiere el foco del teclado para agilizar la operación.
+El vínculo para \textbf{descargar} enlaza al archivo correspondiente en el servidor, pero éste guarda el archivo con un nombre numérico para evitar colisiones. Por esta razón, se indica en el vínculo el \textbf{nombre de la pieza} para guardar el archivo descargado.
 
 \smallskip
 
@@ -1425,6 +1451,8 @@ Por último, existen varias \textbf{ventanas modales}, cada una correspondiente 
 \end{figure} 
 
 \smallskip
+
+Por último, existen varias \textbf{ventanas modales}, cada una correspondiente a un diálogo que se hará aparecer cuando el usuario haga clic en el botón correspondiente, mediante sencillas funciones JavaScript. En el caso de renombrar, el cuadro de texto adquiere el \textbf{título actual} de la pieza o de la lista, y adquiere el \textbf{foco} del teclado para agilizar la operación.
 
 \subsubsection{Controlador}
 
@@ -1442,14 +1470,6 @@ La mayor parte del controlador para este módulo consiste en pequeñas funciones
 	\item Se mueve el archivo recibido a la carpeta específica para contener partituras, con el nombre de archivo que indica la base de datos.
 \end{enumerate}
 
-Como hemos explicado en la vista, hay \textbf{dos métodos} para subir archivos, aunque ambos llaman a la misma función del controlador:
-
-\begin{enumerate}
-	\item Seleccionando un archivo \acrshort{MIDI} en el explorador que aparece al pulsar el\textbf{ botón para añadir} una pieza. El archivo se envía en el formulario de manera normal. Solo se permite seleccionar un fichero y, de fallar, recibiremos un mensaje de error indicando los motivos.
-	
-	\item \textbf{Arrastrando} uno o varios archivos a la sección central de la vista. Esto activa la función \code{ondrop()} de JavaScript, que no puede acceder al elemento \code{<input>} del formulario mediante \acrshort{DOM} y añadir el archivo recibido, por motivos de seguridad. En cambio, utiliza \acrshort{AJAX} para hacer dinámicamente un envío por cada archivo. Ya que \acrshort{AJAX} es, por definición, \textbf{asíncrono}, enviaría todos los archivos simultáneamente. Para evitarlo, establecemos un \textit{callback} al recibir la respuesta, que haga transmitir el archivo siguiente. La implementación es similar a una \textbf{función recursiva}. Si un archivo falla, es descartado silenciosamente.
-\end{enumerate}
-
 \smallskip
 
 \begin{figure}[H]
@@ -1462,15 +1482,19 @@ Como hemos explicado en la vista, hay \textbf{dos métodos} para subir archivos,
 
 \smallskip
 
+Como hemos explicado en la vista, hay \textbf{dos métodos} para subir archivos, aunque ambos llaman a la misma función del controlador:
+
+\begin{enumerate}
+	\item Seleccionando un archivo \acrshort{MIDI} en el explorador que aparece al pulsar el\textbf{ botón para añadir} una pieza. El archivo se envía en el formulario de manera normal. Solo se permite seleccionar un fichero y, de fallar, recibiremos un mensaje de error indicando los motivos.
+	
+	\item \textbf{Arrastrando} uno o varios archivos a la sección central de la vista. Esto activa la función \code{ondrop()} de JavaScript, que no puede acceder al elemento \code{<input>} del formulario mediante \acrshort{DOM} y añadir el archivo recibido, por motivos de seguridad. En cambio, utiliza \acrshort{AJAX} para hacer dinámicamente un envío por cada archivo. Ya que \acrshort{AJAX} es, por definición, \textbf{asíncrono}, enviaría todos los archivos simultáneamente. Para evitarlo, establecemos un \textit{callback} al recibir la respuesta, que haga transmitir el archivo siguiente. La implementación es similar a una \textbf{función recursiva}. Si un archivo falla, es descartado silenciosamente.
+\end{enumerate}
+
 Este segundo método permite enviar muchos archivos y puede tardar algún tiempo, aunque la interfaz siga respondiendo. Mientras se están subiendo archivos aparece una ventana emergente que muestra qué fichero está en curso.
 
 \subsection{Asignación del mando}
 
 Una vez creadas las listas, tendremos la posibilidad de asignarlas a un botón del mando a distancia. La \textbf{base de datos} almacena esta información y permite que sea consultada directamente por el demonio, que será el que reciba las pulsaciones del mando.
-
-\subsubsection{Vista}
-
-Esta página muestra una \textbf{tabla} con todos los botones contemplados en el mando, y la lista que tiene asignada cada uno. Este dato viene dado en un \textbf{menú desplegable} que da a escoger entre todas las listas recogidas en la base de datos, o dejar el botón \textbf{sin asignar}.
 
 \smallskip
 
@@ -1483,6 +1507,10 @@ Esta página muestra una \textbf{tabla} con todos los botones contemplados en el
 \end{figure} 
 
 \smallskip
+
+\subsubsection{Vista}
+
+Esta página muestra una \textbf{tabla} con todos los botones contemplados en el mando, y la lista que tiene asignada cada uno. Este dato viene dado en un \textbf{menú desplegable} que da a escoger entre todas las listas recogidas en la base de datos, o dejar el botón \textbf{sin asignar}.
 
 \subsubsection{Controlador}
 
@@ -1707,7 +1735,7 @@ Después de crear listas de ejemplo y agregar algunas piezas, hacemos una consul
 
 \begin{figure}[H]
 	\noindent \begin{centering}
-		\includegraphics[width=\linewidth*3/4]{capitulo5/cap_sql}
+		\includegraphics[width=\linewidth]{capitulo5/cap_sql}
 		\par\end{centering}
 	\smallskip
 	\caption{\label{fig:cap_sql} Consulta de las piezas contenidas en la base de datos.}
