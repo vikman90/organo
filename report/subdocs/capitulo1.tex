@@ -19,11 +19,63 @@ Además, creemos interesante la idea de que se pueda hacer sonar un órgano aunq
 
 \section{Objetivos}
 
-Nuestra meta es, por tanto, ingeniar un sistema automático capaz de interpretar piezas musicales para órgano, lo que incluye la creación de un sistema mecánico capaz de suplantar las pulsaciones del artista y el desarrollo del \textit{software} necesario para que el sistema reproduzca partituras electrónicas en formato MIDI.
+%Nuestra meta es, por tanto, ingeniar un sistema automático capaz de interpretar piezas musicales para órgano, lo que incluye la creación de un sistema mecánico capaz de suplantar las pulsaciones del artista y el desarrollo del \textit{software} necesario para que el sistema reproduzca partituras electrónicas en formato MIDI.
 
-Este proyecto atenderá al objetivo global pero se centrará en la parte \textit{software}, ya que el \textit{hardware} requiere competencias de Ingeniería Electrónica e Industrial, y será objeto del proyecto de D. Mikel Aguayo Fernández.
+Nuestra meta es, por tanto, ingeniar un sistema automático capaz de interpretar partituras musicales para órgano, lo que incluye los siguientes objetivos:
 
-Para abordarlo, hemos contado con la colaboración de Juan Rodríguez Ruiz, responsable del órgano de la Parroquia de la Encarnación de Santa Fe, que nos ha dado acceso tanto al instrumento como a asombrosos datos sobre su historia y su construcción.
+\begin{enumerate}
+	\item Analizar la \textbf{mecánica real} de un órgano.
+	
+	\begin{enumerate}
+		\item Tomar \textbf{medidas completas} de cada uno de los teclados, los pedales y las palancas de registros.
+		\item \textbf{Diseñar en 3D} los componentes principales del instrumento.
+		\item Analizar la \textbf{presión} necesaria para mover cada tecla, cada pedal y cada palanca.
+	\end{enumerate}
+	
+	\item Estudiar la comunicación entre el \textit{software} y el \textit{hardware}, incluyendo todos los \textbf{componentes electrónicos} que habrá de incluir.
+	
+	\item Plantear distintas \textbf{alternativas de sistemas empotrados} que sirvan de soporte de programación.
+	
+	\item Analizar el \textbf{protocolo \acrshort{MIDI}} como formato de archivo que almacena partituras musicales.
+	
+	\item \textbf{Diseñar} el sistema \textit{software} que cubrirá varias vías de comunicación entre el usuario y la mecánica, lo que comprende:
+	
+	\begin{enumerate}
+		\item Un \textbf{servicio en segundo plano}, que atienda:
+		
+		\begin{enumerate}
+			\item Reproducción de archivos \acrshort{MIDI}.
+			\item Comunicación inter-proceso.
+			\item Receptor de un mando a distancia.
+			\item Menú de control sobre el hardware, con un ''modo Ingeniería''.
+		\end{enumerate}
+		
+		\item Una \textbf{aplicación \textit{web}} para controlar el sistema, con soporte para:
+		
+		\begin{enumerate}
+			\item Reproducir partituras electrónicas.
+			\item Instalar nuevas piezas y gestionar listas de reproducción.
+			\item Configurar el mando a distancia.
+		\end{enumerate}
+		
+		\item Una \textbf{base de datos} como soporte de almacenamiento persistente.
+		\item Un \textbf{protocolo de comunicación} entre la aplicación y el servicio.
+	\end{enumerate}
+	
+	\item \textbf{Implementar} el sistema diseñado, como:
+	
+	\begin{enumerate}
+		\item Un demonio para Linux.
+		\item Un servicio \textit{web} sobre Apache y \acrshort{PHP}.
+		\item Una base de datos MySQL.
+	\end{enumerate}
+	
+	\item \textbf{Validar} junto al \textit{hardware} el proyecto desarrollado.
+\end{enumerate}
+
+Este proyecto atenderá al objetivo global pero \textbf{el desarrollo se centrará en la parte \textit{software}}, ya que el \textit{hardware} requiere competencias de Ingeniería Electrónica e Industrial, y será objeto del proyecto de D. Mikel Aguayo Fernández.
+
+Para abordarlo, hemos contado con la colaboración de \textbf{Juan Rodríguez Ruiz}, responsable del órgano de la \textbf{Parroquia de la Encarnación de Santa Fe}, que nos ha dado acceso tanto al instrumento como a asombrosos datos sobre su historia y su construcción.
 
 \smallskip
 
