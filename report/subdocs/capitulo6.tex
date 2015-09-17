@@ -1,8 +1,6 @@
 \chapter{Validación y verificación}
 \label{cap:capitulo6}
 
-\smallskip
-
 \begin{quote}
 	\begin{flushright}
 		\small ''\textit{Pon el programa a funcionar, y que Dios nos pille confesados.}'' \\
@@ -10,7 +8,7 @@
 	\end{flushright}
 \end{quote}
 
-\smallskip
+\vspace{8em}
 
 Como fase final de cualquier proyecto, una vez terminada la implementación, es el momento de ejecutar las pruebas de validación sobre el sistema desarrollado.
 
@@ -477,6 +475,8 @@ A continuación mostramos el resultado de \textbf{10 ejecuciones}:
 
 El resultado más sorprendente es el del \textbf{analizador}, cuya ejecución total es de 207 \textit{ms} de media, cuando la propia función de análisis solo tarda una media de 5,41 \textit{ms}.
 
+\newpage
+
 \section{Prueba sobre la PCB}
 
 En último lugar, volvemos a reunirnos con Mikel Aguayo para validar nuestros \textbf{proyectos en conjunto}, tal como teníamos previsto. Actualmente solo disponemos de un \textbf{prototipo} del circuito impreso diseñado, más que suficiente para comprobar que el sistema funciona y se comporta como esperábamos.
@@ -510,13 +510,6 @@ Sobre la placa hemos probado dos \textbf{versiones} del software:
 
 En el prototipo establecimos un \textbf{ancho de pulso} muy grande, del orden de 1 \textit{ms}, para descartarlo de antemano de cualquier otro problema que pudiera surgir. La primera prueba fue satisfactoria como \textbf{prueba de concepto}, sin embargo, producía errores en la salida, debido a desfases producidos por el intérprete Python, pues sucedía casi determinísticamente en el 4º canal, independientemente del que escogiéramos.
 
-La \textbf{segunda implementación}, ya en lenguaje C, elimina por completo este problema. Entonces ajustamos más finamente los parámetros según las especificaciones. Algunos de los \textbf{cambios} que realizamos fueron:
-
-\begin{enumerate}
-	\item Establecer el ancho de pulso del \textbf{reloj} a 100 \textit{ms}.
-	\item Almacenar el nº de serie del \textbf{mando} a distancia.
-\end{enumerate}
-
 Utilizamos un \textbf{osciloscopio} para realizar medidas sobre las señales que el \textit{software} envía a la \acrshort{PCB}. Aquí podemos ver el \textbf{ancho de pulso} de reloj:
 
 \smallskip
@@ -532,6 +525,13 @@ Utilizamos un \textbf{osciloscopio} para realizar medidas sobre las señales que
 \smallskip
 
 Tal como vemos, el lapso es de $114 \; \mu s$, que se ajusta aceptablemente a la espera requerida. 
+
+La \textbf{segunda implementación}, ya en lenguaje C, elimina por completo este problema. Entonces ajustamos más finamente los parámetros según las especificaciones. Algunos de los \textbf{cambios} que realizamos fueron:
+
+\begin{enumerate}
+	\item Establecer el ancho de pulso del \textbf{reloj} a 100 \textit{ms}.
+	\item Almacenar el nº de serie del \textbf{mando} a distancia.
+\end{enumerate}
 
 %También observamos el tiempo total en \textbf{volcar una nota}, desde que se desplaza el primer \textit{bit} hasta que se se copian los valores a la salida del registro de desplazamiento:
 
@@ -602,6 +602,13 @@ Aplicados estos pequeños cambios, la \acrshort{PCB} y el \textit{software} fuer
 
 Hecho todo esto, podemos dar por \textbf{completada} la fase de verificación de los objetivos propuestos en este proyecto.
 
+\subsection{Vídeo del funcionamiento de la PCB}
+
+\begin{center}
+%	\flashmovie[engine=flv-player,width=11cm,height=6cm,auto=1,controlbar=0]{capitulo6/video_pcb.mp4}
+	Para reproducir este vídeo, es necesario utilizar Adobe Reader 9 o superior.
+\end{center}
+
+
 \newpage
 \clearpage{\pagestyle{empty}\cleardoublepage}
-
