@@ -63,7 +63,7 @@ El código hace uso de los siguientes componentes externos:
 
 Este fue el primer módulo a implementar. Estudiado el análisis, el diseño es sencillo por la independencia entre eventos. Sin embargo, la implementación presentaba una \textbf{complejidad} notable, sobre todo porque no hay un carácter separador entre eventos, y tanto los meta-eventos como las marcas de duración tienen \textbf{longitud variable}.
 
-Como ya indicamos en la sección \ref{sec:fmto_midi}, el protocolo \acrshort{MIDI} especifica que los valores numéricos se indican en \textit{big-endian}. Como el procesador del \textit{Raspberry} funciona en \textit{little-endian}, hay que \textbf{intercambiar los \textit{bytes}} de los números que ocupen más de un \textit{byte}. La figuras siguientes ilustran este problema:
+Como ya indicamos en la sección \ref{sec:fmto_midi}, el protocolo \acrshort{MIDI} especifica que los valores numéricos se indican en \textit{big-endian}. Como el procesador del \textit{Raspberry Pi} funciona en \textit{little-endian}, hay que \textbf{intercambiar los \textit{bytes}} de los números que ocupen más de un \textit{byte}. La figuras siguientes ilustran este problema:
 
 \smallskip
 

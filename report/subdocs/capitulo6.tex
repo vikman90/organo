@@ -74,8 +74,8 @@ La validación de esta parte del sistema requería disponer de la \acrshort{PCB}
 La solución a este problema fue utilizar un \textbf{\textit{Arduino}} para simular el mando a distancia, y un \acrshort{led} para comprobar el funcionamiento del metrónomo. Esto supuso una serie de cuestiones:
 
 \begin{enumerate}
-	\item \textit{Arduino} funciona a 5 \textit{V}, mientras que \textit{Raspberry} trabaja a 3,3 \textit{V}.
-	\item La corriente del \acrshort{GPIO} del \textit{Raspberry} está limitado a 50 \textit{mA}, a cargo del usuario.
+	\item \textit{Arduino} funciona a 5 \textit{V}, mientras que \textit{Raspberry Pi} trabaja a 3,3 \textit{V}.
+	\item La corriente del \acrshort{GPIO} del \textit{Raspberry Pi} está limitado a 50 \textit{mA}, a cargo del usuario.
 \end{enumerate}
 
 La solución a estos problemas fue \textbf{diseñar} un pequeño circuito electrónico con un \textbf{divisor de tensión} y una resistencia para el \acrshort{led}.
@@ -92,7 +92,7 @@ La solución a estos problemas fue \textbf{diseñar} un pequeño circuito electr
 
 \smallskip
 
-De acuerdo a la fórmula de un divisor de tensión resistivo \cite{wiki_divtension}, a la salida en el pin RX de \textit{Raspberry} tendremos:
+De acuerdo a la fórmula de un divisor de tensión resistivo \cite{wiki_divtension}, a la salida en el pin RX de \textit{Raspberry Pi} tendremos:
 
 
 \begin{equation}
@@ -106,7 +106,7 @@ Por otro lado, con la resistencia junto al \acrshort{led}, la corriente está mu
 	I = \frac{V}{R} = \frac{3.3 \; V}{100 \; \Omega} = 33 \; mA
 \end{equation}
 
-El resultado fue el siguiente: \textit{Raspberry} alimenta a Arduino, y se comunica mediante el \acrshort{UART} con un circuito de seguridad para asegurar el voltaje de la señal. Además, tenemos un indicador luminoso para verificar el metrónomo.
+El resultado fue el siguiente: \textit{Raspberry Pi} alimenta a Arduino, y se comunica mediante el \acrshort{UART} con un circuito de seguridad para asegurar el voltaje de la señal. Además, tenemos un indicador luminoso para verificar el metrónomo.
 
 Por simplicidad, programamos una batería de pruebas para que Arduino suplantara al mando generando distintas cadenas aleatorias, variando los siguientes parámetros:
 
@@ -128,7 +128,7 @@ Si eventualmente llegan menos \textit{bytes} de los 10 previstos, el programa si
 		\includegraphics[width=\linewidth*3/4]{capitulo6/proto_uart}
 		\par\end{centering}
 	\smallskip
-	\caption{\label{fig:proto_uart} Placa de prueba entre Arduino y Raspberry.}
+	\caption{\label{fig:proto_uart} Placa de prueba entre Arduino y Raspberry Pi.}
 \end{figure} 
 
 \smallskip
