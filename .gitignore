@@ -25,3 +25,5 @@ report/*.tps
 report/*.ist
 test/**/__pycache__
 test/player/data/*
+report/*.txss
+report/**/*.mp4

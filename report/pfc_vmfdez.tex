@@ -1,0 +1,380 @@
+\documentclass[titlepage,12pt,letterpaper,twoside,openright,svgnames]{report}%
+
+
+%Comillas con babel spanish.
+%simplemente para empesar las comillas pones `` (dos tildes) y para terminar '' (dos comillas simples).
+
+% Espacio :
+%Command 	Description 	Size
+%\, 	small space 	3/18 of a quad
+%\: 	medium space 	4/18 of a quad
+%\; 	large space 	5/18 of a quad
+%\! 	negative space 	-3/18 of a quad
+%
+%
+% Cambiar tamaño ecuaciones
+% $\mbox{\fontsize{8}{9}\selectfont $x^2+y^2=z^2$}$ donde 8 es tipo de letra en puntos y 9 espaciado de línea
+%
+% Poner superíndice de caracteres no matemáticos. \textsuperscript{\textregistered}
+%Apostrofe:  '{}
+%Grado:      $180^{\circ}$
+% Mas Menos:  \pm
+%trademark \texttrademark for (TM) 
+%    \textsuperscript{\texttrademark}
+%registered \textregistered for (R)
+%copyrighted \copyright for (C)
+% Simbolo cuadrito:   $\Box$
+%\acrshort y \acrlong para los nombres largos y cortos de los Acrónimos
+% \mathit{MR}
+%Tildes en Ecuaciones:  http://garsia.math.yorku.ca/~zabrocki/latexpanel/mathaccents.html
+% á    $...\acute{} ...$
+% Separar unidades: $10\,mA$
+%Caracter en medio de texto necesita espacio posterior: \AA\  o espacio obligado: ~$\AA$
+%\texorpdfstring{   \section{Características internas de la versión inicial de \texorpdfstring{\acrshort{spice}}.}
+
+%e.g. / i.e. / et al.
+%
+%It is important to use these abbreviations literally and to punctuate them correctly. Many writers confuse “e.g.” and “i.e.,” and many type “et al.” improperly or do not properly recognize what words it represents.
+%
+%The abbreviation “e.g.” is from the Latin exempli gratia and means, literally, “for example.” Periods come after each letter and a comma normally follows unless the example is a single word and no pause is natural:
+%
+    %Any facial response (e.g., a surprised blink of both eyes) was recorded. 
+%
+%The abbreviation “i.e.” is from the Latin id est, meaning “that is.” Loosely, “i.e.” is used to mean “therefore” or “in other words.” Periods come after each letter and a comma normally follows, depending on whether the wording following the abbreviation dictates a natural pause:
+%
+    %In every case Angle 1 was greater than Angle 2—i.e., every viewer perceived a circle. 
+%
+%The phrase “et al.”—from the Latin et alii, which literally means “and others”—must always be typed with a space between the two words and with a period after the “l” (since the “al.” is an abbreviation). A comma does not follow the abbreviation unless the sentence’s grammar requires it. Some journals italicize the phrase because it comes from the Latin, but most do not.
+%
+    %Schweiger et al. applied the neural network method. 
+%
+%Never begin a sentence with any of these three abbreviations; if you want to begin a sentence with “for example” or “therefore,” always write the words out.
+
+%\textcolor{green}{PONER Párrafo para introducir VERILOG-A}
+
+%Redefine the first level
+%\renewcommand{\labelitemi}{$\star$}
+%\renewcommand{\labelitemi}{\alph}
+%\renewcommand{\labelenumi}{\alph}
+%\renewcommand{\theenumi}{\Roman{enumi}}
+%\renewcommand{\theenumi}{\alph{enumi}}
+%\renewcommand{\labelenumi}{\theenumi}
+%Redefine the second level
+%\renewcommand{\theenumii}
+
+
+%Lo que hace falta para cada tipo de bibliografía: http://en.wikipedia.org/wiki/BibTeX
+%Reconocedor de símbolos: http://detexify.kirelabs.org/classify.html
+%Cuadradito en Ohmios por cuadro \square
+
+\usepackage{estilos/pfc}
+\usepackage{estilos/funciones}
+
+\usepackage{lscape}
+\usepackage{graphicx}
+\usepackage{subfig}
+
+\usepackage{wasysym} % Simbolos musicales
+\usepackage{enumitem} % Para el estilo de las listas de descripcion
+\usepackage{algorithmic} % Para describir algoritmos
+\usepackage{multirow} % Para combinar celdas de las tablas en vertical
+\usepackage{fancyvrb} % Para Verbatim
+\usepackage{flashmovie} 
+
+\usepackage{rotating}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{eurosym}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{myyellow}{rgb}{1,1,0.84}
+\definecolor{mypink}{rgb}{0.7,0.016,0.536}
+\definecolor{myblue}{rgb}{0,0,1}
+
+\def\code#1{\texttt{#1}} % para usar \code{}
+
+\lstset{
+         frame=Ltb,
+         framerule=0pt,
+         aboveskip=1mm,  %define the space above and below displayed listings
+         belowskip=1mm,    %define the space above and below displayed listings
+         %
+         abovecaptionskip=0cm,
+         belowcaptionskip=0mm,
+         xleftmargin=2cm,
+        %
+         %framextopmargin=3pt,
+     %framexbottommargin=3pt,
+     %framexleftmargin=0.2cm,
+     %framesep=0pt,
+     rulesep=.4pt,
+     %backgroundcolor=\color{gray92},
+		 backgroundcolor=\color{myyellow},
+     %backgroundcolor=\color{darkgray},
+     rulesepcolor=\color{black},
+     %
+     %stringstyle=\ttfamily,
+     stringstyle=\color{mypink},
+		 showstringspaces=false,
+		 commentstyle=\color{mygreen},
+     %commentstyle=\color{gray45},
+     %
+     captionpos=b, %Posición Inferior
+     numberbychapter=true, %Numerado con capítulos
+     %
+     numbers=left,
+     numbersep=30pt,
+     numberstyle=\tiny,
+     numberfirstline = false,
+     breaklines=true,
+     %
+     showtabs=false,
+     extendedchars=true,
+     %language=Verilog,
+		 language=Matlab,
+     inputencoding=ansinew,
+     numbers=left,
+     numberstyle=\tiny,
+     stepnumber=1,
+     numbersep=5pt,
+     %keywordstyle=\color{blue}\bfseries,%\emph,(Esto los subrraya)
+     %keywordstyle=\color{DarkGray}\bfseries,%\emph,(Esto los subrraya)
+		 keywordstyle=\color{myblue}\bfseries,%\emph,(Esto los subrraya)
+     morekeywords={let,option,control,destroy foreach, altermod, print, echo,plot,endc,end,limit, parameter,"pnjlim","fetlim",real,limexp,ddt,white,noise,`ifdef,`else,`endif,ddx,<+,analog,electrical,`define,aliasparam,double,int,switch},
+     tabsize=2,
+         %Tamaño de Letra       
+     basicstyle=\tiny,%\scriptsize}%\footnotesize}%\small}%, stringstyle=\ttfamily}
+     breakindent=5pt,
+     %
+        %Caracteres para saltar a LATEX y poder introducir sintaxis de Latex dentro del Listing
+    %escapechar=\%,
+        escapeinside={(*@}{@*)},
+        extendedchars=true,
+    inputencoding=utf8
+}
+
+
+
+%\decimalpoint
+
+\makeindex %Para hacer el índice alfabético
+
+
+%============ ELADIO GUTIERREZ CARRASCO  =====================
+% -*- Demosle unas leccioncillas a LaTeX sobre como colocar figuras -*-
+\setcounter{topnumber}{3}     % Max. numero de figs. on top
+\setcounter{bottomnumber}{3}  % Max. numero de figs. abajo
+\setcounter{totalnumber}{10}   % Max. numero de figs. por pagina
+\renewcommand{\topfraction}{1} % Max. fraccion de pagina ocupada por figs.
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}  % Min. fraccion de pagina ocupada por texto
+\renewcommand{\floatpagefraction}{0.5} % Max. espacio de pagina solo con figs.
+\textfloatsep=0.5mm
+
+
+
+%SQUEEZE:
+% http://www.eng.cam.ac.uk/help/tpl/textprocessing/squeeze.html
+
+%Page Layout
+        %\columnsep: gap between columns
+        %\topmargin: gap above header
+        %\topskip: between header and text
+        %\textheight: height of main text
+        %\textwidth: width of text
+        %\oddsidemargin: odd page left margin
+        %\evensidemargin : even page left margin
+
+%Paragraphs
+%\parindent=1cm %: indentation of paragraphs
+\parskip=3mm %: gap between paragraphs
+        
+%Floats (tables and figures) Parece que no funciona cuando se usa [H]
+\floatsep=1mm %: is the space between adjacent floats that are moved to the top or bottom of the text page.
+\textfloatsep=1mm %: is the space between the main text and floats at the top or bottom of the page.
+\intextsep=1mm %: space left on top and bottom of an in-text float.
+%\dbltextfloatsep is \textfloatsep for 2 column output.
+%\dblfloatsep is \floatsep for 2 column output.
+\abovecaptionskip=0mm %: space above caption
+\belowcaptionskip=-2mm %: space below caption
+
+%Maths
+\abovedisplayskip=2mm %: space before maths
+\belowdisplayskip=2mm %: space after maths
+        %\arraycolsep: gap between columns of an array
+
+%Lists
+\topsep=1mm %: space between first item and preceding paragraph.
+\partopsep=0mm %: extra space added to \topsep when environment starts a new paragraph.
+\itemsep=-1.5mm %-2mm %: space between successive items
+%\parskip=0mm % 	Space between paragraphs outside of a list, and part of the space between a non-list paragraph and a list item.
+%\topsep 	Extra space added to \parskip before the first and after the last item.
+%\parsep=0mm %	Paragraph separation within a single item.
+%\itemsep 	Extra inter-item spacing added to \parsep.
+\partopsep=0mm % 	This is added to the top and/or bottom of the list if and only if there's a blank line above or below the first or last item. Leave this alone unless blank lines become a problem.
+
+%
+%By default, LaTeX doesn't like to fill more than 0.7 of a text page with tables and graphics, nor does it like too many figures per page. This behaviour can be changed by placing lines like the following before \begin{document}
+%
+%\renewcommand\floatpagefraction{.9}
+%\renewcommand\topfraction{.9}
+%\renewcommand\bottomfraction{.9}
+%\renewcommand\textfraction{.1}   
+%\setcounter{totalnumber}{50}
+%\setcounter{topnumber}{50}
+%\setcounter{bottomnumber}{50}
+
+
+%PARA Ahorrar espacio
+%http://ftp.eq.uc.pt/software/TeX/macros/latex/contrib/savetrees/savetrees.pdf
+%\usepackage{savetrees}
+
+\begin{document}
+
+%You may have noticed the absence of underline. This functionality has to be added with the ulem package. Stick \usepackage{ulem} in your preamble. By default, this overrides the \emph command with the underline rather than the italic style. It is unlikely that you wish this to be the desired effect, so it is better to stop ulem taking over \emph and simply call the underline command as and when it is needed.
+%    To disable ulem, add \normalem straight after the document environment begins.
+%    To underline, use \uline{...}.
+%    To add a wavy underline, use \uwave{...}.
+%    And for a strike-out \sout{...}.
+\normalem
+
+
+%Para ver si en Paragraph empieza en linea nueva
+%\setlength{\parindent}{20pt}
+%\parskip = \baselineskip
+
+%\selectlanguage{spanish}
+
+\renewcommand{\contentsname}{Índice} 
+\renewcommand{\partname}{Parte} 
+\renewcommand{\chaptername}{Capítulo} 
+\renewcommand{\appendixname}{Apéndice} 
+\renewcommand{\bibname}{Bibliografía} 
+\renewcommand{\figurename}{Figura} 
+\renewcommand{\listfigurename}{Índice de Figuras}
+\renewcommand{\listtablename}{Índice de tablas}
+\renewcommand{\tablename}{Tabla}
+
+%Esto funciona normalmente pero en el caso de tener cargado el parquete CAPTION
+% hay que hacerlo de otra manera
+%\renewcommand{\tablename}{Tabla} 
+%\renewcommand{\listtablename}{Índice de tablas} 
+
+\renewcommand*\lstlistingname{Listado}
+\renewcommand*\lstlistlistingname{Índice de Listados}
+
+
+%\glossarystyle{long4col} 
+\pagenumbering{alph}
+
+
+
+%\part (book y report) -1
+%\part (article) 0
+%\chapter 0
+%\section 1
+%\subsection 2
+%\subsubsection 3
+%\paragraph 4
+%\subparagraph 5
+
+
+%Para definir el espacio antes y después de cada fórmula que aparentemente es excesivo
+%\abovedisplayskip=12pt plus 3pt minus 9pt
+%\belowdisplayskip=12pt plus 3pt minus 9pt
+%\abovedisplayskip=3pt
+%\belowdisplayskip=3pt
+%\abovedisplayshortskip=0pt plus 3pt
+%\belowdisplayshortskip=7pt plus 3pt minus 4pt
+
+
+%def\TikZ{Ti\emph{k}Z}
+%lstset{frameround=fttt}
+%lstloadlanguages{TeX}
+
+
+\include{subdocs/portada}
+
+%%Agradecimientos 
+   \include{subdocs/Agradecimientos}
+%
+%%Lista de FIGURAS
+   \include{subdocs/ListaFiguras}
+%
+%%Lista de FIGURAS
+%   \include{subdocs/ListaListados}
+%
+%%Lista de TABLAS
+   \include{subdocs/ListaTablas}
+
+
+%%%Símbolos: se incluyen en el listado de símbolos
+%      \gls{pi}, \gls{ohm}, \gls{angstrom}, 
+%      \gls{QIPrima},    \gls{QBPrima},    \gls{QGPrima}
+%      \gls{QI},    \gls{QB},    \gls{QG}   
+%      \gls{qI},    \gls{qB},    \gls{qG}   
+%      \gls{Idb},    \gls{gm},    \gls{gmb},    \gls{gsd}   
+%      \gls{gbg},    \gls{gbs},    \gls{gbd}         
+%
+%Acrónimos
+%\acrshort{SMD} (\acrlong{SMD})
+%Enlace al glosario
+%\glsname{HISIM} (\glstext{HISIM})
+%
+%%%%%% ERROR  %%%%%%%
+%\acrshort{EKV} %(\acrlong{CRA})
+%\glsname{EKV} (\glstext{EKV})
+
+%%Citas: hace un enlace a la Bibliografía
+%\cite{rytter1993vibration}
+%\cite{frietzen2002CFRP}
+%\cite{chang1999SHM}
+
+
+
+%Capítulo 1: Introducción
+\include{subdocs/capitulo1}
+
+%Capítulo 2: Requisitos previos
+\include{subdocs/capitulo2}
+
+%Capítulo 3: Análisis
+\include{subdocs/capitulo3}
+%
+\include{subdocs/capitulo4}
+%
+\include{subdocs/capitulo5}
+%
+\include{subdocs/capitulo6}
+%%H:/pen azul/memoria/V00/
+
+%
+\include{subdocs/capitulo7}
+%\include{capitulo7}
+%
+%\include{subdocs/capitulo8}
+%
+%\include{subdocs/capitulo9}
+%
+%\include{subdocs/capitulo10}
+%
+
+%\include{referencias}
+
+%\include{Bibliografia}
+
+%Ponemos un ejemplo de Bibliografía \cite{rytter1993vibration,chang1999SHM}.
+
+
+%Bibliografia.
+\include{subdocs/Bibliografia}
+
+\include{subdocs/Apendices}
+
+\include{subdocs/glosario}
+
+%\include{subdocs/IndiceAlfabetico}
+
+
+
+\end{document}
