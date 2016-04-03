@@ -21,3 +21,11 @@ report/*.alg
 report/*.tps
 report/*.ist
 report/*.txss
+
+summary/*.aux
+summary/*.lof
+summary/*.log
+summary/*.out
+summary/*.pdf
+summary/*.toc
+
