@@ -28,4 +28,4 @@ summary/*.log
 summary/*.out
 summary/*.pdf
 summary/*.toc
-
+summary/*.synctex.gz

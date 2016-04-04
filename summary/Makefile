@@ -16,4 +16,5 @@ clean:
 	      *.nav *.out *.snm *.bak
 
 %.pdf: %.tex images/*
+	$(LATEX) -draftmode $<
 	$(LATEX) $<

@@ -4,9 +4,9 @@
 \usepackage[spanish]{babel}
 \usepackage{graphicx}
 \usepackage{fancyhdr}
-\usepackage[skip=6pt]{caption}
 \usepackage{multicol}
-%\usepackage[hidelinks]{hyperref}
+\usepackage[skip=6pt]{caption}
+\usepackage[hidelinks]{hyperref}
 
 \title{Interpretación remota de partituras sobre instrumentos de viento}
 \author{Víctor Manuel Fernández Castro}
@@ -30,7 +30,6 @@
 	
 	\newpage
 	\tableofcontents
-	\listoffigures
 	
 	% Capítulo 1 ---------------------------------------------------------------
 	
@@ -230,21 +229,121 @@
 	segundo teclado y nuevos sonidos, pero todo el mecanismo es independiente
 	del primer instrumento.
 	
-
 	\begin{multicols}{2}
-		\includegraphics[width=0.4\textwidth]{images/organo}
+		\noindent
+		\begin{center}
+			\includegraphics[width=0.4\textwidth]{images/organo} 
+			\captionof{figure}{Reproducción 3D del órgano.}
+		\end{center}
+		\columnbreak
+		Para funcionar, el órgano se alimenta de \textbf{aire}. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien accionándolo mientras el organista tocaba. Hoy día el fuelle ha sido sustituido por una \textbf{bomba eléctrica}.
 		
-		La primera tarea que llevamos a cabo fue 
-		conocer el órgano en profundidad, tomar 
-		algunas medidas y \textbf{diseñar el modelo en 3D} 
-		con el \textit{software} \textit{SolidWorks}.
+		La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y \textbf{diseñar el modelo en 3D} con el \textit{software} \textit{SolidWorks}.
+	\end{multicols}
+	
+	\begin{multicols}{2}
+		\noindent
+		\includegraphics[width=0.5\textwidth]{images/teclado_modelo} 
+		\captionof{figure}{Medidas del teclado.}
+		\columnbreak
+		Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondiente al órgano barroco, y otro más abajo, que sobresale del primero, para el órgano romántico, de la misma extensión.
+	\end{multicols}
+	
+	\begin{multicols}{2}
+		\noindent
+		\includegraphics[width=0.5\textwidth]{images/pedalier_modelo} 
+		\captionof{figure}{Medidas del pedalier.}
+		\columnbreak
+		Este órgano cuenta con un \textit{pedalier} con un registro fijo: el \textbf{bajo de \textit{contrast}}. Los pedales están dispuestos en forma de escala diatónica, igual que las teclas. Cada pedal tiene aproximadamente la misma anchura que una tecla aunque, obviamente, están más separados unos de otros.
+	\end{multicols}
+	
+	\begin{multicols}{2}
+		\noindent
+		\begin{center}
+			\includegraphics[width=0.4\textwidth]{images/registros} 
+			\captionof{figure}{Hilera de registros barrocos.}
+		\end{center}
+		\columnbreak
+		Los registros son las diferentes \textbf{familias de tubos} con el mismo timbre y la misma tesitura. Se pueden abrir o cerrar desde la consola a través de una serie de palancas, de las que se tira para hacer sonar el registro o se empuja para silenciarlo.
 	\end{multicols}
 	
 	\subsection{PCB de control}
 	
-	\subsection{SBC Raspberry pi}
+	\begin{multicols}{2}
+		\noindent
+		\begin{center}
+			\includegraphics[width=0.4\textwidth]{images/pcb} 
+			\captionof{figure}{Prototipo hardware.}
+		\end{center}
+		\columnbreak
+		La placa de circuito impreso es la solución a los requisitos \textit{hardware} aportada por el \textbf{proyecto de Mikel Aguayo Fernández}. 
+		
+		Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. 
+		
+		A continuación enumeramos aquellos componentes con los que interactuaremos.		 
+	\end{multicols}	
+	
+	\begin{description}
+		\item[Registros de desplazamiento SN74HC595.] Son circuitos lógicos que almacenan una serie de bits. Este modelo, con una capacidad de 8 bits, soporta entrada en serie y salida en paralelo. Usaremos \textbf{cuatro registros} de desplazamiento: uno para cada teclado, otro para el \textit{pedalier} y otro para los registros.
+		
+		\item[Receptor RF HIRK-433A.] Es un detector de radio con decodificador a interfaz RS-232. Nos da la información del \textbf{número de serie} del mando y qué \textbf{botones} han disparado el evento. 
+		
+		\item[Pantalla LCD FDCC2004B.] Es un dispositivo genérico de 4 x 20 caracteres. Tiene una pequeña \textbf{memoria} para almacenar el estado e incluye los caracteres ASCII predefinidos.
+		
+		\item[Codificador rotatorio EC11J.] Es un componente electrónico consistente en un \textbf{botón giratorio y pulsable}. Emite una señal que depende del sentido en que se ha girado el botón.
+		
+		\item[Zumbador PKLCS1212E4001-R1.] Es un dispositivo piezoeléctrico que produce un sonido agudo continuado. A diferencia de un altavoz, está diseñado para producir \textbf{ondas cuadradas}.
+	\end{description}
+	
+	\subsection{SBC Raspberry Pi}
+	
+	El \textit{Raspberry Pi} es un \textbf{ordenador} de placa única ---SBC---, más potente que un microcontrolador y con \textbf{sistema operativo} basado en Linux. Se alimenta por USB y se puede controlar con teclado y ratón, o bien desde red mediante SSH.
+	
+	\begin{multicols}{2}
+		\noindent
+		\includegraphics[width=0.5\textwidth]{images/raspberry} 
+		\captionof{figure}{Raspberry Pi modelo B.}
+		\columnbreak
+		El corazón de este computador es un SOC, que integra microprocesador, memoria y periféricos principales.
+		
+		El modelo escogido, \textit{B+}, posee numerosos pines de entrada y salida de propósito general (GPIO), que utilizaremos para interactuar con la PCB y para ser \textbf{alimentado} por ésta.
+	\end{multicols}
+	
+	 La PCB se conectará al \textit{Raspberry Pi} a través de los conectores GPIO. Todos ellos se utilizarán de forma \textbf{genérica}, excepto el receptor del mando a distancia, que se comunica con la interfaz RS-232 y debe conectarse al \textbf{UART} mediante el pin dedicado a tal periférico.
+	 
+	 \begin{center}
+	 	\includegraphics[width=0.75\textwidth]{images/pcb_gpio}
+	 	\captionof{figure}{Pines de conexión de la PCB con el Raspberry Pi.}
+	 \end{center}
 	
 	\subsection{Formato de archivo MIDI}
+	
+	Los datos de entrada a nuestro sistema consisten en archivos MIDI, tal como se menciona en los requisitos. Este tipo de ficheros se presenta como un conjunto de \textbf{bloques} ---\textit{chunks}--- que contienen los eventos clasificados por pistas. Todos los valores numéricos están en formato \textbf{\textit{big-endian}}, detalle a tener en cuenta, ya que tanto la arquitectura x86 como ARM trabajan en \textit{little-endian}.
+	
+	\begin{description}
+		\item[Bloque de cabecera.] Es siempre el \textbf{primero}, empieza por la firma ''MThd'' e incluye el formato, el número de pistas y la división de tiempo.
+		
+		\item[Bloque de pista.] Consta de una cabecera y de una lista de eventos, que termina con el meta-evento \textit{fin de pista}.
+		
+		\item[Eventos MIDI.] Cada evento indica el retraso de tiempo respecto al evento anterior, el tipo de evento, el canal y los parámetros correspondientes, tales como la nota o la velocidad de pulsación.
+		
+		\item[Metaeventos.] Son mensajes de control que extienden la semántica de los eventos. Los más importantes son el \textbf{indicador de \textit{tempo}} y la marca de \textbf{fin de pista}.
+		
+		\item[Notas.] Se indican numéricamente, en base 0, asignando valores a las notas cromáticas a partir de \textit{Do -1}. Por ejemplo, al \textit{Do central (Do 4)} le corresponde el valor 60.
+	\end{description}
+	
+	\subsection{Interconexión general}
+	
+	Todos los elementos que hemos descrito conformarán la parte \textit{hardware} del sistema y establecerán una conexión cuyos extremos son el \textbf{computador} \textit{Raspberry Pi} y los \textbf{mecanismos} que interactuarán con la consola del órgano.
+	
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{images/interconexion}
+		\captionof{figure}{Conexión lógica entre los elementos hardware.}
+	\end{center}
+	
+	La PCB está conectada mediante la interfaz GPIO. Las conexiones harán funcionar los mecanismos del órgano, pasando por los registros de desplazamiento, que retendrán el estado.
+	
+	El resto de \textbf{periféricos} de la placa nos serán de utilidad para desarrollar un sistema que cumplirá todos los requisitos contemplados en el proyecto.
 	
 	% Capítulo 4 ---------------------------------------------------------------
 	
@@ -252,9 +351,56 @@
 	
 	\subsection{Planteamiento}
 	
+	\begin{multicols}{2}
+		\noindent
+		\includegraphics[width=0.5\textwidth]{images/idea} 
+		\captionof{figure}{Planteamiento inicial.}
+		\columnbreak
+		El \textit{software} que tenemos que diseñar consiste en un \textbf{reproductor de archivos MIDI}, que recibe el fichero y lo envía a la PCB a través del GPIO.
+		
+		Vamos a diseñar el reproductor como un \textbf{demonio} de Linux que, además de gestionar la reproducción de archivos MIDI, proporcionará la interfaz de \textbf{control reducido}, para manejar la mecánica desde la PCB. Además, despachará las órdenes del \textbf{mando a distancia}.
+	\end{multicols}
+	
+	Respecto al de \textbf{control}, se requiere varias formas de acceder al sistema:
+	
+	\begin{enumerate}
+		\item Una \textbf{interfaz \textit{web}} como controlador principal, que cubra todos los casos de uso, y sea fácil de instalar y utilizar. Esta opción permite además que sea multiplataforma.
+		
+		\item Un mando a distancia, que altere la reproducción.
+		
+		\item Un control reducido empotrado en la PCB.
+	\end{enumerate}
+	
+	En último lugar, necesitamos \textbf{almacenar información} sobre los archivos MIDI, listas de reproducción y asignaciones del mando en memoria persistente. Una \textbf{base de datos} nos permitiría guardar toda esa información de manera estructurada y coherente, además de ser fácilmente accesible por todos los componentes del sistema.
+		
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{images/general}
+		\captionof{figure}{Diseño general.}
+	\end{center}
+	
 	\subsection{Servicio del reproductor}
 	
+	\begin{center}
+		\includegraphics[width=0.75\textwidth]{images/reproductor}
+		\captionof{figure}{Diseño interno del reproductor.}
+	\end{center}
+	
+	\subsubsection{Descodificador de MIDI}
+	\subsubsection{Planificador}
+	\subsubsection{Salida hacia la PCB}
+	\subsubsection{Control por socket}
+	\subsubsection{Control del mando}
+	\subsubsection{Comunicación con la base de datos}
+	\subsubsection{Modo ingeniería}
+	\subsubsection{Seguridad}
+	
 	\subsection{Interfaz web}
+	
+	\subsubsection{Portada}
+	\subsubsection{Reproductor}
+	\subsubsection{Partituras y listas}
+	\subsubsection{Asignación del mando}
+	\subsubsection{Energía y multilenguaje}	
 	
 	\subsection{Base de datos}
 	
