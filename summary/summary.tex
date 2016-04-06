@@ -330,17 +330,16 @@
 	\subsection{PCB de control}
 	
 	\begin{multicols}{2}
-		\noindent
-		\begin{center}
-			\includegraphics[width=0.45\textwidth]{images/pcb} 
-			\captionof{figure}{Prototipo hardware.}
-		\end{center}
-		\columnbreak
 		La placa de circuito impreso es la solución a los requisitos \textit{hardware} aportada por el \textbf{proyecto de Mikel Aguayo Fernández}. 
 		
 		Incluye una serie de registros de desplazamiento para almacenar el estado del órgano, una interfaz de control local reducido y un medio de control remoto. También alimentará al computador que vamos a utilizar. 
 		
-		A continuación enumeramos aquellos componentes con los que interactuaremos.		 
+		A continuación enumeramos aquellos componentes con los que interactuaremos:
+		\columnbreak		 
+		\begin{center}
+			\includegraphics[width=0.45\textwidth]{images/pcb} 
+			\captionof{figure}{Prototipo hardware.}
+		\end{center}
 	\end{multicols}	
 	
 	\begin{description}
@@ -520,6 +519,8 @@
 	
 	Esta parte del programa supone el \textbf{puente} entre el planificador y la PCB, transformará instrucciones de activación y desactivación de notas en señales lógicas que emitiremos por el GPIO. 
 	
+	\clearpage
+	
 	El \textbf{reproductor} delega en el módulo de salida las siguientes funciones:
 	
 	\begin{enumerate}
@@ -532,15 +533,14 @@
 	Éste será el único módulo que tendremos que cambiar a la hora de pasar de un órgano a otro. El hecho de \textbf{aislar la salida} también nos da flexibilidad para sustituir la interfaz GPIO por otro tipo de salida, como la consola, con fines de mantenimiento y depuración.
 	
 	\begin{multicols}{2}
-		\noindent
+		Nuestra especificación deja abierta la estructura que pueda tener un archivo MIDI. El sistema podrá descodificar MIDI estándar, pero la pieza deberá \textbf{adaptarse} a cada órgano concreto para lograr una óptima ejecución.
+		
+		El módulo de salida permitirá asignar cada pista MIDI, que normalmente corresponde a un \textbf{pentagrama} de la partitura, a un canal diferente.
+		\columnbreak
 		\begin{center}
 			\includegraphics[width=0.45\textwidth]{images/map} 
 			\captionof{figure}{Asignación de pistas.}
 		\end{center}
-		\columnbreak
-		Nuestra especificación deja abierta la estructura que pueda tener un archivo MIDI. El sistema podrá descodificar MIDI estándar, pero la pieza deberá \textbf{adaptarse} a cada órgano concreto para lograr una óptima ejecución.
-		
-		El módulo de salida permitirá asignar cada pista MIDI, que normalmente corresponde a un \textbf{pentagrama} de la partitura, a un canal diferente.
 	\end{multicols}
 	
 	\begin{multicols}{2}
@@ -677,15 +677,14 @@
 	Vamos a diseñar una solución enfocada al uso remoto con ayuda de un \textbf{explorador} de Internet, como \textit{Chrome}, \textit{Firefox} o \textit{Safari}, con lo que crearemos un servidor \textit{web}.
 	
 	\begin{multicols}{2}
-		\noindent
+		Para estructurar los elementos que conformarán la interfaz, utilizaremos el patrón de \textbf{modelo-vista-controlador}.
+		
+		Considerando los casos de uso y los requisitos, hemos enmarcado en el esquema estos elementos:
+		\columnbreak
 		\begin{center}
 			\includegraphics[width=0.45\textwidth]{images/mvc_completo} 
 			\captionof{figure}{Componentes del sistema.}
 		\end{center}
-		\columnbreak
-		Para estructurar los elementos que conformarán la interfaz, utilizaremos el patrón de \textbf{modelo-vista-controlador}.
-		
-		Considerando los casos de uso y los requisitos, hemos enmarcado en el esquema estos elementos.
 	\end{multicols}
 	
 	Usaremos las siguientes \textbf{tecnologías}:
@@ -785,6 +784,7 @@
 		\item \textbf{Arrastrando} uno o varios archivos a la sección central de la vista. Al hacerlo, aparecerá un \textbf{panel modal} que indicará el archivo que se está enviando. Si un archivo falla, es descartado silenciosamente.
 	\end{enumerate}
 	
+	\clearpage
 	\subsubsection*{Asignación del mando}
 	
 	Una vez creadas las listas, tendremos la posibilidad de asignarlas a un botón del mando a distancia. La \textbf{base de datos} almacena esta información y permite que sea consultada directamente por el demonio, que será el que reciba las pulsaciones del mando.
@@ -853,6 +853,8 @@
 		\item Un \textbf{botón} se distingue por su código, y se le asigna a una lista de reproducción, sin perjuicio de que una lista esté asignada a varios botones. Naturalmente, puede haber listas que no estén asignadas a ningún botón.
 	\end{enumerate}
 	
+	\clearpage
+	
 	\begin{multicols}{2}
 		\noindent
 		\begin{center}
@@ -883,18 +885,17 @@
 	Para \textbf{verificar el desarrollo}, vamos a prever la necesidad de probar los módulos críticos del diseño:
 	
 	\begin{multicols}{2}
-		\noindent
-		\begin{center}
-			\includegraphics[width=0.45\textwidth]{images/daemon} 
-			\captionof{figure}{Componentes del back-end.}
-		\end{center}
-		\columnbreak
 		\begin{enumerate}
 			\item Descodificador de archivos MIDI.
 			\item Planificador.
 			\item Interfaz de salida.
 			\item Servidor \textit{socket}.
 		\end{enumerate}
+		\columnbreak
+		\begin{center}
+			\includegraphics[width=0.45\textwidth]{images/daemon} 
+			\captionof{figure}{Componentes del back-end.}
+		\end{center}
 	\end{multicols}
 	
 	Por otro lado, el \textit{front-end} necesita dos aplicaciones externas para distintos fines:
@@ -917,18 +918,17 @@
 	Sencillamente, utilizará la interfaz de programación creada por el descodificador MIDI para enviar el nombre de un fichero, \textbf{descodificarlo} y mostrar en la salida estándar la información básica de una partitura:
 	
 	\begin{multicols}{2}
-		\noindent
-		\begin{center}
-			\includegraphics[width=0.45\textwidth]{images/cap_midinfo} 
-			\captionof{figure}{Información de MIDI.}
-		\end{center}
-		\columnbreak
 		\begin{enumerate}
 			\item Organización de las pistas.
 			\item Número de pistas.
 			\item División de tiempo.
 			\item Duración de la obra.
 		\end{enumerate}
+		\columnbreak
+		\begin{center}
+			\includegraphics[width=0.45\textwidth]{images/cap_midinfo} 
+			\captionof{figure}{Información de MIDI.}
+		\end{center}
 	\end{multicols}
 		
 	\subsubsection*{Simulador de reproducción}
@@ -1057,19 +1057,20 @@
 	
 	Programamos una \textbf{batería de pruebas} para que Arduino suplantara al mando generando distintas cadenas aleatorias, variando los siguientes parámetros:
 	
+	\clearpage
+	
 	\begin{multicols}{2}
-		\noindent
-		\begin{center}
-			\includegraphics[width=0.45\textwidth]{images/proto_uart} 
-			\captionof{figure}{Simulación del UART.}
-		\end{center}
-		\columnbreak
 		\begin{enumerate}
 			\item Número de serie del mando.
 			\item Botones pulsados.
 			\item Señal de batería baja.
 			\item Longitud de la cadena (generar errores).
 		\end{enumerate}
+		\columnbreak
+		\begin{center}
+			\includegraphics[width=0.45\textwidth]{images/proto_uart} 
+			\captionof{figure}{Simulación del UART.}
+		\end{center}
 	\end{multicols}
 
 	\subsection{Interfaz web}
@@ -1097,6 +1098,7 @@
 	 	\item El \textbf{controlador} vuelve a comprobar las longitudes de cadena, filtra los mensajes para evitar \textbf{inyección de código}, y muestra un error si algún dato no está conforme.
 	\end{enumerate}
 	
+	\clearpage
 	\subsection{Prueba sobre la PCB}
 	
 	En último lugar, volvemos a reunirnos con Mikel Aguayo para validar nuestros \textbf{proyectos en conjunto}, tal como teníamos previsto. Actualmente solo disponemos de un \textbf{prototipo} del circuito impreso diseñado, más que suficiente para comprobar que el sistema funciona y se comporta como esperábamos.
@@ -1117,7 +1119,6 @@
 		
 		Utilizamos un \textbf{osciloscopio} para realizar medidas sobre las señales que el \textit{software} envía a la PCB.
 		\columnbreak
-		\noindent
 		\begin{center}
 			\includegraphics[width=0.45\textwidth]{images/osc_pulso} 
 			\captionof{figure}{Ancho de pulso.}
@@ -1137,7 +1138,6 @@
 			\item \textbf{Apagar} y reiniciar el sistema.
 		\end{enumerate}
 		\columnbreak
-		\noindent
 		\begin{center}
 			\includegraphics[width=0.45\textwidth]{images/pcb_ingeniero} 
 			\captionof{figure}{PCB en modo Ingeniería.}
