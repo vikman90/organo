@@ -1,3 +1,7 @@
+% Summary of the report
+% Victor Manuel Fernandez Castro
+% 4 April 2016
+
 \documentclass[10pt,a4paper]{article}
 
 \usepackage[utf8]{inputenc}
@@ -234,18 +238,18 @@
 	\begin{multicols}{2}
 		\noindent
 		\begin{center}
-			\includegraphics[width=0.4\textwidth]{images/organo} 
+			\includegraphics[width=0.45\textwidth]{images/organo} 
 			\captionof{figure}{Reproducción 3D del órgano.}
 		\end{center}
 		\columnbreak
-		Para funcionar, el órgano se alimenta de \textbf{aire}. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Esto requería que hubiese alguien accionándolo mientras el organista tocaba. Hoy día el fuelle ha sido sustituido por una \textbf{bomba eléctrica}.
+		Para funcionar, el órgano se alimenta de \textbf{aire}. Antiguamente se utilizaba un fuelle gigante, situado en la antesala, que llevaba el aire a una cámara de almacenamiento, para proporcionar un flujo de entrada constante. Hoy día el fuelle ha sido sustituido por una \textbf{bomba eléctrica}.
 		
 		La primera tarea que llevamos a cabo fue conocer el órgano en profundidad, tomar algunas medidas y \textbf{diseñar el modelo en 3D} con el \textit{software} \textit{SolidWorks}.
 	\end{multicols}
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/teclado_modelo} 
+		\includegraphics[width=0.45\textwidth]{images/teclado_modelo} 
 		\captionof{figure}{Medidas del teclado.}
 		\columnbreak
 		Tenemos dos teclados de cuatro octavas notas cada uno, el de arriba, correspondiente al órgano barroco, y otro más abajo, que sobresale del primero, para el órgano romántico, de la misma extensión.
@@ -253,7 +257,7 @@
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/pedalier_modelo} 
+		\includegraphics[width=0.45\textwidth]{images/pedalier_modelo} 
 		\captionof{figure}{Medidas del pedalier.}
 		\columnbreak
 		Este órgano cuenta con un \textit{pedalier} con un registro fijo: el \textbf{bajo de \textit{contrast}}. Los pedales están dispuestos en forma de escala diatónica, igual que las teclas. Cada pedal tiene aproximadamente la misma anchura que una tecla aunque, obviamente, están más separados unos de otros.
@@ -262,7 +266,7 @@
 	\begin{multicols}{2}
 		\noindent
 		\begin{center}
-			\includegraphics[width=0.4\textwidth]{images/registros} 
+			\includegraphics[width=0.45\textwidth]{images/registros} 
 			\captionof{figure}{Hilera de registros barrocos.}
 		\end{center}
 		\columnbreak
@@ -274,7 +278,7 @@
 	\begin{multicols}{2}
 		\noindent
 		\begin{center}
-			\includegraphics[width=0.4\textwidth]{images/pcb} 
+			\includegraphics[width=0.45\textwidth]{images/pcb} 
 			\captionof{figure}{Prototipo hardware.}
 		\end{center}
 		\columnbreak
@@ -303,7 +307,7 @@
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/raspberry} 
+		\includegraphics[width=0.45\textwidth]{images/raspberry} 
 		\captionof{figure}{Raspberry Pi modelo B.}
 		\columnbreak
 		El corazón de este computador es un SOC, que integra microprocesador, memoria y periféricos principales.
@@ -355,7 +359,7 @@
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/idea} 
+		\includegraphics[width=0.45\textwidth]{images/idea} 
 		\captionof{figure}{Planteamiento inicial.}
 		\columnbreak
 		El \textit{software} que tenemos que diseñar consiste en un \textbf{reproductor de archivos MIDI}, que recibe el fichero y lo envía a la PCB a través del GPIO.
@@ -385,7 +389,7 @@
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/reproductor} 
+		\includegraphics[width=0.45\textwidth]{images/reproductor} 
 		\captionof{figure}{Diseño del reproductor.}
 		\columnbreak
 		El núcleo de nuestro sistema será un proceso que se ejecuta en \textbf{segundo plano}, y no interactuará directamente con el usuario, sino que se comunicará con \textbf{otros procesos} a través de los siguientes canales:
@@ -403,7 +407,7 @@
 	 
 	 \begin{multicols}{2}
 	 	\noindent
-	 	\includegraphics[width=0.5\textwidth]{images/prototipado} 
+	 	\includegraphics[width=0.45\textwidth]{images/prototipado} 
 	 	\captionof{figure}{Esquema de prototipado.}
 	 	\columnbreak
 	 	En ciertos componentes, necesitaremos hacer \textbf{prototipos} para estudiar su funcionamiento y realizar pruebas de concepto, antes de implantarlos definitivamente. 
@@ -424,14 +428,14 @@
 	
 	La implementación presentaba una \textbf{complejidad} notable, sobre todo porque no hay un carácter separador entre eventos, y tanto los meta-eventos como las marcas de duración tienen \textbf{longitud variable}. Además, hay que \textbf{intercambiar los \textit{bytes}} de los números que ocupen más de un \textit{byte}, para pasar de \textit{big-endian} a \textit{little-endian.}
 	
-	El \textbf{algoritmo de análisis} consiste, pues en recorrer el archivo por \textbf{pistas}, y clasificar cada evento según su tipo.
+	El \textbf{algoritmo de análisis} consiste en recorrer el archivo por \textbf{pistas}, y clasificar cada evento según su tipo.
 	
 	\begin{center}
 		\includegraphics[width=0.75\textwidth]{images/flujo_parser}
 		\captionof{figure}{Diagrama de flujo del analizador MIDI.}
 	\end{center}
 	
-	% TODO: Explicar que se hizo primero un prototipo en Python, luego se implementó en C, que hay uniones y listas enlazadas.
+	En primer lugar hacemos una implementación sencilla en Python, que nos permita comprobar que hemos aplicado correctamente los conceptos. Una vez depurado, lo pasamos a C.
 	
 	\subsubsection*{Planificador}
 	
@@ -441,7 +445,7 @@
 	
 	\begin{multicols}{2}
 		\noindent
-		\includegraphics[width=0.5\textwidth]{images/estados} 
+		\includegraphics[width=0.45\textwidth]{images/estados} 
 		\captionof{figure}{Diagrama de estados.}
 		\columnbreak
 		Para gestionar su funcionamiento, el planificador utiliza una pequeña \textbf{máquina de estados finitos}.
@@ -530,7 +534,28 @@
 	
 	Vamos a crear un \textbf{\textit{socket} local}, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en \textbf{lenguaje natural}, con un diseño sencillo y que mantenga la \textbf{coherencia} entre ambos subsistemas.
 	
-	% TODO: explicar supuestos (diseño) y/o protocolo
+	Las peticiones que describen el protocolo resultante, así como las posibles respuestas, se enumeran de la siguiente forma:
+	
+	\begin{description}
+		\item[PLAY <archivo> {[} <archivo>*{]}] Reproducir una lista de archivos MIDI. 
+		
+		\item[PLAYLOOP <archivo> {[} <archivo>* {]}] Reproducir en bucle una lista de archivos MIDI. 
+		
+		\item[PAUSE] Pausar la reproducción. Silencia las notas pero manteniendo el estado. 
+		
+		\item[RESUME] Reanuda la reproducción en el punto en que se pausó. 
+		
+		\item[STOP] Detiene completamente la reproducción y libera la lista de reproducción.
+		
+		\item[STATUS] Consulta el estado del reproductor. Respuesta:
+		
+		\begin{description}
+			\item[PLAYING <archivo>] Reproduciendo el archivo especificado.
+			\item[PAUSED <archivo>] Pausado en un punto del archivo indicado.
+			\item[STOPPED] Detenido.
+			\item[ENGINEER] En modo Ingeniería. No se podrá reproducir nada.
+		\end{description}
+	\end{description}
 	
 	\subsubsection*{Control del mando}
 	
@@ -579,8 +604,17 @@
 		\captionof{figure}{Máquina de estados del modo Ingeniería.}
 	\end{center}
 	
-	%\subsubsection*{Seguridad}
-	% TODO
+	\subsubsection*{Seguridad}
+	
+	Es muy importante que el demonio se mantenga en funcionamiento y con \textbf{capacidad de respuesta}. Para ello, puliremos toda la programación relativa a la \textbf{entrada de datos}.
+	
+	El \textbf{desbordamiento de memoria} de entrada ---\textit{buffer overflow}--- se produce cuando una función de lectura acepta una cadena \textbf{mayor que la memoria} que tenía reservada. Este riesgo podría producir una \textbf{violación de segmento} o incluso ser aprovechado por un \textbf{intruso} para modificar las instrucciones del programa, accediendo ilegalmente al sistema.
+	
+	La \textbf{solución} adoptada es utilizar una cantidad razonable de memoria y limitar la cadena de entrada acotando tanto la \textbf{recepción} de datos desde el \textit{socket} como la \textbf{comparación} de cadenas.
+	
+	Otra capa de seguridad se implanta utilizando \textbf{permisos de usuario} en el sistema de archivos de Linux: creamos el usuario \verb|organ| y su grupo correspondiente, que serán \textbf{dueños} del proceso demonio y del \textit{socket}. Solo los usuarios autorizados (pertenecientes al grupo \verb|organ|) podrán utilizar el \textit{socket}.
+	
+	Por último, respecto a la \textbf{concurrencia}, protegeremos todas las funciones públicas del planificador para evitar inconsistencias o \textbf{condiciones de carrera}, ya que se puede llamar desde varias hebras.
 	
 	\subsection{Interfaz web}
 	
@@ -733,8 +767,24 @@
 		\captionof{figure}{Menú de selección de idioma.}
 	\end{center}
 	
-	% \subsubsection*{Seguridad}
-	% TODO
+	\subsubsection*{Seguridad}
+
+	En el \textit{front-end} implantaremos dos capas de seguridad:
+	
+	\begin{enumerate}
+		\item Una primera capa en la \textbf{vista}, para informar inmediatamente de un error en un formulario.
+		\item Otra capa en el \textbf{controlador}, para evitar errores más complejos o un conjunto de datos forzado.
+	\end{enumerate}
+	
+	Siguiendo este método, la longitud de los \textbf{campos de texto} de los formularios están limitados tanto en la vista como en el controlador.
+	
+	Para evitar añadir archivos que no sean de \textbf{formato MIDI}, el controlador del gestor de piezas llama al \textit{analizador de MIDI} antes de insertar el fichero.
+	
+	Todas las cadenas dirigidas a hacer una consulta en la base de datos pasan por un \textbf{filtrado} para evitar la \textbf{inyección de código}. También se filtrará la contraseña de usuario, ya que se envía a una orden de Linux y podría comprometer la seguridad del sistema.
+	
+	Como medida adicional, las \textbf{credenciales} de usuario cedidas a la aplicación PHP para acceder a la base de datos solo tienen permisos para alterar el \textbf{contenido} de las tablas, no para modificar las propias tablas.
+	
+	Por último, tal como mencionamos anteriormente, el usuario del servidor Apache, \verb|www-data|, debe pertenecer al grupo \verb|organ| para poder comunicarse con el demonio a través del \textit{socket}.
 	
 	\subsection{Base de datos}
 	\label{subsec:database}
@@ -856,16 +906,9 @@
 	
 	La aplicación admitirá los siguientes argumentos:
 	
-	% TODO: ¿Recortamos en una sola línea?
-	
-	\begin{description}
-		\item[play <archivo>] Ejecutar un fichero MIDI.
-		\item[playloop <archivo>] Reproducir en bucle un archivo..
-		\item[pause] Pausar la reproducción, si estaba funcionando.
-		\item[resume] Reanudar la ejecución, si estaba pausada.
-		\item[stop] Detener completamente la reproducción.
-		\item[status] Mostrar información del planificador.
-	\end{description}
+	\begin{center}
+		\verb!organ play[loop] <archivo> | pause | resume | stop | status !
+	\end{center}
 	
 	\subsubsection*{Comprobación de contraseña}
 	
@@ -943,8 +986,6 @@
 		\captionof{figure}{Tiempo de ejecución de la salida a GPIO.}
 	\end{center}
 	
-	% TODO: El pie de foto aparece en otra página
-	
 	Por otro lado, la aplicación del \textbf{terminal} nos sirvió para dos cosas:
 	
 	\begin{enumerate}
@@ -1015,9 +1056,6 @@
 		\item Implementación \textbf{final} del módulo \textit{software} de salida por GPIO.
 	\end{enumerate}
 	
-	\clearpage
-	% TODO: quita esto
-	
 	\begin{multicols}{2}
 		En el prototipo establecimos un \textbf{ancho de pulso} muy grande, para descartarlo de antemano de cualquier otro problema que pudiera surgir. 
 		
@@ -1039,9 +1077,9 @@
 	
 	\begin{multicols}{2}
 		\begin{enumerate}
-			\item Informar del estado del \textbf{reproductor}.
-			\item Controlar el \textbf{modo Ingeniería} propiamente dicho.
-			\item Activar y desactivar el \textbf{metrónomo}.
+			\item Ver el estado del \textbf{reproductor}.
+			\item Controlar el \textbf{modo Ingeniería}.
+			\item Activar el \textbf{metrónomo}.
 			\item \textbf{Apagar} y reiniciar el sistema.
 		\end{enumerate}
 		\columnbreak
@@ -1053,17 +1091,22 @@
 		
 	\end{multicols}
 	
-	\begin{enumerate}
-		\item Informar del estado del \textbf{reproductor}.
-		\item Controlar el \textbf{modo Ingeniería} propiamente dicho.
-		\item Activar y desactivar el \textbf{metrónomo}.
-		\item \textbf{Apagar} y reiniciar el sistema.
-	\end{enumerate}
-	
 	% Capítulo 6 ---------------------------------------------------------------
 		
 	\section{Conclusión}
 	
-	% TODO: ¿Bibliografía?
-
+	Este proyecto ha supuesto, como era de esperar, el culmen de mi carrera universitaria, ya que ha abarcado \textbf{un poco de cada rama} de la informática. Esto me ha permitido repasar mis conocimientos, ampliarlos y desarrollar \textbf{nuevas capacidades}.
+	
+	Hemos conseguido, no solo diseñar el sistema, sino también llegar a hacer funcionar un \textbf{prototipo}, demostrando que el diseño es válido.
+	
+	No ha sido un trabajo sencillo, pero cada minuto que hemos dedicado ha merecido la pena, máxime al fusionar los dos proyectos hermanos y lograr dar vida al \textit{hardware} de la PCB. 
+	
+	Me siento honestamente satisfecho del trabajo realizado. Reitero mi agradecimiento a mi compañero Mikel, a mis tutores, y a todos los que nos han ayudado a llevar este proyecto adelante.
+	
+	\subsection{Vínculos}
+	
+	\begin{itemize}
+		\item Repositorio en GitHub: \url{https://github.com/vikman90/organo}.
+		\item Vídeo en YouTube: \url{https://www.youtube.com/watch?v=DHq1yLxVZu4}.
+	\end{itemize}
 \end{document}
