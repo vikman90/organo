@@ -94,7 +94,7 @@ Por otro lado, también sabemos que ciertos valores, como el \textit{delta} de c
 
 Además, podemos ver que todos los tipos de evento se numeran a partir de $80_{16}$, o sea, su \textit{bit} más significativo es 1. Si el analizador buscara un tipo de evento y encontrara un valor por debajo de este número, significa que el archivo está \textbf{obviando el tipo} de evento, y está indicando los parámetros ---cuyo tope es 127---.
 
-El \textbf{algoritmo de análisis} consiste, pues en recorrer el archivo por \textbf{pistas}, y clasificar cada evento según su tipo. El \textbf{flujo de trabajo} es el siguiente:
+El \textbf{algoritmo de análisis} consiste, pues, en recorrer el archivo por \textbf{pistas}, y clasificar cada evento según su tipo. El \textbf{flujo de trabajo} es el siguiente:
 
 \smallskip
 
@@ -656,7 +656,7 @@ Para \textbf{volcar} la información en los registros, seguiremos los mismos pas
 
 Hemos organizado la matriz para que la lectura se hagan en el \textbf{orden estricto} en que están los datos en memoria, con lo cual, en lugar de acceder a la matriz directamente y obligar al compilador a hacer una multiplicación y una suma, utilizaremos \textbf{aritmética de punteros} para movernos por ella.
 
-\subsection{Metrónomo}
+\subsubsection{Metrónomo}
 
 A diferencia de las notas musicales, el metrónomo \textbf{no se almacena} en el estado ni se retrasa su ejecución hasta llamar a \code{output\_update()}, sino que debe marcarse tan rápido como se ejecute la función \code{output\_metronome()}.
 
@@ -1787,7 +1787,7 @@ Este programa se diseñó para probar el planificador y la estructura de la sali
 
 La salida de datos, diseñada en la sección \ref{subsec:output} es una \textbf{interfaz} utilizada por el planificador, que evita la necesidad de modificarlo de manera alguna cuando nos movamos de un órgano a otro. Sus funciones públicas coinciden en su mayor parte con las instrucciones del \textbf{protocolo \acrshort{MIDI}}.
 
-En este caso vamos a simular más exactamente el órgano de la Parroquia de la Encarnación de Santa Fe que el prototipo de la \acrshort{PCB}, en tanto que éste solo abordará 7 notas en cada canal. En resumen tendremos esta estructura:
+En este caso vamos a simular más exactamente el órgano de la Parroquia de la Encarnación de Santa Fe que el prototipo de la \acrshort{PCB}, en tanto que ésta solo abordará 7 notas en cada canal. En resumen tendremos esta estructura:
 
 \smallskip
 

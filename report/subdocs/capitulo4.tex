@@ -307,7 +307,7 @@ El módulo \acrshort{MIDI} solo se usa directamente a través del planificador. 
 \subsection{Control por socket}
 \label{subsec:daemon}
 
-Un \textit{socket} un mecanismo de \textbf{comunicación inter-proceso} ---\acrshort{IPC} (\textit{\acrlong{IPC}})--- que proporciona Linux y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
+Un \textit{socket} es un mecanismo de \textbf{comunicación inter-proceso} ---\acrshort{IPC} (\textit{\acrlong{IPC}})--- que proporciona Linux y enviar y recibir datagramas en modo \textit{duplex}, bien dentro de la misma máquina (\textit{socket} local) o en una red (\textit{socket} de Internet).
 
 Vamos a crear un \textbf{\textit{socket} local}, accesible desde el sistema de archivos de Linux, que escuche peticiones de los clientes que se conecten, utilizando una interfaz basada en \textbf{lenguaje natural}, que explicaremos en la sección \ref{sec:protocolo}.
 
@@ -1826,14 +1826,14 @@ Para obtener una comunicación consistente, el demonio no guardará más estado 
 Las peticiones que describen el protocolo resultante, así como las posibles respuestas, se enumeran de la siguiente forma:
 
 \begin{description}
-	\item[PLAY <archivo> [ <archivo>*]] Reproducir una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
+	\item[PLAY <archivo> {[} <archivo>*{]}] Reproducir una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
 	
 	\begin{description}
 		\item[OK] en caso de éxito.
 		\item[ERROR] en caso de error o estar en modo Ingeniería.
 	\end{description}
 	
-	\item[PLAYLOOP <archivo> [ <archivo>* ]] Reproducir en bucle una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
+	\item[PLAYLOOP <archivo> {[} <archivo>* {]}] Reproducir en bucle una lista de archivos \acrshort{MIDI}, indicando las rutas completa, separadas por espacios. Respuesta:
 	
 	\begin{description}
 		\item[OK] en caso de éxito.
