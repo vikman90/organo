@@ -2,7 +2,7 @@
 \label{cap: capitulo_5}
 
 \begin{quote}
-	\small \flushright ''\textit{Hay varias formas de hacer las cosas, y una de ellas es hacerlas bien.}'' \\
+	\small \flushright ``\textit{Hay varias formas de hacer las cosas, y una de ellas es hacerlas bien.}'' \\
 	--- Profesora Mª Amparo Vila Miranda (2010).
 \end{quote}
 
@@ -312,7 +312,7 @@ Aparte del resto de transformaciones obvias, en pro de la velocidad de ejecució
 
 El planificador es la parte más crítica del sistema: debe cronometrar y ejecutar los eventos del archivo que está abierto, y atender a las llamadas declaradas en la interfaz.
 
-El procedimiento básico es sencillo: cada evento tiene una marca de tiempo respecto al evento anterior. El sistema debe ''dormir'' el tiempo indicado ejecutar el evento, y avanzar al siguiente, hasta la marca de fin de pista.
+El procedimiento básico es sencillo: cada evento tiene una marca de tiempo respecto al evento anterior. El sistema debe ``dormir'' el tiempo indicado ejecutar el evento, y avanzar al siguiente, hasta la marca de fin de pista.
 
 Solo vamos a atender cuatro tipos de evento:
 
@@ -513,13 +513,13 @@ El planificador puede ser llamado por el servidor de \textit{socket}, el control
 
 Además, debemos tener en cuenta posibles \textbf{usos ilegales} de la hebra de reproducción, como iniciarla, pausarla o detenerla varias veces consecutivas. Para evitar esto, como hemos descrito, las funciones públicas de control comprueban el estado antes de actuar.
 
-A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable ''bandera''} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
+A fin de no provocar una condición de carrera entre la hebra de reproducción y el resto, la primera nunca cambiará el estado, incluso si la partitura ha acabado. En su lugar activa una \textbf{variable ``bandera''} volátil (no afectada por optimizaciones del compilador) para ser leída por las funciones de control. Si está marcada, cambiarán automáticamente el estado a \code{STOPPED}.
 
 Para evitar inconsistencias entre funciones públicas, todas ellas utilizarán un \textbf{\acrshort{mutex}} que monitoriza las llamadas, haciendo que toda función deba esperar a que termine cualquier otra que estuviera funcionando.
 
 Por último, la \textbf{espera activa} se evita con un semáforo que se comporta como un \acrshort{mutex}: La función \code{player\_pause()} en primer lugar decrementa el semáforo y luego pone el estado a \code{PAUSED} para que, en la próxima vuelta, el planificador lo detecte y se bloquee esperando al semáforo. Cuando cualquier función quiera despertar al planificador, lo hace al revés: primero pone el estado a \code{PLAYING} y después desbloquea el semáforo, así el planificador no cae dos veces por error en el código de espera. Una vez el reproductor consigue el semáforo, lo vuelve a incrementar. 
 
-Hacemos esto así para que el valor ''por defecto'' sea 1, evitando problemas si se diera el caso de solicitar una pausa justo cuando el planificador ha salido del bucle y no va a esperar al semáforo. La alternativa era utilizar un \acrshort{mutex}, pero no tenemos garantía de que lo vaya a desbloquear la misma hebra (e.g. si pausamos desde la interfaz gráfica, en una hebra, y reanudamos desde el mando, en otra). Un \acrshort{mutex} caería en una \textbf{condición indefinida}, mientras que un semáforo responde correctamente.
+Hacemos esto así para que el valor ``por defecto'' sea 1, evitando problemas si se diera el caso de solicitar una pausa justo cuando el planificador ha salido del bucle y no va a esperar al semáforo. La alternativa era utilizar un \acrshort{mutex}, pero no tenemos garantía de que lo vaya a desbloquear la misma hebra (e.g. si pausamos desde la interfaz gráfica, en una hebra, y reanudamos desde el mando, en otra). Un \acrshort{mutex} caería en una \textbf{condición indefinida}, mientras que un semáforo responde correctamente.
 
 \subsection{Salida GPIO}
 
@@ -551,20 +551,22 @@ Ya que no tenemos notas cromáticas, y disponemos de solo 7 \textit{bits} en la 
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|}
-		\hline Do & \code{1000000} \\ 
-		\hline Re & \code{0100000} \\ 
-		\hline Mi & \code{0010000} \\ 
-		\hline Fa & \code{0001000} \\
-		\hline Sol & \code{0000100} \\
-		\hline La & \code{0000010} \\
-		\hline Si & \code{0000001} \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:equiv_notas_prot} Equivalencia de notas en el prototipo.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|}
+			\hline Do & \code{1000000} \\ 
+			\hline Re & \code{0100000} \\ 
+			\hline Mi & \code{0010000} \\ 
+			\hline Fa & \code{0001000} \\
+			\hline Sol & \code{0000100} \\
+			\hline La & \code{0000010} \\
+			\hline Si & \code{0000001} \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:equiv_notas_prot} Equivalencia de notas en el prototipo.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -580,9 +582,9 @@ Cualquier \textbf{acorde} no sería más que una combinación de bits. Todo lo q
 Para emitir un pulso en el registro, actuamos de la siguiente forma, de acuerdo al manual técnico de los registros:
 
 \begin{enumerate}
-	\item Escribir ''1'' en el puerto llamando a \code{output()}.
+	\item Escribir ``1'' en el puerto llamando a \code{output()}.
 	\item Esperar 100 \textit{ns} con una llamada a \code{sleep()}.
-	\item Escribir ''0'' en el puerto.
+	\item Escribir ``0'' en el puerto.
 \end{enumerate}
 
 \subsubsection{Implementación final}
@@ -612,21 +614,23 @@ Crearemos la matriz de esta manera:
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|c|cccc|}
-		\hline & \multicolumn{4}{c|}{N pistas} \\
-		\hline \multirow{7}{*}{\rotatebox[]{90}{M notas}} & $s_{0,0}$ & $s_{0,1}$ & $s_{0,2}$ & $s_{0,3}$ \\
-		& $s_{1,0}$ & $s_{1,1}$ & $s_{1,2}$ & $s_{1,3}$ \\
-		& $s_{2,0}$ & $s_{2,1}$ & $s_{2,2}$ & $s_{2,3}$ \\
-		& $s_{3,0}$ & $s_{3,1}$ & $s_{3,2}$ & $s_{3,3}$ \\
-		& $s_{4,0}$ & $s_{4,1}$ & $s_{4,2}$ & $s_{4,3}$ \\
-		& $s_{5,0}$ & $s_{5,1}$ & $s_{5,2}$ & $s_{5,3}$ \\
-		& $s_{6,0}$ & $s_{6,1}$ & $s_{6,2}$ & $s_{6,3}$ \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:matriz_estatica} Configuración de las notas en el estado.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|c|cccc|}
+			\hline & \multicolumn{4}{c|}{N pistas} \\
+			\hline \multirow{7}{*}{\rotatebox[]{90}{M notas}} & $s_{0,0}$ & $s_{0,1}$ & $s_{0,2}$ & $s_{0,3}$ \\
+			& $s_{1,0}$ & $s_{1,1}$ & $s_{1,2}$ & $s_{1,3}$ \\
+			& $s_{2,0}$ & $s_{2,1}$ & $s_{2,2}$ & $s_{2,3}$ \\
+			& $s_{3,0}$ & $s_{3,1}$ & $s_{3,2}$ & $s_{3,3}$ \\
+			& $s_{4,0}$ & $s_{4,1}$ & $s_{4,2}$ & $s_{4,3}$ \\
+			& $s_{5,0}$ & $s_{5,1}$ & $s_{5,2}$ & $s_{5,3}$ \\
+			& $s_{6,0}$ & $s_{6,1}$ & $s_{6,2}$ & $s_{6,3}$ \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:matriz_estatica} Configuración de las notas en el estado.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -634,15 +638,17 @@ El compilador, conociendo las dimensiones, convertirá la matriz estática en un
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|c|}
-		\hline $M\times N$ \textit{bytes} \\
-		\hline $s_{0,0}$ $s_{0,1}$ $s_{0,2}$ $s_{0,3}$ $s_{1,0}$ $s_{1,1}$ ... $s_{6,2}$  $s_{6,3}$ \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:matriz_fisica} Disposición física de la matriz en memoria.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|c|}
+			\hline $M\times N$ \textit{bytes} \\
+			\hline $s_{0,0}$ $s_{0,1}$ $s_{0,2}$ $s_{0,3}$ $s_{1,0}$ $s_{1,1}$ ... $s_{6,2}$  $s_{6,3}$ \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:matriz_fisica} Disposición física de la matriz en memoria.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -662,7 +668,7 @@ A diferencia de las notas musicales, el metrónomo \textbf{no se almacena} en el
 
 Para hacer sonar los pulsos de metrónomo, la \acrshort{PCB} cuenta con un zumbador, tal como se definió en la fase de análisis. A pesar de que está diseñado para emitir sonidos agudos continuados, vamos a generar un \textbf{pulso de 1 \textit{ms}}.
 
-Para obtener la mayor velocidad de respuesta sin retrasar al planificador, la función \code{output\_init()} crea una \textbf{hebra} que espera un \textbf{semáforo}. \code{output\_init()} se limita a enviar una señal a dicho semáforo para despertar a la hebra y hacerla enviar un pulso al zumbador.
+Para obtener la mayor velocidad de respuesta sin retrasar al planificador, la función \code{output\_init()} crea una \textbf{hebra} que espera un \textbf{semáforo}. \code{output\_metronome()} se limita a enviar una señal a dicho semáforo para despertar a la hebra y hacerla enviar un pulso al zumbador.
 
 \subsubsection{Acceso directo al GPIO}
 
@@ -672,34 +678,36 @@ Los puertos \acrshort{GPIO} son \textbf{pines físicos} del \acrshort{SOCA}, y s
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|}
-		\hline 0x20200000 & Dirección base \\
-		\hline
-		\hline Base + 0 & \multirow{6}{*}{Selección de función} \\
-		\cline{1-1} Base + 4 & \\
-		\cline{1-1} Base + 8 & \\
-		\cline{1-1} Base + 12 & \\
-		\cline{1-1} Base + 16 & \\
-		\cline{1-1} Base + 20 & \\
-		\hline Base + 24 & Reservado \\
-		\hline Base + 28 & \multirow{2}{*}{Poner a ''1''} \\
-		\cline{1-1} Base + 32 & \\
-		\hline Base + 36 & Reservado \\
-		\hline Base + 40 & \multirow{2}{*}{Poner a ''0''} \\
-		\cline{1-1} Base + 44 & \\
-		\hline \multicolumn{2}{|c|}{...} \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:gpio_struct} Direcciones físicas del GPIO.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|}
+			\hline 0x20200000 & Dirección base \\
+			\hline
+			\hline Base + 0 & \multirow{6}{*}{Selección de función} \\
+			\cline{1-1} Base + 4 & \\
+			\cline{1-1} Base + 8 & \\
+			\cline{1-1} Base + 12 & \\
+			\cline{1-1} Base + 16 & \\
+			\cline{1-1} Base + 20 & \\
+			\hline Base + 24 & Reservado \\
+			\hline Base + 28 & \multirow{2}{*}{Poner a ``1''} \\
+			\cline{1-1} Base + 32 & \\
+			\hline Base + 36 & Reservado \\
+			\hline Base + 40 & \multirow{2}{*}{Poner a ``0''} \\
+			\cline{1-1} Base + 44 & \\
+			\hline \multicolumn{2}{|c|}{...} \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:gpio_struct} Direcciones físicas del GPIO.}
+	\end{center}
+\end{table}
 
 \smallskip
 
-El controlador de \acrshort{GPIO} utiiza registros de 32-\textit{bit}. Para obtener un puntero a una dirección de memoria física, tan solo necesitamos hacer una llamada a \code{mmap(file = ''dev/mem'', offset = 0x20200000)} \cite{soii}. 
+El controlador de \acrshort{GPIO} utiiza registros de 32-\textit{bit}. Para obtener un puntero a una dirección de memoria física, tan solo necesitamos hacer una llamada a \code{mmap(file = ``dev/mem'', offset = 0x20200000)} \cite{soii}. 
 
-A partir de ahí, podemos acceder a cada registro con los \textbf{desplazamientos} adecuados. Hay un \textbf{banco} de registros para poner a ''1'', escribiendo un 1 lógico en el \textit{bit} correspondiente al número de puerto, y otro para poner a ''0'', escribiendo un 1 lógico en el \textit{bit} adecuado.
+A partir de ahí, podemos acceder a cada registro con los \textbf{desplazamientos} adecuados. Hay un \textbf{banco} de registros para poner a ``1'', escribiendo un 1 lógico en el \textit{bit} correspondiente al número de puerto, y otro para poner a ``0'', escribiendo un 1 lógico en el \textit{bit} adecuado.
 
 De esta forma logramos la mayor \textbf{eficiencia}, tanto por el acceso directo a memoria como la posibilidad de escribir en todas las pistas más el reloj en \textbf{una sola operación} de escritura.
 
@@ -715,17 +723,19 @@ La \textbf{asignación por defecto}, para el órgano de prueba, será la siguien
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|c|c|c|c|}
-		\hline \textbf{Pista} & 1 & 2 & 3 & 4 \\
-		\hline \textbf{Puerto GPIO} & 02 & 03 & 17 & 04 \\
-		\hline \textbf{Canal PCB} & S1 & S2 & S4 & S3 \\
-		\hline \textbf{Componente} & Teclado 1 & Teclado 2 & Registros & Pedalier \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:asig_canales} Asignación de pistas al GPIO.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|c|c|c|c|}
+			\hline \textbf{Pista} & 1 & 2 & 3 & 4 \\
+			\hline \textbf{Puerto GPIO} & 02 & 03 & 17 & 04 \\
+			\hline \textbf{Canal PCB} & S1 & S2 & S4 & S3 \\
+			\hline \textbf{Componente} & Teclado 1 & Teclado 2 & Registros & Pedalier \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:asig_canales} Asignación de pistas al GPIO.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -853,7 +863,7 @@ Al mismo tiempo, y paradójicamente, debe \textbf{terminar} lo antes posible par
 	
 	\item Crea una nueva sesión mediante \code{setsid()}, convirtiendo al proceso hijo en líder de su grupo de procesos.
 	
-	\item Cambia la carpeta de trabajo por la raíz del sistema, llamando a \code{chdir(''/'')}.
+	\item Cambia la carpeta de trabajo por la raíz del sistema, llamando a \code{chdir(``/'')}.
 	
 	\item Cierra mediante \code{close()} los descriptores de archivo de la entrada y salida estándar: \textit{stdin}, \textit{stdout} y \textit{stderr}.
 	
@@ -882,7 +892,7 @@ Otra acción importante es \textbf{programar el cierre} controlado mediante una 
 
 \subsubsection{Script de arranque}
 
-Conforme a la base estándar de Linux ---\acrshort{LSB}, \textit{\acrlong{LSB}}---, el arranque del sistema buscará un \textit{script} para iniciar el demonio en una ubicación dependiente del nivel de ejecución, y lo llamará con el argumento \code{''start''}. \cite{debian_lsbinit}
+Conforme a la base estándar de Linux ---\acrshort{LSB}, \textit{\acrlong{LSB}}---, el arranque del sistema buscará un \textit{script} para iniciar el demonio en una ubicación dependiente del nivel de ejecución, y lo llamará con el argumento \code{``start''}. \cite{debian_lsbinit}
 
 Con objeto de arrancar los distintos servicios en el orden correcto para preservar dependencias, debemos escribir una \textbf{cabecera} en el código, que utilizará la orden \code{insserv} para registrar el servicio. En ella especificaremos la siguiente información:
 
@@ -1084,7 +1094,7 @@ El resto de ficheros se clasificarán de las siguientes carpetas:
 
 \subsubsection{Plantillas}
 
-A medida que construimos la maqueta en \acrshort{HTML} y \acrshort{CSS}, fuimos conscientes de qué trozos de código se repetían, totalmente o con un ligero cambio, lo que nos ayudó a crear una \textbf{biblioteca de plantillas}, que podríamos denominar ''rutinas de vista''.
+A medida que construimos la maqueta en \acrshort{HTML} y \acrshort{CSS}, fuimos conscientes de qué trozos de código se repetían, totalmente o con un ligero cambio, lo que nos ayudó a crear una \textbf{biblioteca de plantillas}, que podríamos denominar ``rutinas de vista''.
 
 Para conseguir un resultado acorde al diseño estético, vamos a maquetar las páginas \acrshort{HTML} de forma homogénea, siguiento esta estructura:
 
@@ -1173,7 +1183,7 @@ Como podemos ver en las siguientes figuras, hemos conseguido una estética en \a
 
 El traductor es el módulo en el que delegamos todo el texto que aparecerá en las \textbf{vistas} y será dependiente del idioma que escoja el usuario. Como especificamos en la sección \ref{subsec:idiomas} del capítulo de diseño, cada archivo de traducción implementará un elemento \code{<translation>} como raíz, dedicado a un solo lenguaje.
 
-Un ejemplo para un ''Hola Mundo'' en dos idiomas sería el siguiente:
+Un ejemplo para un ``Hola Mundo'' en dos idiomas sería el siguiente:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 	\color{blue}<translation \color{red}code\color{black}=\color{violet}"es" \color{red}language\color{black}=\color{violet}"Español"\color{blue}>
@@ -1181,7 +1191,7 @@ Un ejemplo para un ''Hola Mundo'' en dos idiomas sería el siguiente:
 	\color{blue}</translation>
 
 	\color{blue}<translation \color{red}code\color{black}=\color{violet}"it" \color{red}language\color{black}=\color{violet}"Italiano"\color{blue}>
-		\color{blue}<string \color{red}name\color{black}=\color{violet}"hello"\color{blue}>\color{black}Ciao Mondo!\color{blue}</string>
+	    \color{blue}<string \color{red}name\color{black}=\color{violet}"hello"\color{blue}>\color{black}Ciao Mondo!\color{blue}</string>
 	\color{blue}</translation>
 \end{Verbatim}
 
@@ -1291,7 +1301,7 @@ Nuestro módulo establecerá una conexión con la base de datos, creando un obje
 Todas las funciones definidas están descritas en la sección \ref{subsec:web_database} de diseño. El \textbf{procedimiento habitual} para ejecutar una sentencia es el siguiente:
 
 \begin{enumerate}
-	\item Creamos una sentencia preparada con \code{prepare()}, a partir del código SQL correspondiente, marcando con una interrogación ('?') los valores que irán parametrizados.
+	\item Creamos una sentencia preparada con \code{prepare()}, a partir del código SQL correspondiente, marcando con una interrogación (`?') los valores que irán parametrizados.
 	\item Utilizamos el método \code{bind\_param()} para enlazar cada parámetro con su argumento correspondiente, que recibiremos en la llamada a la función.
 	\item Ejecutamos la sentencia con el método \code{execute()}.
 	\item Recibimos la información requerida con \code{get\_result()}.
@@ -1422,7 +1432,7 @@ El \textbf{administrador de piezas} es una vista similar al gestor de listas, pe
 
 Esta página busca la lista indicada por ID en la base de datos y extrae su contenido mediante la función \code{db\_get\_playlist()}. A partir de esta información genera una tabla en la que a cada partitura le corresponde una fila, y nos da a conocer el título y la duración, también aparece un vínculo para descargar la pieza en formato \acrshort{MIDI}, un botón para cambiar el título y otro para eliminarla. 
 
-La cabecera de la sección provee controles que permiten renombrar y borrar la lista, así como añadir una nueva pieza. Esta zona soporta ''\textbf{arrastrar y soltar}'' para añadir piezas fácilmente. La vista tiene el siguiente aspecto:
+La cabecera de la sección provee controles que permiten renombrar y borrar la lista, así como añadir una nueva pieza. Esta zona soporta ``\textbf{arrastrar y soltar}'' para añadir piezas fácilmente. La vista tiene el siguiente aspecto:
 
 \smallskip
 
@@ -1436,7 +1446,7 @@ La cabecera de la sección provee controles que permiten renombrar y borrar la l
 
 \smallskip
 
-Para \textbf{añadir una partitura} tenemos un botón de tipo \code{<input type=''file''>}, que tiene un comportamiento aislado por el navegador por razones de seguridad, y ni siquiera se puede cambiar su estilo. Por ello, este control está oculto y en su lugar aparece un botón  estándar, programado para transmitir la función \code{click()} cuando el usuario pulse sobre él. Al hacerlo, aparece un pequeño explorador para seleccionar un archivo, filtrado por formato \acrshort{MIDI}.
+Para \textbf{añadir una partitura} tenemos un botón de tipo \code{<input type=``file''>}, que tiene un comportamiento aislado por el navegador por razones de seguridad, y ni siquiera se puede cambiar su estilo. Por ello, este control está oculto y en su lugar aparece un botón  estándar, programado para transmitir la función \code{click()} cuando el usuario pulse sobre él. Al hacerlo, aparece un pequeño explorador para seleccionar un archivo, filtrado por formato \acrshort{MIDI}.
 
 El vínculo para \textbf{descargar} enlaza al archivo correspondiente en el servidor, pero éste guarda el archivo con un nombre numérico para evitar colisiones. Por esta razón, se indica en el vínculo el \textbf{nombre de la pieza} para guardar el archivo descargado.
 
@@ -1547,7 +1557,7 @@ Como especificamos más arriba (sección \ref{subsec:impl_gestor}), el controlad
 Un error de programación muy común al comunicar el controlador con el modelo es \textbf{concatenar} una orden con la entrada del usuario. Por ejemplo, para buscar un usuario en la base de datos para autentificar:
 
 \begin{center}
-	\code{SELECT id FROM user WHERE nick = '\$X' AND password = '\$Y'}
+	\code{SELECT id FROM user WHERE nick = `\$X' AND password = '\$Y'}
 \end{center}
 
 Si el usuario escribe en el campo de contraseña el siguiente texto:
@@ -1559,7 +1569,7 @@ Si el usuario escribe en el campo de contraseña el siguiente texto:
 Entonces el gestor de bases de datos recibirá la siguiente cadena:
 
 \begin{center}
-	\code{SELECT id FROM user WHERE nick = 'foo' AND password = '' OR 1=1;'}
+	\code{SELECT id FROM user WHERE nick = `foo' AND password = `' OR 1=1;'}
 \end{center}
 
 Teniendo en cuenta que todo lo que sucede al punto y coma es descartado, la base de datos devolverá el usuario \textbf{independientemente} de la contraseña. De igual forma, un usuario malintencionado podría eliminar tuplas o tablas enteras de la base de datos.
@@ -1573,19 +1583,19 @@ Como medida adicional, las \textbf{credenciales} de usuario cedidas a la aplicac
 En nuestro caso particular de \textbf{autentificación}, el controlador recibe la contraseña del usuario y llama a la aplicación externa para verificarla. El método para transmitir la clave es como argumento de llamada:
 
 \begin{center}
-	\code{/usr/local/bin/organ-login ''pi'' ''\$pass''}
+	\code{/usr/local/bin/organ-login ``pi'' ``\$pass''}
 \end{center}
 
-Un ejemplo de inyección de código podría ser escribir la siguiente ''contraseña'':
+Un ejemplo de inyección de código podría ser escribir la siguiente ``contraseña'':
 
 \begin{center}
-	\framebox[\textwidth/2][c]{\code{'' || sudo shutdown now || ''}}
+	\framebox[\textwidth/2][c]{\code{'' || sudo shutdown now || ``}}
 \end{center}
 
 Dando como resultado la siguiente instrucción de consola:
 
 \begin{center}
-	\code{/usr/local/bin/organ-login ''pi'' '''' || sudo shutdown now || ''''}
+	\code{/usr/local/bin/organ-login ``pi'' ``'' || sudo shutdown now || ``''}
 \end{center}
 
 Este riesgo es real en nuestra aplicación, pues tenemos permiso de \textit{root} para apagar el sistema. La solución a este problema es similar a la del caso anterior: \textbf{filtrar la entrada} del usuario, en este caso usaremos la función \code{escapeshellargs()} de \acrshort{PHP}.
@@ -1636,50 +1646,52 @@ Este archivo se incluye en el \textbf{instalador} y se ejecuta después de insta
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\ 
-		\hline idplaylist & INTEGER & Llave primaria & Identificador de lista \\ 
-		\hline name & VARCHAR(255) & & Nombre de la lista \\ 
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:db_playlist} Tabla playlist.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\ 
+			\hline idplaylist & INTEGER & Llave primaria & Identificador de lista \\ 
+			\hline name & VARCHAR(255) & & Nombre de la lista \\ 
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:db_playlist} Tabla playlist.}
+	\end{center}
+\end{table}
 
 \smallskip
 
-\smallskip
-
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
-		\hline idscore & INTEGER & Llave primaria & Identificador de partitura \\ 
-		\hline \multirow{2}{*}{playlist} & \multirow{2}{*}{INTEGER} & Obligatorio & \multirow{2}{*}{Lista contenedora} \\
-		\cline{3-3} & & Referencia a Playlist & \\
-		\hline source & VARCHAR(255) & & Nombre de archivo MIDI \\
-		\hline name & VARCHAR(255) & & Título de la pieza \\
-		\hline duration & INTEGER & & Duración en segundos \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:db_score} Tabla Score.}
-\end{center}
-
-\smallskip
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
+			\hline idscore & INTEGER & Llave primaria & Identificador de partitura \\ 
+			\hline \multirow{2}{*}{playlist} & \multirow{2}{*}{INTEGER} & Obligatorio & \multirow{2}{*}{Lista contenedora} \\
+			\cline{3-3} & & Referencia a Playlist & \\
+			\hline source & VARCHAR(255) & & Nombre de archivo MIDI \\
+			\hline name & VARCHAR(255) & & Título de la pieza \\
+			\hline duration & INTEGER & & Duración en segundos \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:db_score} Tabla Score.}
+	\end{center}
+\end{table}
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
-		\hline idshortcut & INTEGER & Llave primaria & Identificador de botón \\ 
-		\hline playlist & INTEGER & & Referencia a Playlist \\ 
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:db_playlist} Tabla Shortcut.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Campo}} & \multicolumn{1}{c|}{\textbf{Tipo}} & \multicolumn{1}{c|}{\textbf{Restricciones}} & \multicolumn{1}{c|}{\textbf{Descripción}} \\
+			\hline idshortcut & INTEGER & Llave primaria & Identificador de botón \\ 
+			\hline playlist & INTEGER & & Referencia a Playlist \\ 
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:db_shortcut} Tabla Shortcut.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1693,16 +1705,18 @@ En conclusión, existirán dos usuarios:
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \textbf{Usuario} & \textbf{Origen} & \textbf{Permisos} & \textbf{Esquema} \\ 
-		\hline root & localhost & Totales & Todos \\
-		\hline organo & localhost & \acrshort{CRUD} & Organo \\ 
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:db_permisos} Permisos sobre la base de datos.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \textbf{Usuario} & \textbf{Origen} & \textbf{Permisos} & \textbf{Esquema} \\ 
+			\hline root & localhost & Totales & Todos \\
+			\hline organo & localhost & \acrshort{CRUD} & Organo \\ 
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:db_permisos} Permisos sobre la base de datos.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1716,16 +1730,18 @@ Tal como previmos en el \textit{back-end}, utilizaremos un mando con dos botones
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|}
-		\hline \textbf{idshortcut} & \textbf{playlist} \\ 
-		\hline 1 & NULL \\
-		\hline 2 & NULL \\ 
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:db_shorcut_tuplas} Datos iniciales de la tabla Shortcut.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|}
+			\hline \textbf{idshortcut} & \textbf{playlist} \\ 
+			\hline 1 & NULL \\
+			\hline 2 & NULL \\ 
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:db_shorcut_tuplas} Datos iniciales de la tabla Shortcut.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1778,7 +1794,7 @@ La aplicación devuelve al usuario una serie de datos tales como éstos:
 
 Existe una opción, \code{--duration}, que hace mostrar solamente la duración de la pieza, y la emite como un número \textbf{entero}, redondeando a la unidad. Ésta será la opción utilizada por la \textbf{interfaz \textit{web}} cuando insertemos un nuevo archivo.
 
-En caso de \textbf{error de lectura}, se imprime un mensaje de error y se finaliza con ''\textbf{código 1}''. Esto además es útil al \textit{front-end} para garantizar que todo archivo subido corresponde efectivamente a una partitura \acrshort{MIDI}.
+En caso de \textbf{error de lectura}, se imprime un mensaje de error y se finaliza con ``\textbf{código 1}''. Esto además es útil al \textit{front-end} para garantizar que todo archivo subido corresponde efectivamente a una partitura \acrshort{MIDI}.
 
 \subsection{Simulador de reproducción}
 \label{subsec:simulador_reproduccion}
@@ -1791,18 +1807,20 @@ En este caso vamos a simular más exactamente el órgano de la Parroquia de la E
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \textbf{Pista} & \textbf{Extensión} & \textbf{Comienzo} & \textbf{Descripción} \\ 
-		\hline 1 & 49 notas & 36 (\textit{Do-2}) & Teclado barroco \\
-		\hline 2 & 49 notas & 36 (\textit{Do-2}) & Teclado romántico \\
-		\hline 2 & 12 notas & 36 (\textit{Do-1}) & Pedalier \\
-		\hline 2 & 49 notas & 36 (\textit{Do-4}) & Registros \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:miditest_map} Asignación de notas en el simulador de reproducción.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \textbf{Pista} & \textbf{Extensión} & \textbf{Comienzo} & \textbf{Descripción} \\ 
+			\hline 1 & 49 notas & 36 (\textit{Do-2}) & Teclado barroco \\
+			\hline 2 & 49 notas & 36 (\textit{Do-2}) & Teclado romántico \\
+			\hline 2 & 12 notas & 24 (\textit{Do-1}) & Pedalier \\
+			\hline 2 & 26 notas & 60 (\textit{Do-4}) & Registros \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:miditest_map} Asignación de notas en el simulador de reproducción.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1826,7 +1844,7 @@ Después del tiempo correspondiente a una \textbf{negra}, se apagan las notas de
 
 Este es el único de los programas escritos en C que, por su naturaleza, \textbf{no se instalará} en el sistema de archivos, ya que no tiene más finalidad que depurar el sistema.
 
-\subsection{Terminal del reproductor}.
+\subsection{Terminal del reproductor}
 
 De acuerdo a la sección \ref{subsec:terminal}, se implementaría un programa que nos permita comunicarnos con el demonio a través de la \textbf{consola}.
 
@@ -1905,28 +1923,30 @@ Este bloque, que se encuentra en la rama \textbf{\textit{driver}} del desarrollo
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Aplicación}} & \multicolumn{1}{c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Declaración}} & \multicolumn{1}{c|}{\textbf{Definición}} \\ 
-		\hline \multirow{9}{*}{\textbf{Demonio}} & Base de datos & database.h & database.c \\
-		\cline{2-4} & Salida & output.h & gpio.c \\
-		\cline{2-4} & MIDI & midi.h & midi.c \\
-		\cline{2-4} & Principal & & organd.c \\
-		\cline{2-4} & Ingeniería & peripherals.h & peripherals.c \\
-		\cline{2-4} & Planificador & player.h & player.c \\
-		\cline{2-4} & Socket & socket.h & socket.c \\
-		\cline{2-4} & UART & uart.h & uart.c \\
-		\cline{2-4} & Constantes & values.h & \\
-		\hline \textbf{Autentificación} & Principal & & login.c \\
-		\hline \textbf{Información MIDI} & Principal & & midinfo.c \\
-		\hline \multirow{2}{*}{\textbf{Simulador}} & Salida & (output.h) & monitor.c \\
-		\cline{2-4} & Principal & & test.c \\
-		\hline \textbf{Terminal} & Principal & & organ.c \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:archivos_driver} Relación de módulos en el controlador.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Aplicación}} & \multicolumn{1}{c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Declaración}} & \multicolumn{1}{c|}{\textbf{Definición}} \\ 
+			\hline \multirow{9}{*}{\textbf{Demonio}} & Base de datos & database.h & database.c \\
+			\cline{2-4} & Salida & output.h & gpio.c \\
+			\cline{2-4} & MIDI & midi.h & midi.c \\
+			\cline{2-4} & Principal & & organd.c \\
+			\cline{2-4} & Ingeniería & peripherals.h & peripherals.c \\
+			\cline{2-4} & Planificador & player.h & player.c \\
+			\cline{2-4} & Socket & socket.h & socket.c \\
+			\cline{2-4} & UART & uart.h & uart.c \\
+			\cline{2-4} & Constantes & values.h & \\
+			\hline \textbf{Autentificación} & Principal & & login.c \\
+			\hline \textbf{Información MIDI} & Principal & & midinfo.c \\
+			\hline \multirow{2}{*}{\textbf{Simulador}} & Salida & (output.h) & monitor.c \\
+			\cline{2-4} & Principal & & test.c \\
+			\hline \textbf{Terminal} & Principal & & organ.c \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:archivos_driver} Relación de módulos en el controlador.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1936,31 +1956,33 @@ El administrador incluye esencialmente todos los módulos relacionados con la pr
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Vista}} & \multicolumn{1}{c|}{\textbf{Controlador}} & \multicolumn{1}{c|}{\textbf{Modelo}} \\ 
-		\hline \multirow{2}{*}{\textbf{Portada}} & index.php & control.php & \\
-		& index.js & & \\
-		\hline \multirow{4}{*}{\textbf{Reproductor}} & player.php & control.php & \\
-		& player.js & pause.php & \\
-		& & resume.php & \\
-		& & stop.php & \\
-		\hline \multirow{2}{*}{\textbf{Listas}} & playlists.php & control.php & \\
-		& playlists.js & & \\
-		\hline \multirow{2}{*}{\textbf{Piezas}} & playlist.php & control.php & \\
-		& playlist.js & & \\
-		\hline \multirow{2}{*}{\textbf{Mando}} & remote.php & control.php & \\
-		& remote.js & & \\
-		\hline \textbf{Energía} & & control.php & \\
-		\hline \textbf{Base de datos} & & & database.php \\
-		\hline \textbf{Demonio} & & & driver.php \\
-		\hline \textbf{Sesión} & & & session.php \\
-		\hline \textbf{Traducción} & & & translator.php \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:archivos_manager} Relación de módulos en el administrador.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Módulo}} & \multicolumn{1}{c|}{\textbf{Vista}} & \multicolumn{1}{c|}{\textbf{Controlador}} & \multicolumn{1}{c|}{\textbf{Modelo}} \\ 
+			\hline \multirow{2}{*}{\textbf{Portada}} & index.php & control.php & \\
+			& index.js & & \\
+			\hline \multirow{4}{*}{\textbf{Reproductor}} & player.php & control.php & \\
+			& player.js & pause.php & \\
+			& & resume.php & \\
+			& & stop.php & \\
+			\hline \multirow{2}{*}{\textbf{Listas}} & playlists.php & control.php & \\
+			& playlists.js & & \\
+			\hline \multirow{2}{*}{\textbf{Piezas}} & playlist.php & control.php & \\
+			& playlist.js & & \\
+			\hline \multirow{2}{*}{\textbf{Mando}} & remote.php & control.php & \\
+			& remote.js & & \\
+			\hline \textbf{Energía} & & control.php & \\
+			\hline \textbf{Base de datos} & & & database.php \\
+			\hline \textbf{Demonio} & & & driver.php \\
+			\hline \textbf{Sesión} & & & session.php \\
+			\hline \textbf{Traducción} & & & translator.php \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:archivos_admin} Relación de módulos en el administrador.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -1968,21 +1990,24 @@ Además hemos añadido los siguientes archivos de soporte:
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|l|}
-		\hline \multicolumn{1}{|c|}{\textbf{Recurso}} & \multicolumn{1}{c|}{\textbf{Archivos}}  \\ 
-		\hline Plantillas HTML & templates.php \\
-		\hline Constantes & values.php \\
-		\hline Hoja de estilos & styles.css \\
-		\hline \multirow{3}{*}{Traducciones} & english.xml \\
-		& italian.xml \\
-		& spanish.xml \\
-		\hline Base de datos & organo.sql \\
-		\hline 
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:archivos_manager} Archivos de soporte al administrador.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|l|}
+			\hline \multicolumn{1}{|c|}{\textbf{Recurso}} & \multicolumn{1}{c|}{\textbf{Archivos}}  \\ 
+			\hline Plantillas HTML & templates.php \\
+			\hline Constantes & values.php \\
+			\hline Hoja de estilos & styles.css \\
+			\hline \multirow{3}{*}{Traducciones} & english.xml \\
+			& italian.xml \\
+			& spanish.xml \\
+			\hline Base de datos & organo.sql \\
+			\hline 
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:archivos_manager} Archivos de soporte al administrador.}
+	\end{center}
+\end{table}
+
 
 \smallskip
 
@@ -1991,7 +2016,7 @@ Además hemos añadido los siguientes archivos de soporte:
 Agrupamos todos los módulos y contamos las líneas de código para conocer la relación entre los 10 lenguajes utilizados y el grosor de cada uno de los tres bloques principales. Del código fuente no hemos tenido en cuenta las líneas vacías:
 
 \smallskip
-
+\begin{table} [H]
 \begin{center}
 	\begin{tabular}{|l|r|r|r|r|}
 		\hline & \textbf{Controlador} & \textbf{Administrador} & \textbf{Prototipos} & \textbf{Total} \\ 
@@ -2009,9 +2034,9 @@ Agrupamos todos los módulos y contamos las líneas de código para conocer la r
 		\hline 
 	\end{tabular}
 	\smallskip
-	\captionof{table}{\label{tab:lineas} Recuento de líneas de código.}
+	\caption{\label{tab:lineas} Recuento de líneas de código.}
 \end{center}
-
+\end{table}
 \smallskip
 
 Esta información se representa gráficamente de la siguiente manera:
