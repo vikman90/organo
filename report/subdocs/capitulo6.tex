@@ -3,7 +3,7 @@
 
 \begin{quote}
 	\begin{flushright}
-		\small ''\textit{Pon el programa a funcionar, y que Dios nos pille confesados.}'' \\
+		\small ``\textit{Pon el programa a funcionar, y que Dios nos pille confesados.}'' \\
 		--- Profesor Salvador Villena Morales (2013).
 	\end{flushright}
 \end{quote}
@@ -177,9 +177,9 @@ Hemos medido 5 veces el tiempo de análisis de \textbf{10 partituras}, con el si
 
 \smallskip
 
-Podemos comprobar que el tiempo de análisis es bastante aceptable, manteniendo tiempos del orden de 100 \textit{ms}. Las cuatro primeras partituras son de \textbf{creación propia}, el peor caso es ''Super Mario (1)'', que tarda 27 \textit{ms}. La \textbf{ejecución más veloz} ha sido la de ''Beethoven'', con 4,62 \textit{ms}.
+Podemos comprobar que el tiempo de análisis es bastante aceptable, manteniendo tiempos del orden de 100 \textit{ms}. Las cuatro primeras partituras son de \textbf{creación propia}, el peor caso es ``Super Mario (1)'', que tarda 27 \textit{ms}. La \textbf{ejecución más veloz} ha sido la de ``Beethoven'', con 4,62 \textit{ms}.
 
-El resto de piezas forman parte de la batería de pruebas y no se utilizarán finalmente. El archivo ''Canyon'' representa un \textbf{valor atípico} con un tiempo de 700 \textit{ms}. Se trata de una antigua demostración de \acrshort{MIDI} para \textit{Windows 98}, contiene 7 pistas y una serie de \textbf{complejas instrucciones} que no utilizaremos en un funcionamiento normal.
+El resto de piezas forman parte de la batería de pruebas y no se utilizarán finalmente. El archivo ``Canyon'' representa un \textbf{valor atípico} con un tiempo de 700 \textit{ms}. Se trata de una antigua demostración de \acrshort{MIDI} para \textit{Windows 98}, contiene 7 pistas y una serie de \textbf{complejas instrucciones} que no utilizaremos en un funcionamiento normal.
 
 \smallskip
 
@@ -238,16 +238,18 @@ Los datos más relevantes son los siguientes:
 
 \smallskip
 
-\begin{center}
-	\begin{tabular}{|l|r|r|}
-		\hline & \textbf{Prototipo} & \textbf{Final} \\ 
-		\hline \textbf{Peor caso} & $1401 \; \mu s$ & $977 \; \mu s$ \\
-		\hline \textbf{Media} & $973 \; \mu s$ & $738 \; \mu s$ \\
-		\hline
-	\end{tabular}
-	\smallskip
-	\captionof{table}{\label{tab:lat_gpio} Latencia de la salida al GPIO.}
-\end{center}
+\begin{table}[H]
+	\begin{center}
+		\begin{tabular}{|l|r|r|}
+			\hline & \textbf{Prototipo} & \textbf{Final} \\ 
+			\hline \textbf{Peor caso} & $1401 \; \mu s$ & $977 \; \mu s$ \\
+			\hline \textbf{Media} & $973 \; \mu s$ & $738 \; \mu s$ \\
+			\hline
+		\end{tabular}
+		\smallskip
+		\caption{\label{tab:lat_gpio} Latencia de la salida al GPIO.}
+	\end{center}
+\end{table}
 
 \smallskip
 
@@ -292,7 +294,7 @@ Ya que ésta es una aplicación de usuario, desplegaremos las pruebas típicas d
 \bigskip
 
 \begin{quote}
-	\small \flushright ''\textit{Haced los programas como si el usuario tratara el teclado a patadas.}'' \\
+	\small \flushright ``\textit{Haced los programas como si el usuario tratara el teclado a patadas.}'' \\
 	--- Profesor Joaquín Fernández Valdivia (2009).
 \end{quote}
 
@@ -458,11 +460,11 @@ A continuación presentamos las \textbf{incidencias} que hemos encontrado:
 
 \begin{enumerate}
 	\item La página \textbf{no es compatible} con Internet Explorer, por su escaso soporte de \acrshort{CSS}.
-	\item En Edge, sin embargo, funciona todo excepto ''arrastrar y soltar''.
-	\item En Ubuntu tampoco funciona la función ''arrastrar y soltar'', por un \textbf{\textit{bug} en Unity} \cite{unity_bug}.
+	\item En Edge, sin embargo, funciona todo excepto ``arrastrar y soltar''.
+	\item En Ubuntu tampoco funciona la función ``arrastrar y soltar'', por un \textbf{\textit{bug} en Unity} \cite{unity_bug}.
 	\item Safari no soporta la \textbf{validación de formulario} (permite introducir campos en blanco), aunque sigue apareciendo el error del controlador.
-	\item Safari tampoco permite \textbf{descargar} un \acrshort{MIDI} haciendo clic directamente, si no hay un reproductor compatible. En cambio, se puede hacer seleccionando ''Guardar enlace como...''
-	\item No hemos podido verificar la función ''arrastrar y soltar'' en Android.
+	\item Safari tampoco permite \textbf{descargar} un \acrshort{MIDI} haciendo clic directamente, si no hay un reproductor compatible. En cambio, se puede hacer seleccionando ``Guardar enlace como...''
+	\item No hemos podido verificar la función ``arrastrar y soltar'' en Android.
 \end{enumerate}
 
 A pesar de los problemas encontrados, exceptuando Internet Explorer, en el resto de sistemas la aplicación es totalmente \textbf{funcional y estética}. 
@@ -517,7 +519,7 @@ De acuerdo a la especificación, la \acrshort{PCB} alimenta al \textit{Raspberry
 
 \smallskip
 
-Cuando conectamos la fuente de alimentación, el \textit{Raspberry Pi} arranca automáticamente hasta que aparece ''DETENIDO'' en el \acrshort{LCD} del prototipo, que indica que la carga ha finalizado y el dispositivo está listo para funcionar.
+Cuando conectamos la fuente de alimentación, el \textit{Raspberry Pi} arranca automáticamente hasta que aparece ``DETENIDO'' en el \acrshort{LCD} del prototipo, que indica que la carga ha finalizado y el dispositivo está listo para funcionar.
 
 El módulo receptor del mando responde a todos los mandos sin necesidad de \textbf{registrarlos}, ya que envía el nº de serie al \textit{software}, y éste se encarga de gestionar la pulsación.
 
